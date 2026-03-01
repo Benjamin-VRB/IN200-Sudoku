@@ -1,6 +1,92 @@
 import math
 
-def compte_solutions (grille, nombre_de_valeur, limite=2):
+def compte_solution_V3(grille, nombre_de_valeur, limite = 2):
+    
+    # Booléens pour savoir si une valeur est utilisée
+    liste_ligne = [[True] * nombre_de_valeur for _ in range(nombre_de_valeur)]
+    liste_colonne = [[True] * nombre_de_valeur for _ in range(nombre_de_valeur)]
+    liste_carre = [[True] * nombre_de_valeur for _ in range(nombre_de_valeur)]
+    
+    racine = int(math.sqrt(nombre_de_valeur))
+    essaie = []  # liste des cases vides
+    compteur_de_solution = 0
+
+    # Initialisation
+    for ligne in range(nombre_de_valeur):
+        for colonne in range(nombre_de_valeur):
+            valeur = grille[ligne][colonne]
+            if valeur == 0:
+                essaie.append((ligne,colonne))
+            else:
+                indice_valeur = valeur - 1
+                liste_ligne[ligne][indice_valeur] = False
+                liste_colonne[colonne][indice_valeur] = False
+                liste_carre[(ligne // racine) * racine + (colonne // racine)][indice_valeur] = False
+
+    def solveur():
+        nonlocal compteur_de_solution
+
+        if compteur_de_solution >= limite:
+            return
+
+        if not essaie:  # plus de case à remplir
+            compteur_de_solution += 1
+            return
+
+        # MRV : choisir la case avec le moins de valeurs possibles
+        indice_min = -1
+        valeurs_possibles_min = []
+        nb_valeurs_min = nombre_de_valeur + 1
+
+        for idx, (ligne, colonne) in enumerate(essaie):
+            numero_carre = (ligne // racine) * racine + (colonne // racine)
+            
+            valeurs_possibles = []
+
+            for indice in range(nombre_de_valeur):
+                if liste_ligne[ligne][indice] and liste_colonne[colonne][indice] and liste_carre[numero_carre][indice]:
+                    valeurs_possibles.append(indice)
+            
+            nb_valeurs = len(valeurs_possibles)
+            
+            if nb_valeurs < nb_valeurs_min:
+                nb_valeurs_min = nb_valeurs
+                valeurs_possibles_min = valeurs_possibles
+                indice_min = idx
+            
+            if nb_valeurs == 1:
+                break  # optimisation
+
+        if nb_valeurs_min == 0:
+            return  # abandon
+
+        # Retirer la case choisie
+        ligne, colonne = essaie.pop(indice_min)
+        numero_carre = (ligne // racine) * racine + (colonne // racine)
+
+        for indice in valeurs_possibles_min:
+            # Marquer la valeur comme utilisée
+            liste_ligne[ligne][indice] = False
+            liste_colonne[colonne][indice] = False
+            liste_carre[numero_carre][indice] = False
+
+            solveur()  # récursion
+
+            # Backtracking
+            liste_ligne[ligne][indice] = True
+            liste_colonne[colonne][indice] = True
+            liste_carre[numero_carre][indice] = True
+
+            if compteur_de_solution >= limite:
+                break
+
+        # Réinsertion pour les appels supérieurs
+        essaie.insert(indice_min, (ligne, colonne))
+
+    solveur()
+    return compteur_de_solution
+
+def compte_solution_V2(grille, nombre_de_valeur, limite=2):
     ligne = [0] * nombre_de_valeur
     colonne = [0] * nombre_de_valeur
     carre = [0] * nombre_de_valeur
@@ -20,7 +106,7 @@ def compte_solutions (grille, nombre_de_valeur, limite=2):
 
     compteur_de_solution = 0
 
-    def solve ():
+    def solve():
         nonlocal compteur_de_solution
         
         if compteur_de_solution >= limite: # on a donc au moins 2 solution, on arrete
@@ -85,7 +171,7 @@ def est_valide(grille, ligne, colonne, valeur, nombre_de_valeur):
     ligne_0, colonne_0 = (ligne // int(math.sqrt(nombre_de_valeur))) * int(math.sqrt(nombre_de_valeur)), (colonne // int(math.sqrt(nombre_de_valeur))) * int(math.sqrt(nombre_de_valeur)) # Vérifie le carré 3x3
     return not any(grille[i][e] == valeur for i in range(ligne_0, ligne_0 + int(math.sqrt(nombre_de_valeur))) for e in range(colonne_0, colonne_0 + int(math.sqrt(nombre_de_valeur))))
 
-def compte_solutions(grille, nombre_de_valeur, limite=2):
+def compte_solution_V1(grille, nombre_de_valeur, limite=2):
     compteur = [0] # Compte le nombre de solutions, s'arrête dès qu'on atteint la limite
     def resoudre():  
         if compteur[0] >= limite:
