@@ -90,7 +90,7 @@ def supprimer_valeur(grille_complete, nombre_valeur_a_supprimer, nombre_de_valeu
     while nombre_case_supprime < nombre_valeur_a_supprimer:
         if not positions:
             # plus de positions → recommence avec nouvelle grille
-            if (nombre_case_supprime - nombre_valeur_a_supprimer) > 10:   
+            if (nombre_valeur_a_supprimer - nombre_case_supprime) > 5:   
                 return supprimer_valeur(remplir_grille(nombre_de_valeur), nombre_valeur_a_supprimer, nombre_de_valeur)
             else:
                 return grille_vider
