@@ -1,6 +1,6 @@
 import math
 
-def compte_solution_V3(grille, nombre_de_valeur, limite = 2):
+def compter_solution_V3(grille, nombre_de_valeur, limite = 2):
     
     # Booléens pour savoir si une valeur est utilisée
     liste_ligne = [[True] * nombre_de_valeur for _ in range(nombre_de_valeur)]
@@ -86,7 +86,7 @@ def compte_solution_V3(grille, nombre_de_valeur, limite = 2):
     solveur()
     return compteur_de_solution
 
-def compte_solution_V2(grille, nombre_de_valeur, limite=2):
+def compter_solution_V2(grille, nombre_de_valeur, limite=2):
     ligne = [0] * nombre_de_valeur
     colonne = [0] * nombre_de_valeur
     carre = [0] * nombre_de_valeur
@@ -171,7 +171,7 @@ def est_valide(grille, ligne, colonne, valeur, nombre_de_valeur):
     ligne_0, colonne_0 = (ligne // int(math.sqrt(nombre_de_valeur))) * int(math.sqrt(nombre_de_valeur)), (colonne // int(math.sqrt(nombre_de_valeur))) * int(math.sqrt(nombre_de_valeur)) # Vérifie le carré 3x3
     return not any(grille[i][e] == valeur for i in range(ligne_0, ligne_0 + int(math.sqrt(nombre_de_valeur))) for e in range(colonne_0, colonne_0 + int(math.sqrt(nombre_de_valeur))))
 
-def compte_solution_V1(grille, nombre_de_valeur, limite=2):
+def compter_solution_V1(grille, nombre_de_valeur, limite=2):
     compteur = [0] # Compte le nombre de solutions, s'arrête dès qu'on atteint la limite
     def resoudre():  
         if compteur[0] >= limite:
