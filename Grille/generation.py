@@ -1,18 +1,15 @@
 import random
 import copy
 import math
-from verification import compte_solution_V3
+from verification import compter_solution_V3
 
 dictionnaire_liste_ligne = {}
 dictionnaire_liste_colonne = {}
 dictionnaire_liste_carre = {}
 
-def generateur_liste_valeur (nombre_de_valeur):
-    liste=[[i] for i in range(nombre_de_valeur)]
-
-def generateur_grille_vide (nombre_de_valeur): 
+def generateur_grille_vide(nombre_de_valeur): 
     grille_vide = [[0] * nombre_de_valeur for i in range(nombre_de_valeur)]
-    return (grille_vide)
+    return(grille_vide)
 
 def initialiser_dictionnaires(nombre_de_valeur):
     racine = int(math.sqrt(nombre_de_valeur))
@@ -36,7 +33,7 @@ def initialiser_dictionnaires(nombre_de_valeur):
         for e in range(carre):
             dictionnaire_liste_carre[i][e] = list(range(1, nombre_de_valeur + 1))
 
-def grille_remplie(nombre_de_valeur):
+def remplir_grille(nombre_de_valeur):
     
     racine = int(math.sqrt(nombre_de_valeur))
     grille = generateur_grille_vide(nombre_de_valeur)
@@ -83,7 +80,7 @@ def grille_remplie(nombre_de_valeur):
     
     return (grille)
 
-def suppression_valeur(grille_complete, nombre_valeur_a_supprimer, nombre_de_valeur):
+def supprimer_valeur(grille_complete, nombre_valeur_a_supprimer, nombre_de_valeur):
     grille_vider = copy.deepcopy(grille_complete)
     positions = [(ligne, colonne) for ligne in range(nombre_de_valeur) for colonne in range(nombre_de_valeur)]
     random.shuffle(positions)
@@ -94,7 +91,7 @@ def suppression_valeur(grille_complete, nombre_valeur_a_supprimer, nombre_de_val
         if not positions:
             # plus de positions → recommence avec nouvelle grille
             if (nombre_case_supprime - nombre_valeur_a_supprimer) > 10:   
-                return suppression_valeur(grille_remplie(nombre_de_valeur), nombre_valeur_a_supprimer, nombre_de_valeur)
+                return supprimer_valeur(remplir_grille(nombre_de_valeur), nombre_valeur_a_supprimer, nombre_de_valeur)
             else:
                 return grille_vider
 
@@ -102,13 +99,13 @@ def suppression_valeur(grille_complete, nombre_valeur_a_supprimer, nombre_de_val
         valeur_originale = grille_vider[ligne][colonne]
         grille_vider[ligne][colonne] = 0
 
-        if compte_solution_V3(grille_vider, nombre_de_valeur) == 1:
+        if compter_solution_V3(grille_vider, nombre_de_valeur) == 1:
             nombre_case_supprime += 1
         else:
             grille_vider[ligne][colonne] = valeur_originale
 
     return grille_vider
 
-grille = grille_remplie(9)
+grille = remplir_grille(9)
 
-print (suppression_valeur(grille, 64, 9))
+print (supprimer_valeur(grille, 64, 9))
