@@ -65,6 +65,48 @@ def remplir_grille(nombre_de_valeur):
     
     return (grille)
 
-a = remplir_grille(10)
-for i in range(10):
-    print(a[i])
+def permuter_valeurs(grille):
+    n = len(grille)
+    for i in range(n):
+        nombre_de_doublons_ligne = random.randint(1, n // 3) # Choisis aléatoirement le nombre de doublons dans la liste
+        colonnes_disponibles = list(range(n)) # Liste permettant qu'une permutation ne se répète pas deux fois
+
+        for i in range(nombre_de_doublons_ligne):
+            if len(colonnes_disponibles) < 2:
+                break  
+
+            colonne_source = random.choice(colonnes_disponibles) # Choisir deux colonnes différentes
+            colonnes_disponibles.remove(colonne_source)
+            colonne_cible = random.choice(colonnes_disponibles)
+            colonnes_disponibles.remove(colonne_cible)
+            grille[i][colonne_cible] = grille[i][colonne_source] # Permuter les valeurs
+
+        nombre_de_doublons_colonne = random.randint(1, n // 3) # Choisis aléatoirement le nombre de doublons dans la liste
+        lignes_disponibles = list(range(n)) # Liste permettant qu'une permutation ne se répète pas deux fois
+
+        for i in range(nombre_de_doublons_colonne):
+            if len(lignes_disponibles) < 2:
+                break  
+
+            ligne_source = random.choice(lignes_disponibles) # Choisir deux colonnes différentes
+            lignes_disponibles.remove(ligne_source)
+            ligne_cible = random.choice(lignes_disponibles)
+            lignes_disponibles.remove(ligne_cible)
+            grille[i][ligne_cible] = grille[i][ligne_source] # Permuter les valeurs
+
+    return grille
+
+def compter_solution(grille):
+    n = len(grille)
+    liste_doublons = []
+    for i in range(0, n):
+        for j in range(0, n):
+            for k in range(0, n):
+                if grille[i][j] == grille[i][k]:
+                    liste_doublons.append(((i, j), (i, k)))
+
+    for i in range(0, n):
+        for j in range(0, n):
+            for k in range(0, n):
+                if grille[j][i] == grille[k][i]:
+                    liste_doublons.append(((j, i), (k, i)))
