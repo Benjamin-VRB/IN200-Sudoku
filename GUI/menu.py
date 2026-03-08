@@ -4,8 +4,8 @@ from GUI.fenetre import racine, LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
 #from GUI.sudoku import aller_sudoku
 from GUI.stats import aller_stats
 from GUI.credits import aller_credits
-from GUI.widgets import creer_boutton
-from GUI.animations import mouvement_interieur_fond_menu, survole_non_survole
+from GUI.widgets import creer_boutton, survole_non_survole
+from GUI.animations import mouvement_interieur_fond_menu
 
 
 def aller_menu() -> tk.Canvas:

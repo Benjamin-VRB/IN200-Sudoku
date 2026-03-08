@@ -1,8 +1,8 @@
 import tkinter as tk
 
 from GUI.fenetre import LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
-from GUI.widgets import creer_boutton
-from GUI.animations import survole_non_survole, retour_menu, mouvement_exterieur_fond_menu
+from GUI.widgets import creer_boutton, survole_non_survole
+from GUI.animations import retour_menu, mouvement_exterieur_fond_menu
 
 
 def aller_credits(canvas: tk.Canvas) -> None:

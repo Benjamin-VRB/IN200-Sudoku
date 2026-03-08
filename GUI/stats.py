@@ -1,8 +1,8 @@
 import tkinter as tk
 
 from GUI.fenetre import LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
-from GUI.widgets import creer_boutton
-from GUI.animations import survole_non_survole, mouvement_exterieur_fond_menu, retour_menu
+from GUI.widgets import creer_boutton, survole_non_survole
+from GUI.animations import mouvement_exterieur_fond_menu, retour_menu
 
 
 def aller_stats(canvas: tk.Canvas) -> None:
