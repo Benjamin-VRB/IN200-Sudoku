@@ -22,7 +22,7 @@ def aller_credits(canvas: tk.Canvas) -> None:
     # texte / titre
     POLICE: str = "Bell MT"
 
-    PARAMS_TEXT: dict[str, str | int | tuple] = {
+    PARAMS_TEXT: dict[str, str] = {
         "anchor" : tk.CENTER, 
         "fill" : "#ffffff",  
         "tags" : TAG
@@ -70,16 +70,16 @@ def aller_credits(canvas: tk.Canvas) -> None:
         "couleur_bordure_surv" : "#454545"
     }
 
-    TAG_BOUTON: str = "bouton_credits_retour"
+    TAG_RETOUR: str = "bouton_credits_retour"
 
     fond_retour, bordure_retour =  \
-        creer_boutton(canvas, coord=(X_BOUTON, Y_BOUTON), tag=TAG_BOUTON, 
+        creer_boutton(canvas, coord=(X_BOUTON, Y_BOUTON), tag=TAG_RETOUR, 
                     texte="Retour", largeur=LARGEUR_BOUTON, hauteur=HAUTEUR_BOUTON,  
                     police=("Cooper Black", 16), epaisseur_bordure=2, 
                     **COULEUR_BOUTON)[:-1]
     
-    survole_non_survole(canvas, tag=TAG_BOUTON, fond=fond_retour, 
+    survole_non_survole(canvas, tag=TAG_RETOUR, fond=fond_retour, 
                         bordure=bordure_retour, **(COULEUR_BOUTON | COULEURS_SURVOLE))
     
-    canvas.tag_bind(TAG_BOUTON, "<Button-1>", 
-                lambda event: retour_menu(canvas, tags_suppr=[TAG, TAG_BOUTON]))
+    canvas.tag_bind(TAG_RETOUR, "<Button-1>", 
+                lambda event: retour_menu(canvas, TAG, TAG_RETOUR))

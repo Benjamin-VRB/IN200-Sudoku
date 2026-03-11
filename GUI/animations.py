@@ -7,7 +7,7 @@ def mouvement_interieur_fond_menu(canvas: tk.Canvas, iteration: int = 1) -> None
     """
     Déplace le fond du menu, le titre ainsi que les boutons vers l'intérieur de la fenêtre
     """
-    hauteur_titre: int = canvas.bbox("sudoku")[3] - canvas.bbox("sudoku")[1]
+    hauteur_titre: int = canvas.bbox("titre_menu")[3] - canvas.bbox("titre_menu")[1]
     distance_finale_titre: int = (HAUTEUR_PIXEL_FENETRE + hauteur_titre) / 2
     DISTANCE_FINALE_FOND: int = LARGEUR_PIXEL_FENETRE / 4 + 100
     DISTANCE_FINALE_BOUTON: int = 350
@@ -18,7 +18,7 @@ def mouvement_interieur_fond_menu(canvas: tk.Canvas, iteration: int = 1) -> None
     canvas.move("fond_orange", -DISTANCE_FINALE_FOND / NB_ITERATION, 0)
     
     # titre
-    canvas.move("sudoku", 0, distance_finale_titre / NB_ITERATION)
+    canvas.move("titre_menu", 0, distance_finale_titre / NB_ITERATION)
    
     # boutons
     canvas.move("bouton_perso", DISTANCE_FINALE_BOUTON / NB_ITERATION, 0)
@@ -38,7 +38,7 @@ def mouvement_exterieur_fond_menu(canvas: tk.Canvas, instantane: bool = True,
     """
     Déplace le fond du menu, le titre ainsi que les boutons vers l'extérieur de la fenêtre
     """
-    hauteur_titre: int = canvas.bbox("sudoku")[3] - canvas.bbox("sudoku")[1]
+    hauteur_titre: int = canvas.bbox("titre_menu")[3] - canvas.bbox("titre_menu")[1]
     distance_finale_titre: int = (HAUTEUR_PIXEL_FENETRE + hauteur_titre) / 2
     DISTANCE_FINALE_FOND: int = LARGEUR_PIXEL_FENETRE / 4 + 100
     DISTANCE_FINALE_BOUTON: int = 350
@@ -52,7 +52,7 @@ def mouvement_exterieur_fond_menu(canvas: tk.Canvas, instantane: bool = True,
     canvas.move("fond_orange", DISTANCE_FINALE_FOND / nb_iteration, 0)
 
     # titre
-    canvas.move("sudoku", 0, -distance_finale_titre / nb_iteration)
+    canvas.move("titre_menu", 0, -distance_finale_titre / nb_iteration)
 
     # boutons
     canvas.move("bouton_perso", -DISTANCE_FINALE_BOUTON / nb_iteration, 0)
@@ -67,10 +67,10 @@ def mouvement_exterieur_fond_menu(canvas: tk.Canvas, instantane: bool = True,
         canvas.after(temps_attente, mouvement_exterieur_fond_menu, *[canvas, False, iteration + 1])
     
 
-def retour_menu(canvas: tk.Canvas, tags_suppr: list[str]) -> None:
+def retour_menu(canvas: tk.Canvas, *tags_or_ids: str | int) -> None:
     """
     Retourne au menu en supprimant les éléments de l'interface qu'on désire quitter et en 
     actionnant l'animation du menu
     """
-    canvas.delete(*tags_suppr)
+    canvas.delete(*tags_or_ids)
     mouvement_interieur_fond_menu(canvas)

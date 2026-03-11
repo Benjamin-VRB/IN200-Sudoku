@@ -90,7 +90,7 @@ def survole_non_survole(canvas: tk.Canvas, tag: str, fond: list[int], bordure: l
                                                    couleur_bordure=couleur_bordure))
 
 
-def desactiver_widget(canvas: tk.Canvas, tags_or_ids: list[str]) -> None:
+def desactiver_widget(canvas: tk.Canvas, *tags_or_ids: str | int) -> None:
     """
     Desactive les interactions avec les widgets indiqués
     """
@@ -98,7 +98,7 @@ def desactiver_widget(canvas: tk.Canvas, tags_or_ids: list[str]) -> None:
         canvas.itemconfig(tag_or_id, state=tk.DISABLED)
 
 
-def activer_widget(canvas: tk.Canvas, tags_or_ids: list[str]) -> None:
+def activer_widget(canvas: tk.Canvas, *tags_or_ids: str | int) -> None:
     """
     Active les interactions avec les widgets indiqués
     """
