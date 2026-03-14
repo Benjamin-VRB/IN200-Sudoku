@@ -113,4 +113,5 @@ def verifier_unicite_kenken(dimension, cages, limite=2):
     solveur()
     return compteur_de_solution
 
-a = 1
+
+# on peut encore optimiser le solveur
