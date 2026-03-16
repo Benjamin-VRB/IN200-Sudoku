@@ -375,13 +375,4 @@ def print_kakuro(grid, horizontal_sums, vertical_sums):
         print(line)
     print()
 
-# --- Exemple d'utilisation ---
-rows, cols = 5, 5
-solution, h_sums, v_sums = generate_kakuro(rows, cols)
-
-print("Solution complète:")
-for row in solution:
-    print(row)
-
-print("\nKakuro avec indices:")
-print_kakuro(solution, h_sums, v_sums)
+print(supprimer_valeur(remplir_grille(4), 5, 4))
