@@ -1,11 +1,11 @@
 import random
 import copy
 import math
-from verification import compter_solution_V3
-from verification import compter_solution_kakuro
-from verification import valider_masque_kakuro
-from verification import trouver_groupes_horizontaux_kakuro
-from verification import trouver_groupes_verticaux_kakuro
+from Grille.verification import compter_solution_V3
+from Grille.verification import compter_solution_kakuro
+from Grille.verification import valider_masque_kakuro
+from Grille.verification import trouver_groupes_horizontaux_kakuro
+from Grille.verification import trouver_groupes_verticaux_kakuro
 
 dictionnaire_liste_ligne = {}
 dictionnaire_liste_colonne = {}
@@ -374,14 +374,3 @@ def print_kakuro(grid, horizontal_sums, vertical_sums):
                     line += ".\t"
         print(line)
     print()
-
-# --- Exemple d'utilisation ---
-rows, cols = 5, 5
-solution, h_sums, v_sums = generate_kakuro(rows, cols)
-
-print("Solution complète:")
-for row in solution:
-    print(row)
-
-print("\nKakuro avec indices:")
-print_kakuro(solution, h_sums, v_sums)
