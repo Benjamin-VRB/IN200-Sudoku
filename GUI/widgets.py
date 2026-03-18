@@ -284,9 +284,9 @@ def creer_case(canvas: tk.Canvas, tag: str, coord: tuple[int],
 
 
 def creer_grille_sudoku(canvas: tk.Canvas, tag: str, coord: tuple[int], nb_case_cote: int, 
-                        longueur_cote_case: int, nb_carre_cote: int) -> tuple[list[int]]:
+                        longueur_cote_case: int, nb_carre_cote: int) -> tuple[list[int] | list[tuple[int]]]:
     
-    cases: list[int] = []
+    cases: list[tuple[int]] = []
     for rangee in range(nb_case_cote):
         for colonne in range(nb_case_cote):
             x_case: int = coord[0] + colonne * longueur_cote_case
@@ -324,6 +324,17 @@ def creer_grille_sudoku(canvas: tk.Canvas, tag: str, coord: tuple[int], nb_case_
     return (cases, carres)
 
 
-
-
+def remplir_grille_sudoku_GUI(canvas: tk.Canvas, cases: list[tuple[int]], 
+                              grille_valeur: list[list[int]]) -> None:
+    
+    COULEUR_CASE_REMPLIE: str = "#F0F0F0"
+    for rangee in range(len(grille_valeur)):
+        for colonne in range(len(grille_valeur[0])):
+            if grille_valeur[rangee][colonne] != 0:
+                case: tuple[int] = cases[rangee * len(grille_valeur[0]) + colonne]
+                case_vide: int = case[0]
+                texte: int = case[1]
+                desactiver_widget(canvas, case_vide, texte)
+                canvas.itemconfig(tagOrId=case_vide, fill=COULEUR_CASE_REMPLIE)
+                canvas.itemconfig(tagOrId=texte, text=grille_valeur[rangee][colonne])
     

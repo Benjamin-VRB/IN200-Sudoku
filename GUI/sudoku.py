@@ -3,7 +3,9 @@ import tkinter as tk
 
 from GUI.fenetre import LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
 from GUI.animations import mouvement_exterieur_fond_menu, retour_menu
-from GUI.widgets import creer_grille_sudoku, creer_boutton, survole_non_survole
+from GUI.widgets import creer_grille_sudoku, creer_boutton, survole_non_survole, remplir_grille_sudoku_GUI
+
+from Grille.generation import remplir_grille, supprimer_valeur
 
 
 def aller_sudoku(canvas: tk.Canvas) -> None:
@@ -19,8 +21,14 @@ def aller_sudoku(canvas: tk.Canvas) -> None:
     
     X_GRILLE: int = (LARGEUR_PIXEL_FENETRE - LONGUEUR_COTE_GRILLE) // 2
     Y_GRILLE: int = (HAUTEUR_PIXEL_FENETRE - LONGUEUR_COTE_GRILLE) // 2
-    creer_grille_sudoku(canvas, tag=TAG, coord=(X_GRILLE, Y_GRILLE), nb_case_cote=NB_CASE_COTE, 
-                        longueur_cote_case=LONGUEUR_COTE_CASE, nb_carre_cote=NB_CARRE_COTE)
+
+    grille: tuple[list[int] | list[tuple[int]]] = \
+        creer_grille_sudoku(canvas, tag=TAG, coord=(X_GRILLE, Y_GRILLE), nb_case_cote=NB_CASE_COTE, 
+                            longueur_cote_case=LONGUEUR_COTE_CASE, nb_carre_cote=NB_CARRE_COTE)
+    grille_valeur_remplie = remplir_grille(dimension=NB_CASE_COTE)
+    grille_valeur: list[list[int]] = supprimer_valeur(grille_complete=grille_valeur_remplie, 
+                                                      nombre_valeur_a_supprimer=24, dimension=NB_CASE_COTE)
+    remplir_grille_sudoku_GUI(canvas, cases=grille[0], grille_valeur=grille_valeur)
     
     PARAMS_BOUTON: dict[str, int | str | tuple] = {
         "largeur" : 200,
@@ -31,13 +39,13 @@ def aller_sudoku(canvas: tk.Canvas) -> None:
     }
 
     COULEURS_BOUTON: dict[str, str] = {
-        "couleur_fond" : "#E9E5DE",
-        "couleur_bordure" : "#F4EFE4"
+        "couleur_fond" : "#E0D4C1",
+        "couleur_bordure" : "#E9E0CE"
     }
     
     COULEURS_SURVOLE: dict[str, str] = {
-        "couleur_fond_surv" : "#C7C3BE",
-        "couleur_bordure_surv" : "#AFAAA3"
+        "couleur_fond_surv" : "#BEB2A4",
+        "couleur_bordure_surv" : "#A89E90"
     }
 
     ECART_RANGEE: int = PARAMS_BOUTON["hauteur"] + 100
