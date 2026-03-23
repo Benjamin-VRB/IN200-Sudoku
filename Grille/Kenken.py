@@ -1,5 +1,5 @@
 import random
-import vérification_Kenken
+import verification_kenken
 
 dictionnaire_liste_ligne = {}
 dictionnaire_liste_colonne = {}
@@ -153,7 +153,7 @@ def générer_grille_KenKen(taille, max_case):
 
 a = générer_grille_KenKen(6, 4)
 
-while vérification_Kenken.verifier_unicite_kenken(6, cages_finales, limite=2) != 1:
+while verification_kenken.verifier_unicite_kenken(6, cages_finales, limite=2) != 1:
     a = générer_grille_KenKen(6, 4)
 
 print(a)

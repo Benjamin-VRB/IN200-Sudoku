@@ -27,7 +27,7 @@ def aller_sudoku(canvas: tk.Canvas) -> None:
                             longueur_cote_case=LONGUEUR_COTE_CASE, nb_carre_cote=NB_CARRE_COTE)
     grille_valeur_remplie = remplir_grille(dimension=NB_CASE_COTE)
     grille_valeur: list[list[int]] = supprimer_valeur(grille_complete=grille_valeur_remplie, 
-                                                      nombre_valeur_a_supprimer=24, dimension=NB_CASE_COTE)
+                                                      nombre_valeur_a_supprimer=60, dimension=NB_CASE_COTE)
     remplir_grille_sudoku_GUI(canvas, cases=grille[0], grille_valeur=grille_valeur)
     
     PARAMS_BOUTON: dict[str, int | str | tuple] = {
