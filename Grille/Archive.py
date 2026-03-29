@@ -1,3 +1,5 @@
+import math
+from Grille.verification import est_valide
 
 def compter_solution_V2(grille : list[list:int], dimension : int, limite : int=2):
     ligne = [0] * dimension
