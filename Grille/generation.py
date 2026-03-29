@@ -194,7 +194,7 @@ def remplir_grille_V2(dimension : int):
         return grille
     else:
         return None
-
+""""
 def remplir_grille(dimension : int):
     
     racine = int(math.sqrt(dimension))
@@ -241,7 +241,7 @@ def remplir_grille(dimension : int):
                 colonne += 1
     
     return (grille)
-
+"""
 def supprimer_valeur(grille_complete : list[list:int], nombre_valeur_a_supprimer : int, dimension : int):
     """
     Transforme notre grille pleine en un sudoku à remplir.
