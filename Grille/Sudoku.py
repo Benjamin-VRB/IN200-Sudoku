@@ -205,5 +205,4 @@ def supprimer_valeur(nombre_valeur_a_supprimer : int, dimension : int):
 
     return grille_vidée
 
-a = supprimer_valeur(60, 9)
-print(a)
+print(supprimer_valeur(60, 9))
