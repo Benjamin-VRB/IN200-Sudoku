@@ -72,6 +72,14 @@ def remplir_grille(nombre_de_valeur):
 
 
 def generer_cages_remplies(grille, taille_min=2, taille_max=10):
+    """Fonction qui génère aléatoirement des "cages" dans la grille de Sudoku générée précedemment.
+    
+    Entrée:
+        Grille de sudoku générée, la taille minimale des cages, et la taille maximale des cages.
+        
+    Sortie:
+        Liste contenant la liste de toutes les cases de chaque cages"""
+    
     n = len(grille)
     cases_disponibles = [(i,j) for i in range(n) for j in range(n)]  # Liste de toutes les cases de la grille sous forme de tuples.
     random.shuffle(cases_disponibles)       # Mélange de ces cases pour en prendre une aléatoirement après.
@@ -99,7 +107,7 @@ def generer_cages_remplies(grille, taille_min=2, taille_max=10):
                 break
             nouveau = random.choice(voisins)   # on choisit un voisin aléatoirement parmis ceux disponibles.
             cage.append(nouveau)  # On l'ajoute à la cage 
-            cases_disponibles.remove(nouveau) #puis on le supprime de la liste des cases disponibles
+            cases_disponibles.remove(nouveau) # puis on le supprime de la liste des cases disponibles
 
         cages.append(cage)
 
@@ -109,7 +117,18 @@ def generer_cages_remplies(grille, taille_min=2, taille_max=10):
 
 
 
-def générer_grille_KenKen(taille, max_case):
+def générer_grille_KenKen(taille : int, max_case : int):
+    """Fonction qui génère une grille de Kenken complète avec les gages munies de leur opération et du 
+    résultat de cette opération.
+    
+    Entrée:
+        Taille de la grille qu'il faut générer et le maximum de cases à mettre par cages.
+        
+    Sortie:
+        Grille générée + Dictionnaire dont les clés sont le numéros des cages et dont les valeurs sont un dictionnaire 
+        contenant toutes les informations de la cages (opérations, résultats, cages concernées)."""
+
+
     global cages_finales
     while True:
         grille = remplir_grille(taille)  
@@ -164,6 +183,14 @@ def générer_grille_KenKen(taille, max_case):
 
 
 def verifier_unicite_kenken(dimension, cages, limite=2):
+    """Fonction qui compte le nombre de solutions de ma grille de Kenken.
+    
+    Entrée:
+        Dimensions de la grille à étudier, dictionnaire contenant les cages et limite du nombre de 
+        solutions à ne pas atteindre.
+        
+    Sortie:
+        Renvoie True si le compteur est egal à 1 et False sinon."""
 
     compteur_de_solution = 0
 
@@ -175,7 +202,14 @@ def verifier_unicite_kenken(dimension, cages, limite=2):
     essaie = [(i,j) for i in range(dimension) for j in range(dimension)]  # création s'une matrice d'essais...
 
 
-    def verifier_cage(cage):      # Fonction qui teste les opérations dans les cages.
+    def verifier_cage(cage):
+        """Fonction qui vérifie les opéraions dans les cages
+        
+        Entrée:
+            dictionnaire contenant les informations d'UNE cage.
+            
+        Sortie:
+            Renvoie True si les valeurs rentrée vérifient bien le résultat et l'opération et False sinon."""
 
         operation = cage["opération"]
         resultat = cage["résultat"]
@@ -206,15 +240,19 @@ def verifier_unicite_kenken(dimension, cages, limite=2):
             return max(a,b) // min(a,b) == resultat
 
 
-    def cages_valides():   # Fonction qui vérifie vérifie la validité des cages.
-
+    def cages_valides():
+        """Fonction qui vérifie la validité des cages dans tous le dictionnaire contenant les infos.
+        --> Renvoie True si toutes les cages sont valides et False sinon."""
         for cage in cages.values():
             if not verifier_cage(cage):
                 return False
         return True
 
 
-    def solveur():        # Fonction qui compte le nombre de solutions de la grille générée
+    def solveur():
+        """Fonction qui compte le nombre de solutions d'une grille.
+        Cette fonction incrémente un compteur qui est une variable nonlocal
+        Elle ne renvoie rien."""
         nonlocal compteur_de_solution
 
         if compteur_de_solution >= limite: # Si la limite (de deux solutions) et atteinte, on s'arrête.
@@ -276,7 +314,7 @@ def verifier_unicite_kenken(dimension, cages, limite=2):
 
 
     solveur()
-    return compteur_de_solution
+    return compteur_de_solution == 1
 
 
 
@@ -285,11 +323,18 @@ def verifier_unicite_kenken(dimension, cages, limite=2):
 
 
 def retourner_infos(dimensions):
+    """Fonction qui génère et affiche une les infos d'une grille de Kenken.
+    
+    Entrée:
+        Dimensions de la grille que l'on veut générer.
+    
+    sortie:
+        Grille générée + dictionnaire contenant les infos de la grille."""
 
     a = générer_grille_KenKen(dimensions, 4)
-    while verifier_unicite_kenken(dimensions, cages_finales, limite=2) != 1:
+    while not verifier_unicite_kenken(dimensions, cages_finales, limite=2):
         a = générer_grille_KenKen(dimensions, 4)
     print(a)
 
 
-retourner_infos(6)
+retourner_infos(5)
