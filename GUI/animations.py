@@ -67,7 +67,7 @@ def mouvement_exterieur_fond_menu(canvas: tk.Canvas, instantane: bool = True,
         canvas.after(temps_attente, mouvement_exterieur_fond_menu, *[canvas, False, iteration + 1])
     
 
-def retour_menu(canvas: tk.Canvas, *tags_or_ids: str | int) -> None:
+def retour_menu(canvas: tk.Canvas, tags_or_ids: list[str | int]) -> None:
     """
     Retourne au menu en supprimant les éléments de l'interface qu'on désire quitter et en 
     actionnant l'animation du menu

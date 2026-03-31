@@ -65,7 +65,7 @@ def aller_menu() -> tk.Canvas:
                         tags=TAG_FOND_DROITE)
     
     # boutons
-    PARAMS_BOUTON: dict[str, int | tuple] = {
+    PARAMS_BOUTON: dict[str, int | tuple[str, int]] = {
             "largeur" : 300,
             "hauteur" : 124,
             "police" : ("Cooper Black", 16),

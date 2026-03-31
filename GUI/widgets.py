@@ -1,13 +1,13 @@
 import tkinter as tk
 
-from GUI.fenetre import LARGEUR_PIXEL_FENETRE
+from GUI.fenetre import LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
 
 
-def creer_boutton(canvas: tk.Canvas, coord: tuple[int], tag: str, largeur: int = 200, 
-        hauteur: int = 100, texte: str = "", couleur_fond: str = "#ffffff", 
-        couleur_texte: str = "#ffffff", epaisseur_bordure: int= 5, 
-        couleur_bordure: str = "#000000", police: tuple[str | int] = ("Arial", 11)
-        ) -> tuple[list[int] | int]:
+def creer_boutton(canvas: tk.Canvas, coord: tuple[int, int], tag: str, 
+                  largeur: int = 200, hauteur: int = 100, texte: str = "", 
+                  couleur_fond: str = "#ffffff", couleur_texte: str = "#ffffff", 
+                  epaisseur_bordure: int= 5, couleur_bordure: str = "#000000", 
+                  police: tuple[str | int, ...] = ("Arial", 11)) -> tuple[list[int], list[int], int]:
     """
     Crée un bouton sur le canvas 
     """
@@ -92,48 +92,50 @@ def survole_non_survole(canvas: tk.Canvas, tag: str, fond: list[int], bordure: l
                                                    couleur_bordure=couleur_bordure))
 
 
-def desactiver_widget(canvas: tk.Canvas, *tags_or_ids: str | int) -> None:
+def desactiver_widget(canvas: tk.Canvas, tags_or_ids: list[str | int]) -> None:
     """
     Desactive les interactions avec les widgets indiqués
     """
     for tag_or_id in tags_or_ids:
-        canvas.itemconfig(tag_or_id, state=tk.DISABLED)
+        canvas.itemconfig(tagOrId=tag_or_id, state=tk.DISABLED)
 
 
-def activer_widget(canvas: tk.Canvas, *tags_or_ids: str | int) -> None:
+def activer_widget(canvas: tk.Canvas, tags_or_ids: list[str | int]) -> None:
     """
     Active les interactions avec les widgets indiqués
     """
     for tag_or_id in tags_or_ids:
-        canvas.itemconfig(tag_or_id, state=tk.NORMAL)
+        canvas.itemconfig(tagOrId=tag_or_id, state=tk.NORMAL)
 
 
-def reset_focus_cases(canvas: tk.Canvas, *cases: tuple[int]) -> None:
+def reset_focus_cases(canvas: tk.Canvas, cases: list[tuple[int, int]]) -> None:
 
     canvas.unbind_all(sequence="<KeyPress>")
     canvas.delete("clavier_num")
     for case in cases:
-        canvas.itemconfig(tagOrId=case[0], width=1, outline="#000000")
-        canvas.tag_lower(case[0])
+        case_vide: int = case[0]
+        canvas.itemconfig(tagOrId=case_vide, width=1, outline="#000000")
+        canvas.tag_lower(case_vide)
 
 
-def modifier_valeur_case_grille(event, canvas: tk.Canvas, case: tuple[int], 
+def modifier_valeur_case_grille(event, canvas: tk.Canvas, case: tuple[int, int], 
                          valeur_max: int) -> None:
     
     texte: int = case[1]
     nombre_actuel: str = canvas.itemcget(tagOrId=texte, option="text")
-    if event.char in "123456789" and int(nombre_actuel + event.char) <= valeur_max:
+    if len(event.char) > 0 and event.char in "123456789" and \
+        int(nombre_actuel + event.char) <= valeur_max:
         canvas.itemconfig(tagOrId=texte, text=nombre_actuel + event.char)
-    elif event.char == "0" and int(nombre_actuel + event.char) <= valeur_max \
-        and nombre_actuel != "":
-        canvas.itemconfig(tagOrId=texte, text=nombre_actuel + event.char)
-    elif event.keysym == "BackSpace" or event.keysym == "KP_Delete":
-        canvas.itemconfig(tagOrId=texte, text=nombre_actuel[:-1])
     elif event.keysym == "Return":
-        reset_focus_cases(canvas, case)
+        reset_focus_cases(canvas, cases=[case])
+    elif len(nombre_actuel) > 0:
+        if event.char == "0" and int(nombre_actuel + event.char) <= valeur_max:
+            canvas.itemconfig(tagOrId=texte, text=nombre_actuel + event.char)
+        elif event.keysym in ("BackSpace", "Delete"):
+            canvas.itemconfig(tagOrId=texte, text=nombre_actuel[:-1])
 
 
-def modifier_valeur_case_clavier_num(canvas: tk.Canvas, case: tuple[int], 
+def modifier_valeur_case_clavier_num(canvas: tk.Canvas, case: tuple[int, int], 
                                      valeur_max: int, valeur: str) -> None:
     
     texte: int = case[1]
@@ -147,14 +149,14 @@ def modifier_valeur_case_clavier_num(canvas: tk.Canvas, case: tuple[int],
         canvas.itemconfig(tagOrId=texte, text=nombre_actuel[:-1])
 
 
-def creer_clavier_numerique(canvas: tk.Canvas, coord: tuple[int], 
-                            largeur: int, hauteur: int, case: tuple[int], 
-                            valeur_max: int) -> None:
-    
+def creer_clavier_numerique(canvas: tk.Canvas, coord: tuple[int, int], 
+                            largeur: int, hauteur: int, case: tuple[int, int], 
+                            valeur_max: int) -> tuple[dict[str, tuple[tk.Button, int]], int]:
+
     largeur_bouton: int = largeur // 3
     hauteur_bouton: int = hauteur // 4
 
-    PARAMAS_BOUTON: dict[str, str, tuple[str, int]] = {
+    PARAMAS_BOUTON: dict[str, str | tuple[str, int]] = {
         "bg" : "#ffffff", 
         "fg" : "#000000", 
         "font" : ("Century", 12), 
@@ -164,98 +166,109 @@ def creer_clavier_numerique(canvas: tk.Canvas, coord: tuple[int],
     ANCHOR = tk.NW
     FUNC = modifier_valeur_case_clavier_num
 
+    boutons: dict[str, tuple[tk.Button, int]] = {}
+
     bouton7: tk.Button = tk.Button(canvas, command=lambda case=case: 
                                    FUNC(canvas, case=case, valeur_max=valeur_max, valeur="7"), 
                                     text="7",**PARAMAS_BOUTON)
-    canvas.create_window(coord, tags=TAG, anchor=ANCHOR, width=largeur_bouton, 
-                         height=hauteur_bouton, window=bouton7)
+    window7: int = canvas.create_window(coord, tags=TAG, anchor=ANCHOR, width=largeur_bouton, 
+                                        height=hauteur_bouton, window=bouton7)
+    boutons["bouton7"] = (bouton7, window7)
 
     bouton8: tk.Button = tk.Button(canvas, command=lambda case=case:
                                    FUNC(canvas, case=case, valeur_max=valeur_max, valeur="8"),
                                    text="8", **PARAMAS_BOUTON)
-    canvas.create_window((coord[0] + largeur_bouton, coord[1]),  tags=TAG,
-                          anchor=ANCHOR, width=largeur_bouton, height=hauteur_bouton, 
-                          window=bouton8)
+    window8: int = canvas.create_window((coord[0] + largeur_bouton, coord[1]),  tags=TAG, anchor=ANCHOR, 
+                                        width=largeur_bouton, height=hauteur_bouton, window=bouton8)
+    boutons["bouton8"] = (bouton8, window8)
     
     bouton9: tk.Button = tk.Button(canvas, command=lambda case=case:
                                    FUNC(canvas, case=case, valeur_max=valeur_max, valeur="9"),
                                    text="9", **PARAMAS_BOUTON)
-    canvas.create_window((coord[0] + 2 *largeur_bouton, coord[1]),  tags=TAG,
-                          anchor=ANCHOR, width=largeur_bouton, height=hauteur_bouton, 
-                          window=bouton9)
+    window9: int = canvas.create_window((coord[0] + 2 *largeur_bouton, coord[1]),  tags=TAG, anchor=ANCHOR, 
+                                        width=largeur_bouton, height=hauteur_bouton, window=bouton9)
+    boutons["bouton9"] = (bouton9, window9)
     
     bouton4: tk.Button = tk.Button(canvas, command=lambda case=case:
                                    FUNC(canvas, case=case, valeur_max=valeur_max, valeur="4"),
                                    text="4", **PARAMAS_BOUTON)
-    canvas.create_window((coord[0], coord[1] + hauteur_bouton),  tags=TAG,
-                          anchor=ANCHOR, width=largeur_bouton, height=hauteur_bouton, 
-                          window=bouton4)
+    window4: int = canvas.create_window((coord[0], coord[1] + hauteur_bouton),  tags=TAG, anchor=ANCHOR, 
+                                        width=largeur_bouton, height=hauteur_bouton, window=bouton4)
+    boutons["bouton4"] = (bouton4, window4)
     
     bouton5: tk.Button = tk.Button(canvas, command=lambda case=case:
                                    FUNC(canvas, case=case, valeur_max=valeur_max, valeur="5"),
                                    text="5", **PARAMAS_BOUTON)
-    canvas.create_window((coord[0] + largeur_bouton, coord[1] + hauteur_bouton),  tags=TAG,
-                          anchor=ANCHOR, width=largeur_bouton, height=hauteur_bouton, 
-                          window=bouton5)
-    
+    window5: int = canvas.create_window((coord[0] + largeur_bouton, coord[1] + hauteur_bouton),  tags=TAG, 
+                                        anchor=ANCHOR, width=largeur_bouton, height=hauteur_bouton, 
+                                        window=bouton5)
+    boutons["bouton5"] = (bouton5, window5)
+
     bouton6: tk.Button = tk.Button(canvas, command=lambda case=case:
                                    FUNC(canvas, case=case, valeur_max=valeur_max, valeur="6"),
                                    text="6", **PARAMAS_BOUTON)
-    canvas.create_window((coord[0] + 2 * largeur_bouton, coord[1] + hauteur_bouton),  tags=TAG,
-                          anchor=ANCHOR, width=largeur_bouton, height=hauteur_bouton, 
-                          window=bouton6)
-    
+    window6: int = canvas.create_window((coord[0] + 2 * largeur_bouton, coord[1] + hauteur_bouton),  tags=TAG, 
+                                        anchor=ANCHOR, width=largeur_bouton, height=hauteur_bouton, 
+                                        window=bouton6)
+    boutons["bouton6"] = (bouton6, window6)
+
     bouton1: tk.Button = tk.Button(canvas, command=lambda case=case:
                                    FUNC(canvas, case=case, valeur_max=valeur_max, valeur="1"),
                                    text="1", **PARAMAS_BOUTON)
-    canvas.create_window((coord[0], coord[1] + 2 * hauteur_bouton),  tags=TAG,
-                          anchor=ANCHOR, width=largeur_bouton, height=hauteur_bouton, 
-                          window=bouton1)
-    
+    window1: int = canvas.create_window((coord[0], coord[1] + 2 * hauteur_bouton),  tags=TAG, anchor=ANCHOR, 
+                                        width=largeur_bouton, height=hauteur_bouton, window=bouton1)
+    boutons["bouton1"] = (bouton1, window1)
+
     bouton2: tk.Button = tk.Button(canvas, command=lambda case=case:
                                    FUNC(canvas, case=case, valeur_max=valeur_max, valeur="2"),
                                    text="2", **PARAMAS_BOUTON)
-    canvas.create_window((coord[0] + largeur_bouton, coord[1] + 2 * hauteur_bouton),  tags=TAG,
-                          anchor=ANCHOR, width=largeur_bouton, height=hauteur_bouton, 
-                          window=bouton2)
-    
+    window2: int = canvas.create_window((coord[0] + largeur_bouton, coord[1] + 2 * hauteur_bouton),  tags=TAG, 
+                                        anchor=ANCHOR, width=largeur_bouton, height=hauteur_bouton, 
+                                        window=bouton2)
+    boutons["bouton2"] = (bouton2, window2)
+
     bouton3: tk.Button = tk.Button(canvas, command=lambda case=case:
                                    FUNC(canvas, case=case, valeur_max=valeur_max, valeur="3"),
                                    text="3", **PARAMAS_BOUTON)
-    canvas.create_window((coord[0] + 2 * largeur_bouton, coord[1] + 2 * hauteur_bouton),  tags=TAG,
-                          anchor=ANCHOR, width=largeur_bouton, height=hauteur_bouton, 
-                          window=bouton3)
-    
+    window3: int = canvas.create_window((coord[0] + 2 * largeur_bouton, coord[1] + 2 * hauteur_bouton),  
+                                        tags=TAG, anchor=ANCHOR, width=largeur_bouton, 
+                                        height=hauteur_bouton, window=bouton3)
+    boutons["bouton3"] = (bouton3, window3)
+
     bouton0: tk.Button = tk.Button(canvas, command=lambda case=case:
                                    FUNC(canvas, case=case, valeur_max=valeur_max, valeur="0"),
                                    text="0", **PARAMAS_BOUTON)
-    canvas.create_window((coord[0], coord[1] + 3 * hauteur_bouton),  tags=TAG,
-                          anchor=ANCHOR, width=largeur_bouton, height=hauteur_bouton, 
-                          window=bouton0)
-    
+    window0: int = canvas.create_window((coord[0], coord[1] + 3 * hauteur_bouton),  tags=TAG, 
+                                        anchor=ANCHOR, width=largeur_bouton, height=hauteur_bouton, 
+                                        window=bouton0)
+    boutons["bouton0"] = (bouton0, window0)
+
     bouton_suppr: tk.Button = tk.Button(canvas, command=lambda case=case:
                                         FUNC(canvas, case=case, valeur_max=valeur_max, valeur="suppr"),
                                         text="Suppr", **PARAMAS_BOUTON)
-    canvas.create_window((coord[0] + largeur_bouton, coord[1] + 3 * hauteur_bouton),  tags=TAG,
-                          anchor=ANCHOR, width=2 * largeur_bouton, height=hauteur_bouton, 
-                          window=bouton_suppr)
-    
+    window_suppr: int = canvas.create_window((coord[0] + largeur_bouton, coord[1] + 3 * hauteur_bouton), 
+                                             tags=TAG, anchor=ANCHOR, width=2 * largeur_bouton, 
+                                             height=hauteur_bouton, window=bouton_suppr)
+    boutons["bouton_suppr"] = (bouton_suppr, window_suppr)
+
     COULEUR_CADRE: str = "#000000"
     EPAISSEUR_CADRE: int = 3
 
-    canvas.create_rectangle((coord[0] - EPAISSEUR_CADRE, coord[1] - EPAISSEUR_CADRE), 
+    cadre: int = canvas.create_rectangle((coord[0] - EPAISSEUR_CADRE, coord[1] - EPAISSEUR_CADRE), 
                             (coord[0] + 3 * largeur_bouton + EPAISSEUR_CADRE - 1, 
                              coord[1] + 4 * hauteur_bouton + EPAISSEUR_CADRE - 1), 
                             fill=COULEUR_CADRE, outline="", tags=TAG)
     
+    return boutons, cadre
+    
 
-def entree_focus_case(canvas: tk.Canvas, case: tuple[int], valeur_max: int, 
+def entree_focus_case(canvas: tk.Canvas, case: tuple[int, int], valeur_max: int, 
                       cases_grille: list[int]) -> None:
     
     case_vide: int = case[0]
     texte: int = case[1]
 
-    reset_focus_cases(canvas, *cases_grille)
+    reset_focus_cases(canvas, cases=cases_grille)
     canvas.tag_raise(case_vide)
     canvas.tag_raise(texte)
     canvas.itemconfig(tagOrId=case_vide, width=4, outline="#3185ED")
@@ -272,19 +285,19 @@ def entree_focus_case(canvas: tk.Canvas, case: tuple[int], valeur_max: int,
                                      valeur_max=valeur_max))
 
 
-def creer_case(canvas: tk.Canvas, tag: str, coord: tuple[int], 
-                    longueur_cote: int) -> tuple[int]:
+def creer_case(canvas: tk.Canvas, tag: str, coord: tuple[int, int], 
+                    longueur_cote: int) -> tuple[int, int]:
 
     case_vide: int = canvas.create_rectangle(coord, (coord[0] + longueur_cote, coord[1] + longueur_cote),
                                              fill="#ffffff", outline="#000000", width=1, tags=tag)
     texte: int = canvas.create_text((coord[0] + longueur_cote // 2, coord[1] + longueur_cote // 2),
                                    anchor=tk.CENTER, font=("Century", int(1 / 3  * longueur_cote)), 
                                    fill="#000000", tags=tag, text="")
-    return (case_vide, texte)
+    return case_vide, texte
 
 
-def creer_grille_sudoku(canvas: tk.Canvas, tag: str, coord: tuple[int], nb_case_cote: int, 
-                        longueur_cote_case: int, nb_carre_cote: int) -> tuple[list[int] | list[tuple[int]]]:
+def creer_grille_sudoku(canvas: tk.Canvas, tag: str, coord: tuple[int, int], nb_case_cote: int, 
+                        longueur_cote_case: int, nb_carre_cote: int) -> tuple[list[tuple[int, int]], list[int]]:
     
     cases: list[tuple[int]] = []
     for rangee in range(nb_case_cote):
@@ -320,11 +333,10 @@ def creer_grille_sudoku(canvas: tk.Canvas, tag: str, coord: tuple[int], nb_case_
         canvas.tag_bind(tagOrId=texte, sequence=sequence, func=lambda event, case=case: 
                         FUNC(canvas=canvas, case=case, valeur_max=nb_case_cote, 
                              cases_grille=cases))
-                    
-    return (cases, carres)
+    return cases, carres
 
 
-def remplir_grille_sudoku_GUI(canvas: tk.Canvas, cases: list[tuple[int]], 
+def remplir_grille_sudoku_GUI(canvas: tk.Canvas, cases: list[tuple[int, int]], 
                               grille_valeur: list[list[int]]) -> None:
     
     COULEUR_CASE_REMPLIE: str = "#F0F0F0"
@@ -334,7 +346,27 @@ def remplir_grille_sudoku_GUI(canvas: tk.Canvas, cases: list[tuple[int]],
                 case: tuple[int] = cases[rangee * len(grille_valeur[0]) + colonne]
                 case_vide: int = case[0]
                 texte: int = case[1]
-                desactiver_widget(canvas, case_vide, texte)
+                desactiver_widget(canvas, tags_or_ids=[case_vide, texte])
                 canvas.itemconfig(tagOrId=case_vide, fill=COULEUR_CASE_REMPLIE)
                 canvas.itemconfig(tagOrId=texte, text=grille_valeur[rangee][colonne])
+
+
+def creer_barre_entree(canvas: tk.Canvas, largeur: int, hauteur: int, epaisseur_cadre: int, 
+                 page: list[str | int]) -> tuple[int, int]:
+    
+    TAG: str = "barre_entree"
+    x_fenetre: int = (LARGEUR_PIXEL_FENETRE - largeur) // 2
+    y_fenetre: int = (HAUTEUR_PIXEL_FENETRE - hauteur) // 2
+    x_cadre: int = x_fenetre - epaisseur_cadre
+    y_cadre: int = y_fenetre - epaisseur_cadre
+    largeur_cadre: int = largeur + 2 * epaisseur_cadre
+    hauteur_cadre: int = hauteur + 2 * epaisseur_cadre
+    cadre: int = canvas.create_rectangle((x_cadre, y_cadre), 
+                                         (x_cadre + largeur_cadre, y_cadre + hauteur_cadre), 
+                                         fill="#7B736D", outline="", tags=TAG)
+    entree: tk.Entry = tk.Entry(canvas, justify="center")
+    fenetre: int = canvas.create_window((x_fenetre, y_fenetre),width=largeur, height=hauteur, 
+                                        window=entree, tags=TAG)
+    desactiver_widget(canvas, tags_or_ids=[page])
+    return fenetre, cadre
     

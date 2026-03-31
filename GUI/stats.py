@@ -29,13 +29,13 @@ def aller_stats(canvas: tk.Canvas) -> None:
     # cadre
     COULEUR_CADRE: str = "#444444"
     ECART_CENTRE: int = 250
-    XY1: tuple[int] = (LARGEUR_PIXEL_FENETRE // 2 - ECART_CENTRE, 110)
-    XY2: tuple[int] = (LARGEUR_PIXEL_FENETRE // 2 + ECART_CENTRE, 500)
+    XY1: tuple[int, int] = (LARGEUR_PIXEL_FENETRE // 2 - ECART_CENTRE, 110)
+    XY2: tuple[int, int] = (LARGEUR_PIXEL_FENETRE // 2 + ECART_CENTRE, 500)
 
     canvas.create_rectangle(XY1, XY2, fill=COULEUR_CADRE, outline=COULEUR_CADRE, tags=TAG)
 
     # texte / stats
-    PARAMS_TEXT: dict[str, str | tuple] = {
+    PARAMS_TEXT: dict[str, str | tuple[str, int]] = {
         "anchor" : tk.W, 
         "fill" : COULEUR_TEXT, 
         "font" : (POLICE, 15), 
@@ -82,4 +82,4 @@ def aller_stats(canvas: tk.Canvas) -> None:
                         bordure=bordure_retour, **(COULEUR_BOUTON | COULEURS_SURVOLE))
     
     canvas.tag_bind(TAG_RETOUR, "<Button-1>", 
-                lambda event: retour_menu(canvas, TAG, TAG_RETOUR))
+                lambda event: retour_menu(canvas, tags_or_ids=[TAG, TAG_RETOUR]))

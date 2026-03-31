@@ -32,9 +32,9 @@ def aller_credits(canvas: tk.Canvas) -> None:
     
     # cadre
     COULEUR_CADRE: str = "#444444"
-    ECART_CENTRE:int = 200
-    XY1: tuple[int] = (LARGEUR_PIXEL_FENETRE // 2 - ECART_CENTRE, 110)
-    XY2: tuple[int] = (LARGEUR_PIXEL_FENETRE // 2 + ECART_CENTRE, 500)
+    ECART_CENTRE: int = 200
+    XY1: tuple[int, int] = (LARGEUR_PIXEL_FENETRE // 2 - ECART_CENTRE, 110)
+    XY2: tuple[int, int] = (LARGEUR_PIXEL_FENETRE // 2 + ECART_CENTRE, 500)
 
     canvas.create_rectangle(XY1, XY2, fill=COULEUR_CADRE, outline=COULEUR_CADRE, tags=TAG)
     
@@ -82,4 +82,4 @@ def aller_credits(canvas: tk.Canvas) -> None:
                         bordure=bordure_retour, **(COULEUR_BOUTON | COULEURS_SURVOLE))
     
     canvas.tag_bind(TAG_RETOUR, "<Button-1>", 
-                lambda event: retour_menu(canvas, TAG, TAG_RETOUR))
+                lambda event: retour_menu(canvas, tags_or_ids=[TAG, TAG_RETOUR]))

@@ -112,7 +112,7 @@ def generer_masque_kakuro(dimension, max_groupe=9):
                 colonne += 1
     return grille
 
-def remplir_grille(dimension):
+def remplir_grille_V2(dimension):
     
     racine = int(math.sqrt(dimension))
     grille = generateur_grille_vide(dimension)
@@ -235,7 +235,7 @@ def supprimer_valeur(grille_complete, nombre_valeur_a_supprimer, dimension):
         if not positions:
             # plus de positions → recommence avec nouvelle grille
             if (nombre_valeur_a_supprimer - nombre_case_supprime) > 5:   
-                return supprimer_valeur(remplir_grille(dimension), nombre_valeur_a_supprimer, dimension)
+                return supprimer_valeur(remplir_grille_V2(dimension), nombre_valeur_a_supprimer, dimension)
             else:
                 return grille_vider
 
