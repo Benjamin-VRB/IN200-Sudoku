@@ -1,138 +1,62 @@
 import random
 import copy
 import math
-from verification import compter_solution_V3
+import Sudoku
 
 
-dictionnaire_liste_ligne = {}
-dictionnaire_liste_colonne = {}
-dictionnaire_liste_carre = {}
-
-def generateur_grille_vide(dimension : int): 
-    """
-    Génère une matrice vide à la dimension démandée  
-    """
-    grille_vide = [[0] * dimension for i in range(dimension)]
-    return(grille_vide)
-
-def initialiser_dictionnaires(dimension : int):
-    """
-    Initialise les dictionnaires globaux contenant les valeurs possibles 
-    pour chaque ligne, colonne et carré.
-    
-    Chaque dictionnaire contient une liste de chiffres de 1 à 'dimension'.
-    Utilisé pour accélérer la recherche de candidats lors du remplissage
-    """
-    racine = int(math.sqrt(dimension))
-    carre = int(racine)
-    
-    global dictionnaire_liste_ligne
-    global dictionnaire_liste_colonne
-    global dictionnaire_liste_carre
-
-    dictionnaire_liste_ligne = {}
-    dictionnaire_liste_colonne = {}
-    dictionnaire_liste_carre = {}
-    
-    for i in range(dimension):
-        dictionnaire_liste_ligne[i] = list(range(1, dimension + 1))
-        dictionnaire_liste_colonne[i] = list(range(1, dimension + 1))
-    
-    for i in range(carre):
-        dictionnaire_liste_carre[i] = {}
-        
-        for e in range(carre):
-            dictionnaire_liste_carre[i][e] = list(range(1, dimension + 1))
-
-def remplir_grilleV2(dimension : int):
-    
-    racine = int(math.sqrt(dimension))
-    grille = generateur_grille_vide(dimension)
-    initialiser_dictionnaires(dimension)
-    essais = [[[] for _ in range(dimension)] for _ in range(dimension)]  # valeurs déjà essayées par les cases
-    ligne = 0
-    colonne = 0
-    
-    while ligne < dimension:
-        candidats = list(set(dictionnaire_liste_ligne[ligne]) & set(dictionnaire_liste_colonne[colonne]) & set(dictionnaire_liste_carre[ligne//racine][colonne//racine]) - set(essais[ligne][colonne])) # Candidats = intersection des listes disponibles en retirant les valeurs déjà essayées
-        
-        if not candidats: # Pas de candidat : on remet les essais à zéro pour cette case et on recule
-            essais[ligne][colonne] = []
-            
-            if colonne >= 1: # si on est pas sur la première colonne on recule de une colonne
-                colonne -= 1
-            
-            else: # sinon on remonte à la ligne de dessus et on se met sur la dernière colonne de la ligne
-                ligne -= 1
-                colonne = dimension - 1
-            
-            if ligne < 0: 
-                return None 
-            val_precedente = grille[ligne][colonne] # On rerajoute la valeur de la case précédente dans les listes
-            essais[ligne][colonne].append(val_precedente)  # on mémorise qu'elle a échoué
-            dictionnaire_liste_ligne[ligne].append(val_precedente) # on rerajoute la valeur testé dans les liste de choix possible car on retourne en arrière
-            dictionnaire_liste_carre[ligne//racine][colonne//racine].append(val_precedente)
-            dictionnaire_liste_colonne[colonne].append(val_precedente)
-            grille[ligne][colonne] = 0 
-        
-        else:
-            valeur = random.choice(candidats) # On choisit une valeur et on avance
-            grille[ligne][colonne] = valeur
-            dictionnaire_liste_ligne[ligne].remove(valeur) # on retire la valeur tenté des choix possibles
-            dictionnaire_liste_colonne[colonne].remove(valeur)
-            dictionnaire_liste_carre[ligne//racine][colonne//racine].remove(valeur)
-            
-            if colonne == dimension - 1: 
-                ligne += 1
-                colonne = 0
-            
-            else:
-                colonne += 1
-    
-    return (grille)
-
-def supprimer_valeur(grille_complete : list[list:int], nombre_valeur_a_supprimer : int, dimension : int):
+def supprimer_valeur(grille_complete, nombre_valeur_a_supprimer: int, dimension: int):
     """
     Transforme notre grille pleine en un sudoku à remplir.
     Tout en s'assurant que le joueur n'aura toujours qu'une seule solution possible.
 
     Entrée : 
-        grille_a_vider: Une grille de Sudoku complète.
         nombre_valeurs_a_supprimer: Le nombre de cases que l'on veut vider.
         dimension : taille de notre grille
     Sortie : 
         grille_vidée : Une grille de Sudoku prête à être resolue par l'utilisateur
-    """
+        grille_complete : La solution complète associée"""
     
-    grille_vidée = copy.deepcopy(grille_complete)
-    positions = [(ligne, colonne) for ligne in range(dimension) for colonne in range(dimension)]
-    random.shuffle(positions)
+    grille_vidée = copy.deepcopy(grille_complete)   # On copie la grille complète pour ne pas la modifier directement
+    positions = [(ligne, colonne) for ligne in range(dimension) for colonne in range(dimension)]   # création d'une liste de toutes les positions possibles de la grille
+    random.shuffle(positions)   # On mélange les positions pour supprimer aléatoirement
 
-    nombre_case_supprime = 0
+    nombre_case_supprime = 0   # initialisation d'un compteur du nombre de cases supprimées
 
-    while nombre_case_supprime < nombre_valeur_a_supprimer:
-        if not positions:
-            # plus de positions → recommence avec nouvelle grille
+    while nombre_case_supprime < nombre_valeur_a_supprimer:   # Tant qu'on n'a pas supprimé assez de valeurs
+        if not positions:   # Si on a testé toutes les positions possibles
             if (nombre_valeur_a_supprimer - nombre_case_supprime) > 5:   
-                return supprimer_valeur(remplir_grilleV2(dimension), nombre_valeur_a_supprimer, dimension)
+                return supprimer_valeur(grille_complete, nombre_valeur_a_supprimer, dimension)   # On recommence avec une nouvelle tentative (même grille)
             else:
-                return grille_vidée
+                return grille_vidée, grille_complete   # Sinon on retourne ce qu'on a réussi à faire
 
-        ligne, colonne = positions.pop()
-        valeur_originale = grille_vidée[ligne][colonne]
-        grille_vidée[ligne][colonne] = 0
+        ligne, colonne = positions.pop()   # On prend une position au hasard (et on l'enlève de la liste)
+        valeur_originale = grille_vidée[ligne][colonne]   # On sauvegarde la valeur pour pouvoir la remettre si besoin
+        grille_vidée[ligne][colonne] = 0   # On supprime la valeur (case vide)
 
-        if compter_solution_V3(grille_vidée, dimension) == 1:
-            nombre_case_supprime += 1
+        if Sudoku.compter_solution_V3(grille_vidée, dimension) == 1:   # On vérifie qu'il n'y a qu'une seule solution
+            nombre_case_supprime += 1   # Si oui, on valide la suppression
         else:
-            grille_vidée[ligne][colonne] = valeur_originale
+            grille_vidée[ligne][colonne] = valeur_originale   # Sinon on remet la valeur (suppression refusée)
 
-    return grille_vidée
+    return grille_vidée, grille_complete   # On retourne la grille vidée + la solution complète
+
+
+
+
+
+
+
 
 def generer_sudoku_consecutive(dimension):
-    """Cette fonction crée une grille de sudoku_consecutif"""    
+    """Cette fonction crée une grille de sudoku_consecutif
+    
+    Entrée:
+        Dimension de la grille à générer
+    Sortie:
+        La grille de Sudoku, la grille vidée et la liste des tuples qui contiennent les coordonnées des 
+        cases adjacentes à mettre en valeur."""    
 
-    grille_sudoku = remplir_grilleV2(dimension)
+    grille_complete = Sudoku.remplir_grille_V2(dimension)
     
     duos = []
     for i in range(dimension):        # Création d'une liste qui va enregistrer toutes les cass adjacentes.
@@ -146,12 +70,22 @@ def generer_sudoku_consecutive(dimension):
     duos_consecutifs = []
 
     for (i1, j1), (i2, j2) in duos:
-        if abs(grille_sudoku[i1][j1] - grille_sudoku[i2][j2]) == 1:
+        if abs(grille_complete[i1][j1] - grille_complete[i2][j2]) == 1:
             duos_consecutifs.append(((i1, j1), (i2, j2)))             # Si on a deux cases consécutives qui contiennent deux chiffres consecutifs on l'enregistre das la liste prévue a cet effet.
     
-    grille_finale = supprimer_valeur(grille_sudoku, 60, 9)         # On supprime les valeurs de la grille pour avoir la version finales.
+    grille_vidée, grille_complete = supprimer_valeur(grille_complete, 60, dimension)         # On supprime les valeurs de la grille pour avoir la version finales.
 
-    return (grille_finale, duos_consecutifs)
+    return grille_complete, grille_vidée, duos_consecutifs
 
 
-print(generer_sudoku_consecutive(9))
+
+
+
+
+
+
+
+
+
+## Pour utiliser ce fichier, il faut appeller:
+##                    print(generer_sudoku_consecutive(9))
