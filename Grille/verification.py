@@ -2,7 +2,7 @@ import math
 from kenken import verifier_cage
 
 
-####       Fonctions "de base"       ####
+####       Fonctions "de base" lignes/colonnes      ####
 
 
 def verification_lignes_colonnes(grille: list[list[int]], coord: tuple[int, int], liste_cases_invalides):
