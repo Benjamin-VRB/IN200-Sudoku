@@ -68,7 +68,6 @@ def verification_sudoku_classique_complet(grille: list[list[int]], coord: tuple[
     
     Entrée:
         La grille de sudoku et les coordonnées de la case venant d'ête remplie.
-        
     Sortie:
         Renvoie la liste de toutes les cases pour lesquelles cette valeur ne fonctionne pas."""
 
@@ -76,11 +75,6 @@ def verification_sudoku_classique_complet(grille: list[list[int]], coord: tuple[
     verification_lignes_colonnes(grille, coord, liste_cases_invalides)  # Vérification des lignes et ds colonnes.
     verification_carre_Sudoku(grille, coord, liste_cases_invalides)    # Vérification des carrés.
     return liste_cases_invalides
-
-
-
-
-
 
 
 
@@ -106,7 +100,6 @@ def verification_kenken(grille, coord, dictionnaire_cages):
     Entrée:
         La grille de sudoku, les coordonnées de la case venant d'ête remplie et un dictionnaire contenenant
         les informations du kenken.
-        
     Sortie:
         Renvoie la liste de toutes les cases et cages pour lesquelles cette valeur ne fonctionne pas."""
 
@@ -125,3 +118,46 @@ def verification_kenken(grille, coord, dictionnaire_cages):
     
     elif liste_cases_invalides == []:
         return verif
+
+
+
+####       Variante Sudoku consécutif       ####
+
+def verification_consecutif(grille, coord, liste_doublons_consecutifs, liste_cases_invalides):
+    """Vérifie que tous les doublons de cases censés être consecutives le sont bien.
+    
+    Entrée:
+        Les coordonnées de la cases venant d'être remplie,
+        la liste des doublons consecutifs et une liste (initialement vide) qui contiendra les cases
+        pour lesquelles cela ne marche pas.
+    Sortie:
+        Renvoie la liste des cases pour lesquelles la case qui vient d'être saisie ne fonctionne pas."""
+    
+    for doublons in liste_doublons_consecutifs:     # On regarde dans chaques doublons.
+        for j in doublons:                         # Si la case venant d'être saisie fait partie de la liste des doublons.
+            if coord == j:                     
+                if j == doublons[0]:                   # On "repère la deuxième case du doublon s'il il existe"
+                    deuxieme_case = doublons[1]
+                elif j == doublons[1]:
+                    deuxieme_case = doublons[0]
+
+                if abs(grille[j[0]][j[1]] - grille[deuxieme_case[0]][deuxieme_case[1]]) != 1:          # On regarde si les valeurs sont bien adjacentes
+                    liste_cases_invalides.append(deuxieme_case)
+                    return liste_cases_invalides        # Si elles ne le sont pas on rajoute l'autre case dans la liste des cases invalides.
+    return liste_cases_invalides
+    
+
+def verification_sudoku_consecutif(grille, coord, liste_doublons_consecutifs):
+    """Vérifie que toutes les conditions du sudoku consecutif sont bien respectées..
+    
+    Entrée:
+        La grille en cours de remplissage, les coordonnées de la cases venant d'être remplie,
+        la liste des doublons consecutifs.
+    Sortie:
+        Renvoie la liste des cases pour lesquelles la case qui vient d'être saisie ne fonctionne pas."""
+    
+    liste_cases_invalides = []
+    verification_lignes_colonnes(grille, coord, liste_cases_invalides)        # Verifie les lignes et les colonnes
+    verification_carre_Sudoku(grille, coord, liste_cases_invalides)              # Verifie les carrés
+    verification_consecutif(coord, liste_doublons_consecutifs, liste_cases_invalides)     # Vérifie les cases consécutive
+    return liste_cases_invalides        # Renvoie la liste des cases invalides.
