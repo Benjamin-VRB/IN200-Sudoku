@@ -89,7 +89,7 @@ def verification_cages_kenken(grille, dictionnaire_cages):
         La grille de sudoku ainsi que le dictionnaire contenant les informations sur les cages."""
 
     for cage in dictionnaire_cages.values():
-        if not verifier_cage(grille, cage):
+        if not verifier_cage(grille, cage):   #Vérifie si toutes les cages correspondent bien aux informations du dictionnaire.
             return cage
     return True
 
