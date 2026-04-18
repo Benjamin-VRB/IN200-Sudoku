@@ -49,7 +49,6 @@ def generation_grille(dimension=9):
                     for case_l, case_c in cage_actuelle:
                         voisins = voisins_vides(case_l, case_c, grille, dimension)
                         
-                        # Ajout manuel pour éviter les doublons (typique d'un algo L1)
                         for case_voisine in voisins:
                             if case_voisine not in options_possibles:
                                 options_possibles.append(case_voisine)
