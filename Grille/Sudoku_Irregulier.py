@@ -1,4 +1,5 @@
 import random
+import Sudoku
 
 def voisins_vides(ligne, colonne, grille, dimension):
     """
@@ -148,12 +149,6 @@ def grille_videe(grille_complete, nb_cases_a_conserver):
         
     return nouvelle_grille_videe
 
-cages, dico = generation_structure_cages()
-print("Aperçu des cages générées :")
-for ligne in cages:
-    print(ligne)
-        
-
 #-------TEST-------
 
 #Les cages : 
@@ -173,3 +168,88 @@ if resoudre_grille(solution, cages, dico):
         print(ligne)
 else:
     print("Échec")
+
+#--------V2-----------
+
+
+#grille initial
+grille = Sudoku.remplir_grille_V2()
+
+
+def obtenir_voisins(l, c, dimension):
+    """
+    
+    """
+    voisins = []
+    
+    if l + 1 < dimension: 
+        voisins.append((l + 1, c))
+    if c + 1 < dimension: 
+        voisins.append((l, c + 1))
+    if l - 1 >= 0: 
+        voisins.append((l - 1, c))
+    if c - 1 >= 0: 
+        voisins.append((l, c - 1))
+        
+    return voisins
+
+#déduire les cages de cette grille
+def cages(grille):
+    """
+    
+    """
+    dimension = len(grille)
+    
+    # Matrice pour stocker le numéro de la cage attribué à chaque case
+    cages_grille = [[0 for _ in range(dimension)] for _ in range(dimension)]
+    num_cage = 0
+    
+    # Dictionnaire pour stocker les valeurs contenues dans chaque cage. 
+    # Son format : {num_cage: [valeur1, valeur2, ...]}
+    toutes_valeurs_cages = {}
+
+    for i in range(dimension):
+        for j in range(dimension):
+            
+            if cages_grille[i][j] == 0:
+                num_cage += 1
+                cases_cage = [(i, j)]
+                valeurs_cage = [grille[i][j]]
+                cages_grille[i][j] = num_cage
+                
+                # Taille aléatoire de la cage 
+                taille_cible = random.randint(2, 5) 
+                
+                # Agrandissement de la cage par propagation
+                while len(cases_cage) < taille_cible: 
+                    voisins_potentiels = []
+                    
+                    # On cherche les voisins de toutes les cases qui composent déjà notre cage
+                    for cx, cy in cases_cage:
+                        for vx, vy in obtenir_voisins(cx, cy, dimension):
+                            
+                            # Conditions d'intégration :
+                            # 1. La case voisine ne doit pas être déjà dans une cage
+                            # 2. Le chiffre de la case ne doit pas créer de doublon dans la cage
+                            if cages_grille[vx][vy] == 0 and grille[vx][vy] not in valeurs_cage:
+                                
+                                # On évite de rajouter des doublons dans les voisins potentiels
+                                if (vx, vy) not in voisins_potentiels:
+                                    voisins_potentiels.append((vx, vy))
+
+                    # La cage ne peut plus s'aggrandir
+                    if not voisins_potentiels: 
+                        break 
+
+                    # Choix aléatoire d'un voisin valide pour agrandir la cage
+                    choix_x, choix_y = random.choice(voisins_potentiels)
+                    
+                    cages_grille[choix_x][choix_y] = num_cage
+                    cases_cage.append((choix_x, choix_y))
+                    valeurs_cage.append(grille[choix_x][choix_y])
+                    
+                toutes_valeurs_cages[num_cage] = valeurs_cage
+                
+    return cages_grille, toutes_valeurs_cages
+
+ #test
