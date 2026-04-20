@@ -9,7 +9,7 @@ def verificateur_ligne_colonne(valeur,dimension,grille,ligne,colonne):
         return False
     #verification de la colonnes : 
     for i in range(dimension):
-        if valeur == grille[i][colonne]:  
+        if valeur == grille[i][colonne]:
                 return False
     return True
 
@@ -51,7 +51,6 @@ def indicateur_kenken(dimension,grille_actuelle):
             #On l'ajoute pour l'instant dans la grille : 
             grille_tempo = [ligne[:] for ligne in grille_valeurs]
             grille_tempo[l][c] = valeur
-
 
             #Retrouver sa cage : 
             cage= None
