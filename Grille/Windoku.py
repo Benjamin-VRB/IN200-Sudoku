@@ -171,3 +171,10 @@ def supprimer_valeur(nombre_valeur_a_supprimer : int, dimension : int):
             grille_vidée[ligne][colonne] = valeur_originale
 
     return grille_vidée
+
+
+
+a = remplir_grille_V2(9)
+
+for i in range(9):
+    print(a[i])
