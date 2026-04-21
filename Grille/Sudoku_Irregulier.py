@@ -1,7 +1,6 @@
 import random
 
-
-def generation_cage(dimension=9):
+def generer_dico_irregulier(dimension=9):
     """
     Génère une grille vide avec ses cages.
     Retourne la matrice de la grille et le dictionnaire des cages.
@@ -19,7 +18,7 @@ def generation_cage(dimension=9):
         grille_num[l][c] = numero_cage
         cages[numero_cage] = [(l, c)]
 
-    def voisins_vides(ligne,colonne,grille,dimension):
+    def obtenir_voisins_libres(ligne,colonne,grille,dimension):
         """
         Cherche les cases adjacentes (haut, bas, gauche, droite) qui sont vides. 
         """
@@ -34,7 +33,7 @@ def generation_cage(dimension=9):
                 cases_vides.append((coord_ligne,coord_colonne))
         return cases_vides 
 
-    def trouver_case_isolee(grille,candidats,dimension):
+    def choisir_case_la_plus_contrainte(grille,candidats,dimension):
         # On enleve le determinisme pour éviter de repeter la grille impossible  
         random.shuffle(candidats)
 
@@ -45,7 +44,7 @@ def generation_cage(dimension=9):
             l, c = case
 
             # On compte combien ce candidat a de voisins libres
-            nb_v = len(voisins_vides(l, c, grille, dimension))
+            nb_v = len(obtenir_voisins_libres(l, c, grille, dimension))
             
             # Si cette case est plus isolée que la meilleure trouvée 
             if nb_v < nb_voisins_min:
@@ -67,7 +66,7 @@ def generation_cage(dimension=9):
 
             # On cherche les voisins pour chaque case de notre cage en construction
             for case_l, case_c in cage_actuelle:
-                voisins = voisins_vides(case_l, case_c, grille_num, dimension)
+                voisins = obtenir_voisins_libres(case_l, case_c, grille_num, dimension)
 
                 for case_voisine in voisins:
                     #verification de l'unicité de nos candidats
@@ -76,10 +75,10 @@ def generation_cage(dimension=9):
             
             # Si la liste est vide on arrête la boucle
             if len(options_possibles) == 0:
-                break
+                continue
                 
             #Parmi les candidats on prend celui qui a le plus de chance de devenir une case orpheline(c'est à dire celle qui a le moins de voisins)
-            nouvelle_l, nouvelle_c = trouver_case_isolee(grille_num,options_possibles,dimension)
+            nouvelle_l, nouvelle_c = choisir_case_la_plus_contrainte(grille_num,options_possibles,dimension)
             
             # On met à jour la grille et notre liste
             grille_num[nouvelle_l][nouvelle_c] = numero_cage
@@ -87,42 +86,42 @@ def generation_cage(dimension=9):
             
     return grille_num, cages
 
-def generation_cage_utile(dimension = 9): 
+def generer_structure_valide(dimension = 9): 
     """
-    On verifie si la matrice cage est correcte 
+    Gènerre une structure de 9 cages de 9 éléments
     """
     tentative = 0 
     
     while True : 
-        if tentative % 100 == 0 : 
+        if tentative % 1000 == 0 : 
             print(tentative)
         
         tentative = tentative +1 
 
-        grille_test, cages_test = generation_cage(dimension)
+        grille_test, cages_test = generer_dico_irregulier(dimension)
 
-        Utile = True 
+        valide = True 
 
         # On verifie que cette grille contient bien 9 cages 
-        if len(cages_test) != 9: 
-            Utile = False 
+        if len(cages_test) != dimension: 
+            valide = False 
 
         # On vérifie que chage cage contient bien 9 cases : 
         for indice in cages_test : 
-            if len(cages_test[indice]) != 9 : 
-                Utile = False
+            if len(cages_test[indice]) != dimension : 
+                valide = False
                 break
 
-        if Utile : 
+        if valide : 
             return grille_test, cages_test,tentative
 
-def verification_placement_irregulier(grille : list, cages_grille : dict, l, c, val):
+def est_placement_valide(grille : list, dico_cage : dict, plan_cage, l, c, val):
     """
     Verifie si la valeur placé est possible
     """
     
     dimension = len(grille)
-    num_cage = grille[l][c]
+    num_cage = plan_cage[l][c]
 
     # Vérification des lignes/colonnes
     for i in range(dimension):
@@ -132,16 +131,13 @@ def verification_placement_irregulier(grille : list, cages_grille : dict, l, c, 
             return False
 
     # Vérification des doublons dans la  cage
-    for i in range(dimension):
-        for j in range(dimension):
-            if grille[i][j] == num_cage:
-                # On exclut la case qui est étudiée
-                if (i, j) != (l, c) and grille[i][j] == val:
-                    return False
+    for i,j in dico_cage[num_cage] :
+        if (i, j) != (l, c) and grille[i][j] == val:
+                return False
 
     return True
 
-def generer_grille_complete(grille : list, cages_grille : dict, l=0, c=0):   
+def generer_grille_complete(grille : list, dico_cage : dict, plan_cage, l=0, c=0):   
     
     dimension = len(grille)
 
@@ -159,17 +155,17 @@ def generer_grille_complete(grille : list, cages_grille : dict, l=0, c=0):
 
     # Si la case est déjà remplie on poursuit
     if grille[l][c] != 0:
-        return generer_grille_complete(grille, cages_grille, lig_suiv, col_suiv)
+        return generer_grille_complete(grille, dico_cage, plan_cage, lig_suiv, col_suiv)
 
     # Pour éviter d'avoir toujours la meme grille on mélange les valeurs
     valeurs =list(range(1,dimension+1))
     random.shuffle(valeurs)
 
     for val in valeurs : 
-        if verification_placement_irregulier(grille, cages_grille, l, c, val):
+        if est_placement_valide(grille, dico_cage,plan_cage, l, c, val):
             grille[l][c] = val
             
-            resultat = generer_grille_complete(grille, cages_grille, lig_suiv, col_suiv)
+            resultat = generer_grille_complete(grille, dico_cage, plan_cage, lig_suiv, col_suiv)
 
             # Si resultat contient la grille (donc True) alors c'est qu'on a fini 
             if resultat :
@@ -180,7 +176,7 @@ def generer_grille_complete(grille : list, cages_grille : dict, l=0, c=0):
 
     return False
 
-def compter_solutions_irregulier (grille : list, cages_grille : dict, l=0, c=0):
+def compter_solutions_irregulier (grille : list, dico_cage : dict, plan_cage, l=0, c=0):
     """
     S'arrête dès qu'il trouve 2 solutions pour prouver que la grille n'est pas unique.
     """
@@ -200,17 +196,17 @@ def compter_solutions_irregulier (grille : list, cages_grille : dict, l=0, c=0):
 
     # Si la case est déjà remplie on poursuit
     if grille[l][c] != 0:
-        return compter_solutions_irregulier(grille, cages_grille, lig_suiv, col_suiv)
+        return compter_solutions_irregulier(grille, dico_cage,plan_cage, lig_suiv, col_suiv)
 
     nb_solutions = 0
 
     for val in range(1, dimension + 1):
         # On teste toutes les valeurs possibles
-        if verification_placement_irregulier(grille, cages_grille,  l, c, val):
+        if est_placement_valide(grille, dico_cage, plan_cage,  l, c, val):
             # Valide donc on la place temporairement
             grille[l][c] = val
             # On poursuit pour la case suivante
-            nb_solutions += compter_solutions_irregulier(grille, cages_grille, lig_suiv, col_suiv)
+            nb_solutions += compter_solutions_irregulier(grille, dico_cage, plan_cage, lig_suiv, col_suiv)
             
             grille[l][c] = 0  
 
@@ -220,7 +216,7 @@ def compter_solutions_irregulier (grille : list, cages_grille : dict, l=0, c=0):
 
     return nb_solutions
 
-def supprime_valeurs_irregulier (grille_complete : list, cages_grille : dict, nb_cases_a_vider):
+def cree_grille_a_resoudre (grille_complete : list, dico_cage : dict, plan_cage, nb_cases_a_vider):
     """
     Crée un Sudoku irrégulier à résoudre qui verifie que la solution reste unique
     """
@@ -252,7 +248,7 @@ def supprime_valeurs_irregulier (grille_complete : list, cages_grille : dict, nb
         # On vérifie l'unicité
         grille_tempo=[ligne[:] for ligne in grille_joueur]
 
-        if compter_solutions_irregulier(grille_tempo, cages_grille) == 1:
+        if compter_solutions_irregulier(grille_tempo, dico_cage, plan_cage) == 1:
             cases_vides += 1
         else:
             # on reprend la derniere valeur
