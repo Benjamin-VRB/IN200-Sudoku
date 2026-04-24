@@ -1352,3 +1352,120 @@ def print_kakuro(grid, horizontal_sums, vertical_sums):
                     line += ".\t"
         print(line)
     print()
+
+
+# Sudoku Irregulier : 
+
+
+def generer_dico_irregulier(dimension=9):
+    """
+    Génère une grille vide avec ses cages.
+    Retourne la matrice de la grille et le dictionnaire des cages.
+    """
+
+    grille_num = [ [0 for _ in range(dimension)] for _ in range(dimension)]
+    cages = {}
+    
+    # On place le point de départ de chaque cage d'un coup (pour éviter les blocages)
+    cases_depart = [(l, c) for l in range(dimension) for c in range(dimension)]
+    random.shuffle(cases_depart)
+    
+    for numero_cage in range(1, dimension + 1):
+        l, c = cases_depart.pop()
+        grille_num[l][c] = numero_cage
+        cages[numero_cage] = [(l, c)]
+
+    def obtenir_voisins_libres(ligne,colonne,grille,dimension):
+        """
+        Cherche les cases adjacentes (haut, bas, gauche, droite) qui sont vides. 
+        """
+        cases_vides = []
+        directions = [(-1,0),(1,0),(0,1),(0,-1)]
+        
+        for direc_ligne,direc_colonne in directions : 
+            coord_ligne = direc_ligne + ligne
+            coord_colonne = direc_colonne + colonne
+
+            if 0 <= coord_ligne < dimension and 0 <= coord_colonne< dimension and grille[coord_ligne][coord_colonne] == 0:
+                cases_vides.append((coord_ligne,coord_colonne))
+        return cases_vides 
+
+    def choisir_case_la_plus_contrainte(grille,candidats,dimension):
+        # On enleve le determinisme pour éviter de repeter la grille impossible  
+        random.shuffle(candidats)
+
+        case_isolee = candidats[0]
+        nb_voisins_min = 10
+        
+        for case in candidats:
+            l, c = case
+
+            # On compte combien ce candidat a de voisins libres
+            nb_v = len(obtenir_voisins_libres(l, c, grille, dimension))
+            
+            # Si cette case est plus isolée que la meilleure trouvée 
+            if nb_v < nb_voisins_min:
+                nb_voisins_min = nb_v
+                case_isolee = case
+
+        return case_isolee
+    
+    # Agrandissement de la cage (On les fait grandir tour à tour)
+    for etape in range(dimension - 1):
+        ordre_cages = list(range(1, dimension + 1))
+        random.shuffle(ordre_cages)
+
+        for numero_cage in ordre_cages:
+            options_possibles = []
+            cage_actuelle = cages[numero_cage]
+
+            # On cherche les voisins pour chaque case de notre cage en construction
+            for case_l, case_c in cage_actuelle:
+                voisins = obtenir_voisins_libres(case_l, case_c, grille_num, dimension)
+
+                for case_voisine in voisins:
+                    #verification de l'unicité de nos candidats
+                    if case_voisine not in options_possibles:
+                        options_possibles.append(case_voisine)
+            
+            # Si la liste est vide on arrête la boucle
+            if len(options_possibles) == 0:
+                continue
+                
+            #Parmi les candidats on prend celui qui a le plus de chance de devenir une case orpheline(c'est à dire celle qui a le moins de voisins)
+            nouvelle_l, nouvelle_c = choisir_case_la_plus_contrainte(grille_num,options_possibles,dimension)
+            
+            # On met à jour la grille et notre liste
+            grille_num[nouvelle_l][nouvelle_c] = numero_cage
+            cages[numero_cage].append((nouvelle_l, nouvelle_c))
+            
+    return grille_num, cages
+
+def generer_structure_valide(dimension = 9): 
+    """
+    Gènerre une structure de 9 cages de 9 éléments
+    """
+    tentative = 0 
+    
+    while True : 
+        if tentative % 1000 == 0 : 
+            print(tentative)
+        
+        tentative = tentative +1 
+
+        grille_test, cages_test = generer_dico_irregulier(dimension)
+
+        valide = True 
+
+        # On verifie que cette grille contient bien 9 cages 
+        if len(cages_test) != dimension: 
+            valide = False 
+
+        # On vérifie que chage cage contient bien 9 cases : 
+        for indice in cages_test : 
+            if len(cages_test[indice]) != dimension : 
+                valide = False
+                break
+
+        if valide : 
+            return grille_test, cages_test,tentative
