@@ -47,7 +47,7 @@ def supprimer_valeur(grille_complete, nombre_valeur_a_supprimer: int, dimension:
 
 
 
-def generer_sudoku_consecutive(dimension):
+def generer_sudoku_consecutive(dimension=9):
     """Cette fonction crée une grille de sudoku_consecutif
     
     Entrée:
@@ -76,15 +76,6 @@ def generer_sudoku_consecutive(dimension):
     grille_vidée, grille_complete = supprimer_valeur(grille_complete, 60, dimension)         # On supprime les valeurs de la grille pour avoir la version finales.
 
     return grille_complete, grille_vidée, duos_consecutifs
-
-
-
-
-
-
-
-
-
 
 
 ## Pour utiliser ce fichier, il faut appeller:

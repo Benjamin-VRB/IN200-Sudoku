@@ -142,8 +142,8 @@ def afficher_grille(grille):
     for ligne in grille:
         print(" ".join(str(x) for x in ligne))
 
-grille = generer_grille_kakuro_9x9_groupes()
-afficher_grille(grille)
+
+
 
 # COMMENT LIRE LA GRILLE
 """

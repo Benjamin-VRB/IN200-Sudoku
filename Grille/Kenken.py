@@ -321,7 +321,7 @@ def verifier_unicite_kenken(dimension, cages, limite=2):
 
 
 
-def retourner_infos_kenken(dimensions):
+def retourner_infos_kenken(dimensions=9):
     """Fonction qui génère et affiche une les infos d'une grille de Kenken.
     
     Entrée:
@@ -334,6 +334,3 @@ def retourner_infos_kenken(dimensions):
     while not verifier_unicite_kenken(dimensions, cages_finales, limite=2):
         a = générer_grille_KenKen(dimensions, 4)
     print(a)
-
-
-retourner_infos_kenken(5)
