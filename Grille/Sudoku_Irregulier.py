@@ -211,6 +211,8 @@ def initialiser_contraintes(grille, plan_cage, dimension=9):
     return lignes_utilisees, cols_utilisees, cages_utilisees
 
 def trouver_meilleure_case(grille : list, plan_cage : list, lignes_u : set, cols_u :set, cages_u : dict, dimension=9):
+    """Détermine la case la plus contrainte c'est à dire avec le moins de candidats possibles"""
+
     min_candidats = dimension + 1
     meilleure_case = None
     candidats_meilleure = []
@@ -238,7 +240,7 @@ def trouver_meilleure_case(grille : list, plan_cage : list, lignes_u : set, cols
                     min_candidats = nb_candidats
                     meilleure_case = (l, c)
                     candidats_meilleure = candidats
-                # Si une case a 1 seule possibilité on s'arrete puisqu'on ne trouver pas mieux
+                # Si une case a 1 seule possibilité on s'arrete puisqu'on ne peut pas trouver pas mieux
                 if min_candidats == 1:
                     return meilleure_case, candidats_meilleure
 
@@ -255,7 +257,7 @@ def generer_grille_complete(grille : list, plan_cage : list, lignes_u : set, col
     dimension = len(grille)
 
     # Si c'est trop long on arrete cette tentative
-    if compteur[0] > 50000:         
+    if compteur[0] > 30000:         
         return False
     
     # On cherche la meilleure case vide avec le moins de possibilités
@@ -438,4 +440,3 @@ def main(nb_cases_a_vider : int):
     afficher_grille(grille_joueur)
 
 main(50)
-
