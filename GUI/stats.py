@@ -1,15 +1,16 @@
 import tkinter as tk
 
 from GUI.fenetre import LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
-from GUI.widgets import creer_boutton, survole_non_survole
+from GUI.widgets import creer_boutton_arrondi, survole_non_survole
 from GUI.animations import mouvement_exterieur_fond_menu, retour_menu
+from GUI.decorations import creer_cadre
 
 
 def aller_stats(canvas: tk.Canvas) -> None:
     """
     Affiche la page des statistiques
     """
-    mouvement_exterieur_fond_menu(canvas)
+    mouvement_exterieur_fond_menu(canvas=canvas)
 
     TAG: str = "stats"
 
@@ -29,10 +30,13 @@ def aller_stats(canvas: tk.Canvas) -> None:
     # cadre
     COULEUR_CADRE: str = "#444444"
     ECART_CENTRE: int = 250
-    XY1: tuple[int, int] = (LARGEUR_PIXEL_FENETRE // 2 - ECART_CENTRE, 110)
-    XY2: tuple[int, int] = (LARGEUR_PIXEL_FENETRE // 2 + ECART_CENTRE, 500)
+    XY: tuple[int, int] = (LARGEUR_PIXEL_FENETRE // 2 - ECART_CENTRE, 110)
+    LARGEUR_CADRE: int = 2 * ECART_CENTRE
+    HAUTEUR_CADRE: int = 390
+    RAYON_COINS: int = 20
 
-    canvas.create_rectangle(XY1, XY2, fill=COULEUR_CADRE, outline=COULEUR_CADRE, tags=TAG)
+    creer_cadre(canvas=canvas, coord=XY, largeur=LARGEUR_CADRE, hauteur=HAUTEUR_CADRE, 
+                couleur=COULEUR_CADRE, rayon_coins=RAYON_COINS, tag=TAG)
 
     # texte / stats
     PARAMS_TEXT: dict[str, str | tuple[str, int]] = {
@@ -42,7 +46,7 @@ def aller_stats(canvas: tk.Canvas) -> None:
         "tags" : TAG
         }
 
-    X_TEXT: int = XY1[0] + 20
+    X_TEXT: int = XY[0] + 20
 
     canvas.create_text((X_TEXT, 140), text="Parties terminées : ", **PARAMS_TEXT)
     canvas.create_text((X_TEXT, 170), text="Parties niveau facile terminées : ", **PARAMS_TEXT)
@@ -72,14 +76,14 @@ def aller_stats(canvas: tk.Canvas) -> None:
 
     TAG_RETOUR: str = "bouton_stats_retour"
 
-    fond_retour, bordure_retour =  \
-        creer_boutton(canvas, coord=(X_BOUTON, Y_BOUTON), tag=TAG_RETOUR, 
-                    texte="Retour", largeur=LARGEUR_BOUTON, hauteur=HAUTEUR_BOUTON,  
-                    police=("Cooper Black", 16), epaisseur_bordure=2, 
-                    **COULEUR_BOUTON)[:-1]
+    bouton_retour: dict[str, list[int] | int] = \
+        creer_boutton_arrondi(canvas=canvas, coord=(X_BOUTON, Y_BOUTON), tag=TAG_RETOUR, 
+                              texte="Retour", largeur=LARGEUR_BOUTON, hauteur=HAUTEUR_BOUTON, 
+                              police=("Cooper Black", 16), epaisseur_bordure=2, couleur_texte="#ffffff", 
+                              **COULEUR_BOUTON)
     
-    survole_non_survole(canvas, tag=TAG_RETOUR, fond=fond_retour, 
-                        bordure=bordure_retour, **(COULEUR_BOUTON | COULEURS_SURVOLE))
+    survole_non_survole(canvas=canvas, tag=TAG_RETOUR, fond=bouton_retour["fond"], 
+                        bordure=bouton_retour["bordure"], **(COULEUR_BOUTON | COULEURS_SURVOLE))
     
-    canvas.tag_bind(TAG_RETOUR, "<Button-1>", 
-                lambda event: retour_menu(canvas, tags_or_ids=[TAG, TAG_RETOUR]))
+    canvas.tag_bind(TAG_RETOUR, "<Button-1>", lambda event: 
+                    retour_menu(canvas=canvas, tags_or_ids=[TAG, TAG_RETOUR]))

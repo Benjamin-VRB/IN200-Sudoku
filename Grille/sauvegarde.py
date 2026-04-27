@@ -1,12 +1,12 @@
 import json 
 
-fichier_sauvergarde = "Sauvegardes/grilles_jouees.json"
-fichier_sauvergarde_tempo = "Sauvegardes/grilles_en_cours.json"
+FICHIER_SAUVEGARDE = "Sauvegardes/grilles_jouees.json"
+FICHIER_SAUVEGARDE_TEMPO = "Sauvegardes/grilles_en_cours.json"
 
 def sauvegarde (grille, temps, difficulte, score):
     
     #On charge l'historique
-    lecture=open(fichier_sauvergarde, "r")
+    lecture=open(FICHIER_SAUVEGARDE, "r")
     liste_parties = json.load(lecture)
     lecture.close()
     
@@ -25,26 +25,37 @@ def sauvegarde (grille, temps, difficulte, score):
     liste_parties=liste_parties[:100]
 
     #On sauvegarde notre fichier 
-    ecriture = open(fichier_sauvergarde,"w")
+    ecriture = open(FICHIER_SAUVEGARDE,"w")
     json.dump(liste_parties,ecriture,indent=4)
     ecriture.close()
 
     return 
 
-def sauvegarde_progression(grille_actuelle,grille_solution,temps):
+def sauvegarde_progression(nom: str, grille_actuelle: list[list[int]], 
+                           grille_solution: list[list[int]], cases_verr: tuple[list[int], list[int]], 
+                           temps: int, date: str, type_grille: str) -> None:
     
-    donnee = {
+    donnee: dict[str, str | list[list[int]] | tuple[list[int], list[int]] | int] = {
+        "nom" : nom,
+        "date" : date,
+        "type" : type_grille,
         "grille_actuelle" : grille_actuelle,
         "grille_solution" : grille_solution,
-        "temps" : temps,
-        "etat" : "en_cours"
+        "cases_verrouillees" : cases_verr,
+        "temps" : temps
     }
     
-    ecriture = open(fichier_sauvergarde_tempo,"w")
-    json.dump(donnee,ecriture)
-    ecriture.close()
-    
-    return
+    try:
+        fich = open(file=FICHIER_SAUVEGARDE_TEMPO, mode="r")
+        sauv: list = json.load(fp=fich)
+        fich.close()
+    except:
+        sauv: list = []
+    sauv.append(donnee)
+
+    fich = open(file=FICHIER_SAUVEGARDE_TEMPO, mode="w")
+    json.dump(obj=sauv, fp=fich, indent=2, sort_keys=True)
+
 
 def reinitialisation():
     
@@ -55,7 +66,7 @@ def reinitialisation():
         "etat" : "vide"
     }
 
-    ecriture = open(fichier_sauvergarde_tempo,"w")
+    ecriture = open(FICHIER_SAUVEGARDE_TEMPO,"w")
     json.dump(donnee,ecriture)
     ecriture.close()
 
@@ -63,7 +74,7 @@ def reinitialisation():
 
 def charger_sauvegarde():
 
-    lecture=open(fichier_sauvergarde_tempo, "r")
+    lecture=open(FICHIER_SAUVEGARDE_TEMPO, "r")
     donnee = json.load(lecture)
     lecture.close()
 

@@ -73,4 +73,4 @@ def retour_menu(canvas: tk.Canvas, tags_or_ids: list[str | int]) -> None:
     actionnant l'animation du menu
     """
     canvas.delete(*tags_or_ids)
-    mouvement_interieur_fond_menu(canvas)
+    mouvement_interieur_fond_menu(canvas=canvas)

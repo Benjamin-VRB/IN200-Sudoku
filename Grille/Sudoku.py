@@ -190,9 +190,9 @@ def supprimer_valeur(nombre_valeur_a_supprimer : int, dimension : int):
         if not positions:
             # plus de positions → recommence avec nouvelle grille
             if (nombre_valeur_a_supprimer - nombre_case_supprime) > 5:   
-                return supprimer_valeur(remplir_grille_V2(dimension), nombre_valeur_a_supprimer, dimension)
+                return supprimer_valeur(nombre_valeur_a_supprimer, dimension)
             else:
-                return grille_vidée
+                return grille_vidée, grille_complete
 
         ligne, colonne = positions.pop()
         valeur_originale = grille_vidée[ligne][colonne]
@@ -203,6 +203,5 @@ def supprimer_valeur(nombre_valeur_a_supprimer : int, dimension : int):
         else:
             grille_vidée[ligne][colonne] = valeur_originale
 
-    return grille_vidée
+    return grille_vidée, grille_complete
 
-print(supprimer_valeur(60, 9))
