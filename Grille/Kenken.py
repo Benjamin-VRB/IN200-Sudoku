@@ -181,6 +181,43 @@ def générer_grille_KenKen(taille : int, max_case : int):
 
 
 
+def verifier_cage(grille_vidée, cage):
+    """Fonction qui vérifie les opéraions dans les cages
+    
+    Entrée:
+        dictionnaire contenant les informations d'UNE cage.
+        
+    Sortie:
+        Renvoie True si les valeurs rentrée vérifient bien le résultat et l'opération et False sinon."""
+ 
+    operation = cage["opération"]
+    resultat = cage["résultat"]
+    cases = cage["cases"]
+    
+    valeurs = []
+  
+    for (i,j) in cases:  
+        if grille_vidée[i][j] == 0:
+            return True
+        valeurs.append(grille_vidée[i][j])
+      
+    if operation == "+":     # Test pour le cas d'une somme
+        return sum(valeurs) == resultat
+  
+    if operation == "*":     # Test pour le cas s'un produit
+        produit = 1
+        for v in valeurs:
+            produit *= v
+        return produit == resultat
+  
+    if operation == "-":     # Test pour le cas d'une différence
+        a,b = valeurs
+        return abs(a-b) == resultat
+ 
+    if operation == "/":     # test pour le cas d'un quotient
+        a,b = valeurs
+        return max(a,b) // min(a,b) == resultat
+
 
 def verifier_unicite_kenken(dimension, cages, limite=2):
     """Fonction qui compte le nombre de solutions de ma grille de Kenken.
@@ -202,49 +239,11 @@ def verifier_unicite_kenken(dimension, cages, limite=2):
     essaie = [(i,j) for i in range(dimension) for j in range(dimension)]  # création s'une matrice d'essais...
 
 
-    def verifier_cage(cage):
-        """Fonction qui vérifie les opéraions dans les cages
-        
-        Entrée:
-            dictionnaire contenant les informations d'UNE cage.
-            
-        Sortie:
-            Renvoie True si les valeurs rentrée vérifient bien le résultat et l'opération et False sinon."""
-
-        operation = cage["opération"]
-        resultat = cage["résultat"]
-        cases = cage["cases"]
-
-        valeurs = []
-
-        for (i,j) in cases:  
-            if grille[i][j] == 0:
-                return True
-            valeurs.append(grille[i][j])
-
-        if operation == "+":     # Test pour le cas d'une somme
-            return sum(valeurs) == resultat
-
-        if operation == "*":     # Test pour le cas s'un produit
-            produit = 1
-            for v in valeurs:
-                produit *= v
-            return produit == resultat
-
-        if operation == "-":     # Test pour le cas d'une différence
-            a,b = valeurs
-            return abs(a-b) == resultat
-
-        if operation == "/":     # test pour le cas d'un quotient
-            a,b = valeurs
-            return max(a,b) // min(a,b) == resultat
-
-
     def cages_valides():
         """Fonction qui vérifie la validité des cages dans tous le dictionnaire contenant les infos.
         --> Renvoie True si toutes les cages sont valides et False sinon."""
         for cage in cages.values():
-            if not verifier_cage(cage):
+            if not verifier_cage(grille, cage):
                 return False
         return True
 
@@ -322,7 +321,7 @@ def verifier_unicite_kenken(dimension, cages, limite=2):
 
 
 
-def retourner_infos(dimensions):
+def retourner_infos_kenken(dimensions=9):
     """Fonction qui génère et affiche une les infos d'une grille de Kenken.
     
     Entrée:
@@ -335,6 +334,3 @@ def retourner_infos(dimensions):
     while not verifier_unicite_kenken(dimensions, cages_finales, limite=2):
         a = générer_grille_KenKen(dimensions, 4)
     print(a)
-
-
-retourner_infos(5)

@@ -855,3 +855,617 @@ def suppression_valeur(grille_a_vider : list[list:int], nombre_valeurs_a_supprim
             else:
                 break # sinon il s'arrete la et renvoie la grille comme elle est
     return grille_vidée
+
+def verification_condition_sudoku(grille: list[list[int]], coord: tuple[int, int]):
+    """Vérifie que la valeur de la case venant 'être saisie vérifie les règles du sudoku.
+    
+    Entrée:
+        La grille de sudoku ainsi que sa dimension et les coordonnées de la case venant d'ête remplie 
+        par l'utilisateur.
+    
+    Sortie:
+        Liste des coordonnées des cases pour lesquelles cela les règles du sudoku ne sont pas respectées."""
+   
+    dimension = len(grille)
+    liste_cases_invalides = []     
+
+    ligne = coord[0]
+    colonne = coord[1]
+    valeur = grille[ligne][colonne]
+
+    liste_indices_lignes = [i for i in range(dimension)]   # Liste des indices des lignes a tester.
+    liste_indices_lignes.remove(ligne)                     # a laquelle on enlève l'indice de la case venant d'être remplie.
+
+    for i in liste_indices_lignes:
+        if grille[i][colonne] == valeur:
+            liste_cases_invalides.append((i, colonne))     # On regarde dans toute la ligne.
+
+
+    liste_indices_colonnes = [i for i in range(dimension)]  # Liste des indices des colonnes a tester.
+    liste_indices_colonnes.remove(colonne)                  # a laquelle on enlève l'indice de la case venant d'être remplie.
+
+    for i in liste_indices_colonnes:
+        if grille[ligne][i] == valeur:
+            liste_cases_invalides.append((ligne, i))        # On regarde dans toute la colonne
+
+
+    taille_bloc = int(math.sqrt(dimension))                 # calcul de la taille d'un carré
+
+    debut_ligne = (ligne // taille_bloc) * taille_bloc          # On regarde dans quel bloc se trouve la case qu'on vient de remplir
+    debut_colonne = (colonne // taille_bloc) * taille_bloc
+
+    for i in range(debut_ligne, debut_ligne + taille_bloc):           # On teste toutes les cases de ce bloc.
+        for j in range(debut_colonne, debut_colonne + taille_bloc):
+            if (i, j) != coord and grille[i][j] == valeur:
+                liste_cases_invalides.append((i, j))
+
+    return liste_cases_invalides                            # On renvoie la liste des coordonnées des cases a faire voir au joueur.
+
+
+
+
+
+
+
+
+###    Archive du fichier Génération    ###
+
+
+import random
+import copy
+import math
+from Grille.verification import compter_solution_V3
+from Grille.verification import compter_solution_kakuro
+from Grille.verification import valider_masque_kakuro
+from Grille.verification import trouver_groupes_horizontaux_kakuro
+from Grille.verification import trouver_groupes_verticaux_kakuro
+
+dictionnaire_liste_ligne = {}
+dictionnaire_liste_colonne = {}
+dictionnaire_liste_carre = {}
+
+def generateur_grille_vide(dimension): 
+    grille_vide = [[0] * dimension for i in range(dimension)]
+    return(grille_vide)
+
+def initialiser_dictionnaires(dimension):
+    racine = int(math.sqrt(dimension))
+    carre = int(racine)
+    
+    global dictionnaire_liste_ligne
+    global dictionnaire_liste_colonne
+    global dictionnaire_liste_carre
+
+    dictionnaire_liste_ligne = {}
+    dictionnaire_liste_colonne = {}
+    dictionnaire_liste_carre = {}
+    
+    for i in range(dimension):
+        dictionnaire_liste_ligne[i] = list(range(1, dimension + 1))
+        dictionnaire_liste_colonne[i] = list(range(1, dimension + 1))
+    
+    for i in range(carre):
+        dictionnaire_liste_carre[i] = {}
+        
+        for e in range(carre):
+            dictionnaire_liste_carre[i][e] = list(range(1, dimension + 1))
+
+def initialiser_dictionnaires_variantes(dimension):
+    
+    global dictionnaire_liste_ligne
+    global dictionnaire_liste_colonne
+
+    dictionnaire_liste_ligne = {}
+    dictionnaire_liste_colonne = {}
+    
+    for i in range(dimension):
+        dictionnaire_liste_ligne[i] = list(range(1, dimension + 1))
+        dictionnaire_liste_colonne[i] = list(range(1, dimension + 1))
+
+def remplir_grille_variante(dimension):
+    
+    grille = generateur_grille_vide(dimension)
+    initialiser_dictionnaires(dimension)
+    essais = [[[] for _ in range(dimension)] for _ in range(dimension)]  # valeurs déjà essayées par les cases
+    ligne = 0
+    colonne = 0
+    
+    while ligne < dimension:
+        candidats = list(set(dictionnaire_liste_ligne[ligne]) & set(dictionnaire_liste_colonne[colonne]) - set(essais[ligne][colonne])) # Candidats = intersection des listes disponibles en retirant les valeurs déjà essayées
+        
+        if not candidats: # Pas de candidat : on remet les essais à zéro pour cette case et on recule
+            essais[ligne][colonne] = []
+            
+            if colonne >= 1: # si on est pas sur la première colonne on recule de une colonne
+                colonne -= 1
+            
+            else: # sinon on remonte à la ligne de dessus et on se met sur la dernière colonne de la ligne
+                ligne -= 1
+                colonne = dimension - 1
+            
+            if ligne < 0: 
+                return None 
+            val_precedente = grille[ligne][colonne] # On rerajoute la valeur de la case précédente dans les listes
+            essais[ligne][colonne].append(val_precedente)  # on mémorise qu'elle a échoué
+            dictionnaire_liste_ligne[ligne].append(val_precedente) # on rerajoute la valeur testé dans les liste de choix possible car on retourne en arrière
+            dictionnaire_liste_colonne[colonne].append(val_precedente)
+            grille[ligne][colonne] = 0 
+        
+        else:
+            valeur = (random.choice(candidats)) # On choisit une valeur et on avance
+            grille[ligne][colonne] = valeur
+            dictionnaire_liste_ligne[ligne].remove(valeur) # on retire la valeur tenté des choix possibles
+            dictionnaire_liste_colonne[colonne].remove(valeur)
+            
+            if colonne == dimension - 1: 
+                ligne += 1
+                colonne = 0
+            
+            else:
+                colonne += 1
+    
+    return (grille)
+
+def generer_masque_kakuro(dimension, max_groupe=9):
+    """Génère un masque de Kakuro valide (0 = case blanche, 1 = case noire)."""
+    grille = [[1 for _ in range(dimension)] for _ in range(dimension)]
+    
+    for ligne in range(dimension):
+        colonne = 0
+        while colonne < dimension:
+            restant = dimension - colonne
+            if restant < 2:
+                break
+            taille = random.randint(2, min(max_groupe, restant))
+            for i in range(taille):
+                grille[ligne][colonne + i] = 0
+            colonne += taille
+            if colonne < dimension:
+                grille[ligne][colonne] = 1
+                colonne += 1
+    return grille
+
+def remplir_grille_V2(dimension):
+    
+    racine = int(math.sqrt(dimension))
+    grille = generateur_grille_vide(dimension)
+    initialiser_dictionnaires(dimension)
+    essais = [[[] for _ in range(dimension)] for _ in range(dimension)]  # valeurs déjà essayées par les cases
+    ligne = 0
+    colonne = 0
+    
+    while ligne < dimension:
+        candidats = list(set(dictionnaire_liste_ligne[ligne]) & set(dictionnaire_liste_colonne[colonne]) & set(dictionnaire_liste_carre[ligne//racine][colonne//racine]) - set(essais[ligne][colonne])) # Candidats = intersection des listes disponibles en retirant les valeurs déjà essayées
+        
+        if not candidats: # Pas de candidat : on remet les essais à zéro pour cette case et on recule
+            essais[ligne][colonne] = []
+            
+            if colonne >= 1: # si on est pas sur la première colonne on recule de une colonne
+                colonne -= 1
+            
+            else: # sinon on remonte à la ligne de dessus et on se met sur la dernière colonne de la ligne
+                ligne -= 1
+                colonne = dimension - 1
+            
+            if ligne < 0: 
+                return None 
+            val_precedente = grille[ligne][colonne] # On rerajoute la valeur de la case précédente dans les listes
+            essais[ligne][colonne].append(val_precedente)  # on mémorise qu'elle a échoué
+            dictionnaire_liste_ligne[ligne].append(val_precedente) # on rerajoute la valeur testé dans les liste de choix possible car on retourne en arrière
+            dictionnaire_liste_carre[ligne//racine][colonne//racine].append(val_precedente)
+            dictionnaire_liste_colonne[colonne].append(val_precedente)
+            grille[ligne][colonne] = 0 
+        
+        else:
+            valeur = random.choice(candidats) # On choisit une valeur et on avance
+            grille[ligne][colonne] = valeur
+            dictionnaire_liste_ligne[ligne].remove(valeur) # on retire la valeur tenté des choix possibles
+            dictionnaire_liste_colonne[colonne].remove(valeur)
+            dictionnaire_liste_carre[ligne//racine][colonne//racine].remove(valeur)
+            
+            if colonne == dimension - 1: 
+                ligne += 1
+                colonne = 0
+            
+            else:
+                colonne += 1
+    
+    return (grille)
+
+def remplir_grille_V2(dimension):
+
+    racine = int(math.sqrt(dimension))
+
+    grille = generateur_grille_vide(dimension)
+
+    liste_ligne = [[True]*dimension for _ in range(dimension)]
+    liste_colonne = [[True]*dimension for _ in range(dimension)]
+    liste_carre = [[True]*dimension for _ in range(dimension)]
+
+    essaie = [(i,e) for i in range(dimension) for e in range(dimension)]
+
+    def solveur():
+        if not essaie:
+            return True
+
+        indice_min = -1
+        valeurs_possibles_min = []
+        nb_valeurs_min = dimension + 1
+
+        for idx, (ligne, colonne) in enumerate(essaie):
+            numero_carre = (ligne//racine)*racine + (colonne//racine)
+            candidats = [v for v in range(dimension)
+                         if liste_ligne[ligne][v] and
+                            liste_colonne[colonne][v] and
+                            liste_carre[numero_carre][v]]
+
+            nb_valeurs = len(candidats)
+            if nb_valeurs < nb_valeurs_min:
+                nb_valeurs_min = nb_valeurs
+                valeurs_possibles_min = candidats
+                indice_min = idx
+            if nb_valeurs == 1:
+                break
+
+        if nb_valeurs_min == 0 or indice_min == -1:
+            return False
+
+        ligne, colonne = essaie.pop(indice_min)
+        numero_carre = (ligne//racine)*racine + (colonne//racine)
+        random.shuffle(valeurs_possibles_min)
+
+        for i in valeurs_possibles_min:
+            grille[ligne][colonne] = i + 1
+            liste_ligne[ligne][i] = False
+            liste_colonne[colonne][i] = False
+            liste_carre[numero_carre][i] = False
+
+            if solveur():
+                return True
+
+            # backtrack
+            grille[ligne][colonne] = 0
+            liste_ligne[ligne][i] = True
+            liste_colonne[colonne][i] = True
+            liste_carre[numero_carre][i] = True
+
+        essaie.insert(indice_min, (ligne, colonne))
+        return False
+
+    if solveur():  
+        return grille
+    else:
+        return None
+
+def supprimer_valeur(grille_complete, nombre_valeur_a_supprimer, dimension):
+    grille_vider = copy.deepcopy(grille_complete)
+    positions = [(ligne, colonne) for ligne in range(dimension) for colonne in range(dimension)]
+    random.shuffle(positions)
+
+    nombre_case_supprime = 0
+
+    while nombre_case_supprime < nombre_valeur_a_supprimer:
+        if not positions:
+            # plus de positions → recommence avec nouvelle grille
+            if (nombre_valeur_a_supprimer - nombre_case_supprime) > 5:   
+                return supprimer_valeur(remplir_grille_V2(dimension), nombre_valeur_a_supprimer, dimension)
+            else:
+                return grille_vider
+
+        ligne, colonne = positions.pop()
+        valeur_originale = grille_vider[ligne][colonne]
+        grille_vider[ligne][colonne] = 0
+
+        if compter_solution_V3(grille_vider, dimension) == 1:
+            nombre_case_supprime += 1
+        else:
+            grille_vider[ligne][colonne] = valeur_originale
+
+    return grille_vider
+
+def calculer_sommes(solution, groupes):
+    return [sum(solution[i][j] for (i,j) in g) for g in groupes]
+
+def remplir_grille_kakuro(grille):
+    dimension = len(grille)
+    groupes_h = trouver_groupes_horizontaux_kakuro(grille)
+    groupes_v = trouver_groupes_verticaux_kakuro(grille)
+    
+    dict_h = {i: list(range(1,10)) for i in range(len(groupes_h))}
+    dict_v = {i: list(range(1,10)) for i in range(len(groupes_v))}
+    
+    case_vers_groupes = {}
+    for idx, g in enumerate(groupes_h):
+        for (i,j) in g:
+            case_vers_groupes[(i,j)] = case_vers_groupes.get((i,j), [None,None])
+            case_vers_groupes[(i,j)][0] = idx
+    for idx, g in enumerate(groupes_v):
+        for (i,j) in g:
+            case_vers_groupes[(i,j)] = case_vers_groupes.get((i,j), [None,None])
+            case_vers_groupes[(i,j)][1] = idx
+    
+    solution = [[None]*dimension for _ in range(dimension)]
+    cases = [(i,j) for i in range(dimension) for j in range(dimension) if grille[i][j] == 0]
+    
+    def backtrack(index):
+        if index == len(cases):
+            return True
+        i,j = cases[index]
+        g_h, g_v = case_vers_groupes[(i,j)]
+        
+        candidats = list(set(dict_h[g_h]) & set(dict_v[g_v]))
+        random.shuffle(candidats)
+        
+        for val in candidats:
+            solution[i][j] = val
+            dict_h[g_h].remove(val)
+            dict_v[g_v].remove(val)
+            if backtrack(index+1):
+                return True
+            solution[i][j] = None
+            dict_h[g_h].append(val)
+            dict_v[g_v].append(val)
+        return False
+    
+    if backtrack(0):
+        return solution
+    else:
+        return None
+
+def generer_kakuro(dimension):
+    while True:
+        masque = generer_masque_kakuro(dimension)
+        if not valider_masque_kakuro(masque):
+            continue
+        
+        solution = remplir_grille_kakuro(masque)
+        if solution is None:
+            continue
+        
+        groupes_h = trouver_groupes_horizontaux_kakuro(masque)
+        groupes_v = trouver_groupes_verticaux_kakuro(masque)
+        sommes_h = calculer_sommes(solution, groupes_h)
+        sommes_v = calculer_sommes(solution, groupes_v)
+        
+        nb = compter_solution_kakuro(
+            copy.deepcopy(masque),
+            dimension,
+            groupes_h,
+            sommes_h,
+            groupes_v,
+            sommes_v,
+            limite=2
+        )
+        if nb == 1:
+            break  # succès
+        
+    return {
+        "masque": masque,
+        "solution": solution,
+        "groupes_horizontaux": groupes_h,
+        "groupes_verticaux": groupes_v,
+        "sommes_horizontales": sommes_h,
+        "sommes_verticales": sommes_v
+    }
+
+def is_valid_group(group):
+    """Vérifie qu'il n'y a pas de doublon et que la somme est cohérente"""
+    return len(set(group)) == len(group) and all(1 <= n <= 9 for n in group)
+
+def solve_kakuro(grid, horizontal_groups, vertical_groups):
+    """Solveur par backtracking pour garantir unicité."""
+    rows, cols = len(grid), len(grid[0])
+    solutions = []
+
+    def backtrack(r, c):
+        if r == rows:
+            solutions.append([row[:] for row in grid])
+            return len(solutions) <= 1  # Stop si plus d'une solution
+        if c == cols:
+            return backtrack(r + 1, 0)
+        if grid[r][c] != 0:
+            return backtrack(r, c + 1)
+
+        # Identifier groupes horizontaux et verticaux
+        for val in range(1, 10):
+            grid[r][c] = val
+            if all_valid(grid, horizontal_groups, vertical_groups):
+                if not backtrack(r, c + 1):
+                    grid[r][c] = 0
+                    return False
+            grid[r][c] = 0
+        return True
+
+    def all_valid(grid, h_groups, v_groups):
+        for (r, c, length) in h_groups:
+            vals = [grid[r][c+i] for i in range(length)]
+            if 0 not in vals and len(set(vals)) != len(vals):
+                return False
+        for (r, c, length) in v_groups:
+            vals = [grid[r+i][c] for i in range(length)]
+            if 0 not in vals and len(set(vals)) != len(vals):
+                return False
+        return True
+
+    backtrack(0, 0)
+    return solutions
+
+def generate_kakuro(rows, cols):
+    """Génère une grille de Kakuro avec une seule solution"""
+    grid = [[0 for _ in range(cols)] for _ in range(rows)]
+
+    # Définir les groupes horizontaux et verticaux (au moins 2 cases)
+    horizontal_groups = []
+    vertical_groups = []
+
+    # Pour simplifier, créer des groupes de longueur aléatoire >=2
+    for r in range(rows):
+        c = 0
+        while c < cols - 1:
+            length = random.randint(2, min(4, cols - c))
+            horizontal_groups.append((r, c, length))
+            c += length
+            if c < cols:
+                grid[r][c] = -1  # Case noire séparatrice
+                c += 1
+
+    for c in range(cols):
+        r = 0
+        while r < rows - 1:
+            length = random.randint(2, min(4, rows - r))
+            vertical_groups.append((r, c, length))
+            r += length
+            if r < rows:
+                grid[r][c] = -1  # Case noire séparatrice
+                r += 1
+
+    # Résoudre la grille pour obtenir une seule solution
+    solutions = solve_kakuro(grid, horizontal_groups, vertical_groups)
+    if not solutions:
+        return generate_kakuro(rows, cols)  # Recommencer si pas de solution unique
+    solution = solutions[0]
+
+    # Calculer les indices (sums)
+    horizontal_sums = {}
+    vertical_sums = {}
+
+    for r, c, length in horizontal_groups:
+        horizontal_sums[(r, c-1)] = sum(solution[r][c + i] for i in range(length))
+    for r, c, length in vertical_groups:
+        vertical_sums[(r-1, c)] = sum(solution[r + i][c] for i in range(length))
+
+    return solution, horizontal_sums, vertical_sums
+
+def print_kakuro(grid, horizontal_sums, vertical_sums):
+    rows, cols = len(grid), len(grid[0])
+    for r in range(rows):
+        line = ""
+        for c in range(cols):
+            if grid[r][c] == -1:
+                line += "█\t"
+            else:
+                h_sum = horizontal_sums.get((r, c-1), "")
+                v_sum = vertical_sums.get((r-1, c), "")
+                if h_sum or v_sum:
+                    line += f"{v_sum}\\{h_sum}\t"
+                else:
+                    line += ".\t"
+        print(line)
+    print()
+
+
+# Sudoku Irregulier : 
+
+
+def generer_dico_irregulier(dimension=9):
+    """
+    Génère une grille vide avec ses cages.
+    Retourne la matrice de la grille et le dictionnaire des cages.
+    """
+
+    grille_num = [ [0 for _ in range(dimension)] for _ in range(dimension)]
+    cages = {}
+    
+    # On place le point de départ de chaque cage d'un coup (pour éviter les blocages)
+    cases_depart = [(l, c) for l in range(dimension) for c in range(dimension)]
+    random.shuffle(cases_depart)
+    
+    for numero_cage in range(1, dimension + 1):
+        l, c = cases_depart.pop()
+        grille_num[l][c] = numero_cage
+        cages[numero_cage] = [(l, c)]
+
+    def obtenir_voisins_libres(ligne,colonne,grille,dimension):
+        """
+        Cherche les cases adjacentes (haut, bas, gauche, droite) qui sont vides. 
+        """
+        cases_vides = []
+        directions = [(-1,0),(1,0),(0,1),(0,-1)]
+        
+        for direc_ligne,direc_colonne in directions : 
+            coord_ligne = direc_ligne + ligne
+            coord_colonne = direc_colonne + colonne
+
+            if 0 <= coord_ligne < dimension and 0 <= coord_colonne< dimension and grille[coord_ligne][coord_colonne] == 0:
+                cases_vides.append((coord_ligne,coord_colonne))
+        return cases_vides 
+
+    def choisir_case_la_plus_contrainte(grille,candidats,dimension):
+        # On enleve le determinisme pour éviter de repeter la grille impossible  
+        random.shuffle(candidats)
+
+        case_isolee = candidats[0]
+        nb_voisins_min = 10
+        
+        for case in candidats:
+            l, c = case
+
+            # On compte combien ce candidat a de voisins libres
+            nb_v = len(obtenir_voisins_libres(l, c, grille, dimension))
+            
+            # Si cette case est plus isolée que la meilleure trouvée 
+            if nb_v < nb_voisins_min:
+                nb_voisins_min = nb_v
+                case_isolee = case
+
+        return case_isolee
+    
+    # Agrandissement de la cage (On les fait grandir tour à tour)
+    for etape in range(dimension - 1):
+        ordre_cages = list(range(1, dimension + 1))
+        random.shuffle(ordre_cages)
+
+        for numero_cage in ordre_cages:
+            options_possibles = []
+            cage_actuelle = cages[numero_cage]
+
+            # On cherche les voisins pour chaque case de notre cage en construction
+            for case_l, case_c in cage_actuelle:
+                voisins = obtenir_voisins_libres(case_l, case_c, grille_num, dimension)
+
+                for case_voisine in voisins:
+                    #verification de l'unicité de nos candidats
+                    if case_voisine not in options_possibles:
+                        options_possibles.append(case_voisine)
+            
+            # Si la liste est vide on arrête la boucle
+            if len(options_possibles) == 0:
+                continue
+                
+            #Parmi les candidats on prend celui qui a le plus de chance de devenir une case orpheline(c'est à dire celle qui a le moins de voisins)
+            nouvelle_l, nouvelle_c = choisir_case_la_plus_contrainte(grille_num,options_possibles,dimension)
+            
+            # On met à jour la grille et notre liste
+            grille_num[nouvelle_l][nouvelle_c] = numero_cage
+            cages[numero_cage].append((nouvelle_l, nouvelle_c))
+            
+    return grille_num, cages
+
+def generer_structure_valide(dimension = 9): 
+    """
+    Gènerre une structure de 9 cages de 9 éléments
+    """
+    tentative = 0 
+    
+    while True : 
+        if tentative % 1000 == 0 : 
+            print(tentative)
+        
+        tentative = tentative +1 
+
+        grille_test, cages_test = generer_dico_irregulier(dimension)
+
+        valide = True 
+
+        # On verifie que cette grille contient bien 9 cages 
+        if len(cages_test) != dimension: 
+            valide = False 
+
+        # On vérifie que chage cage contient bien 9 cases : 
+        for indice in cages_test : 
+            if len(cages_test[indice]) != dimension : 
+                valide = False
+                break
+
+        if valide : 
+            return grille_test, cages_test,tentative
