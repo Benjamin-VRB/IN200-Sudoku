@@ -1,0 +1,96 @@
+def afficher_contraintes_classique(coord) -> list :
+    """Fonction qui affiche les cases sur lesquelles portent les contraintes, en fonction de la case sélectionnée.
+    
+    Entrée:
+        Coordonées de la case venant d'être séléctionnée.
+    Sortie:
+        liste des cases sur lesquelles portent les contraintes."""
+    
+    affichage_cases = []
+
+    ligne, colonne = coord
+
+    for i in range(9):       # On ajoute à la liste des cases à afficher la ligne de la case sélectionnée
+        affichage_cases.append((ligne, i))    
+
+    for i in range(9):       # On ajoute à la liste des cases à afficher la colonne de la case sélectionnée
+        affichage_cases.append((i,colonne))
+    
+    debut_ligne = (ligne // 3) * 3
+    debut_col = (colonne // 3) * 3
+    for i in range(3):       # On ajoute à la liste des cases à afficher le carré dans lequel se trouve la case en question
+        for j in range(3):
+            affichage_cases.append(debut_ligne + i, debut_col + j)
+    
+    return affichage_cases
+
+def afficher_contraintes_consecutif(coord, liste_doublons):
+    """Fonction qui affiche les coordonnées des cases sur lesquelles portent lew contraintes du jeu en fonction
+    de la case sélectionnée.
+    
+    Entrée:
+        Coordonnées de la case venant d'être sélecionnée, liste des doublons de cases consécutives.
+    Sortie:
+        Liste des coordonnées des cases à mettre en évidence"""
+    
+    affichage_cases = []
+
+    ligne, colonne = coord
+
+    for i in range(9):       # On ajoute à la liste des cases à afficher la ligne de la case sélectionnée
+        affichage_cases.append((ligne, i))    
+
+    for i in range(9):       # On ajoute à la liste des cases à afficher la colonne de la case sélectionnée
+        affichage_cases.append((i,colonne))
+    
+    debut_ligne = (ligne // 3) * 3
+    debut_col = (colonne // 3) * 3
+    for i in range(3):       # On ajoute à la liste des cases à afficher le carré dans lequel se trouve la case en question
+        for j in range(3):
+            affichage_cases.append(debut_ligne + i, debut_col + j)
+    
+    for i in liste_doublons: # On recherche si la case fait partie d'un doublon consécutif
+        if coord in i:
+            doublon = i
+    
+    if doublon[0] == coord:  # Si oui on ajoute à la liste des cases à afficher la deuxième case du doublon.
+        affichage_cases.appenddoublon[1]
+    elif doublon[1] == coord:
+        affichage_cases.append(doublon[0])
+    
+    return affichage_cases
+
+
+def afficher_contraintes_Kenken(coord, dictionnaire_cages):
+    """Fonction qui affiche les coordonnées des cases sur lesquelles portent lew contraintes du jeu en fonction
+    de la case sélectionnée.
+    
+    Entrée:
+        Coordonnées de la case venant d'être sélecionnée, dictionnaire contenant les informations des cages.
+    Sortie:
+        Liste des coordonnées des cases à mettre en évidence"""
+    
+    affichage_cases = []
+
+    ligne, colonne = coord
+
+    for i in range(9):       # On ajoute à la liste des cases à afficher la ligne de la case sélectionnée
+        affichage_cases.append((ligne, i))    
+
+    for i in range(9):       # On ajoute à la liste des cases à afficher la colonne de la case sélectionnée
+        affichage_cases.append((i,colonne))
+    
+    debut_ligne = (ligne // 3) * 3
+    debut_col = (colonne // 3) * 3
+    for i in range(3):       # On ajoute à la liste des cases à afficher le carré dans lequel se trouve la case en question
+        for j in range(3):
+            affichage_cases.append(debut_ligne + i, debut_col + j)
+
+    for cage in dictionnaire_cages.values():   # On cherche la cage dans laquelle se trouve la case sélectionnée
+        if coord in cage["cases"]:
+            a = cage["cases"]
+    
+    for i in a:     # On ajoute toutes les cases de cette case à la liste des cases à mettre en évidence
+        affichage_cases.append(i)
+    
+    return affichage_cases 
