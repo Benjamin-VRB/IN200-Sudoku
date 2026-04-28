@@ -1,8 +1,8 @@
 import random,math
-import Kenken as kenken
-import Sudoku_Irregulier as irregulier
-import Windoku as windoku
-import Sudoku as sudoku
+import kenken as kenken
+import sudoku_chaos as irregulier
+import windoku as windoku
+import sudoku as sudoku
 
 def indicateur_sudoku(grille_joueur : list, grille_complete : list, dimension : int):
     """permet d'indiquer à l'utilisateur une case d'une grille de sudoku"""

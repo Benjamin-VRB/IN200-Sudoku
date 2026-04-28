@@ -1,7 +1,6 @@
 import random
 import copy
-import math
-import Sudoku
+import sudoku as Sudoku
 
 
 def supprimer_valeur(grille_complete, nombre_valeur_a_supprimer: int, dimension: int):
