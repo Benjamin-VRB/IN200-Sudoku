@@ -94,3 +94,34 @@ def afficher_contraintes_Kenken(coord, dictionnaire_cages):
         affichage_cases.append(i)
     
     return affichage_cases 
+
+def afficher_contraintes_kakuro(grille_indices, r, c):
+    """Trouve les cases appartenant aux cages H et V de la cellule (r, c)."""
+    taille = len(grille_indices)
+    
+    # Cage Horizontale
+    c_start = c
+    while c_start >= 0 and not isinstance(grille_indices[r][c_start], list):
+        c_start -= 1
+    # L'indice est à (r, c_start). Les cases blanches commencent à c_start + 1
+    c_end = c
+    while c_end < taille and not isinstance(grille_indices[r][c_end], list):
+        c_end += 1
+    segment_h = [(r, i) for i in range(c_start + 1, c_end)]
+    indice_h = grille_indices[r][c_start][0] # La somme attendue en ligne
+
+    # Cage Verticale
+    r_start = r
+    while r_start >= 0 and not isinstance(grille_indices[r_start][c], list):
+        r_start -= 1
+    # L'indice est à (r_start, c). Les cases blanches commencent à r_start + 1
+    r_end = r
+    while r_end < taille and not isinstance(grille_indices[r_end][c], list):
+        r_end += 1
+    segment_v = [(i, c) for i in range(r_start + 1, r_end)]
+    indice_v = grille_indices[r_start][c][1] # La somme attendue en colonne
+
+    return {
+        'h': {'cases': segment_h, 'cible': indice_h},
+        'v': {'cases': segment_v, 'cible': indice_v}
+    }
