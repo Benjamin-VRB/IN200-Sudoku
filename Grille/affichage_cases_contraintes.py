@@ -62,7 +62,7 @@ def afficher_contraintes_consecutif(coord, liste_doublons):
 
 
 def afficher_contraintes_Kenken(coord, dictionnaire_cages):
-    """Fonction qui affiche les coordonnées des cases sur lesquelles portent lew contraintes du jeu en fonction
+    """Fonction qui affiche les coordonnées des cases sur lesquelles portent les contraintes du jeu en fonction
     de la case sélectionnée.
     
     Entrée:
@@ -127,7 +127,8 @@ def afficher_contraintes_kakuro(grille_indices, r, c):
     }
 
 
-def afficher_contrainte_irregulier(grille_complete: list, plan_cage: list, dico_cage: dict, l: int, c: int):
+def afficher_contrainte_chaos(grille_complete: list, plan_cage: list, dico_cage: dict, l: int, c: int):
+    """Affiche les contraintes pour une case completée d'un sudoku chaos"""
     # Utilisation d'un set pour éviter les doublons 
     cases_contraintes = set() 
 
