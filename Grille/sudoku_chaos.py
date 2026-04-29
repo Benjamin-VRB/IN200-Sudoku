@@ -438,3 +438,4 @@ def main(nb_cases_a_vider : int):
     
     print("\nGrille à résoudre :")
     afficher_grille(grille_joueur)
+    print(dico_cage)

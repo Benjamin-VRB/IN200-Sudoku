@@ -1,4 +1,4 @@
-import random,math
+import math
 import kenken as kenken
 import sudoku_chaos as irregulier
 import windoku as windoku

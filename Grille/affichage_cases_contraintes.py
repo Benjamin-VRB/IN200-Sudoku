@@ -125,3 +125,24 @@ def afficher_contraintes_kakuro(grille_indices, r, c):
         'h': {'cases': segment_h, 'cible': indice_h},
         'v': {'cases': segment_v, 'cible': indice_v}
     }
+
+
+def afficher_contrainte_irregulier(grille_complete: list, plan_cage: list, dico_cage: dict, l: int, c: int):
+    # Utilisation d'un set pour éviter les doublons 
+    cases_contraintes = set() 
+
+    num_cage = plan_cage[l][c]
+
+    # On ajoute toutes les cases appartenant à la même cage
+    for case in dico_cage[num_cage]:
+        cases_contraintes.add(case)
+
+    dimension = len(grille_complete)
+
+    #On ajoute les cases de la même ligne et de la même colonne
+    for i in range(dimension): 
+        cases_contraintes.add((l, i))
+        cases_contraintes.add((i, c))
+
+    # On retourne le tout sous forme de liste
+    return list(cases_contraintes)
