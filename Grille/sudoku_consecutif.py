@@ -74,7 +74,7 @@ def generer_sudoku_consecutive(dimension=9):
     
     grille_vidée, grille_complete = supprimer_valeur(grille_complete, 60, dimension)         # On supprime les valeurs de la grille pour avoir la version finales.
 
-    return grille_complete, grille_vidée, duos_consecutifs
+    return grille_vidée, duos_consecutifs
 
 
 ## Pour utiliser ce fichier, il faut appeller:

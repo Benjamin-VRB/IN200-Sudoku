@@ -6,10 +6,18 @@ dictionnaire_liste_colonne = {}
 
 
 
-def generateur_grille_vide(nombre_de_valeur):       # Fonction qui génère une grille de dimenseion quelconque.
+def generateur_grille_vide(nombre_de_valeur):
+    """Fonction qui génère une matrice d'une taille donnée ne contenant que des 0
+    
+    Entrée:
+        Un entier qui sera la dimension de la grille*
+    Sortie:
+        Matrice de la dimension voulue ne contenant que des 0"""
     grille_vide = [[0] * nombre_de_valeur for i in range(nombre_de_valeur)]
     return(grille_vide)
+
 def initialiser_dictionnaires(nombre_de_valeur):
+    """Fonction qui initialise des dictionnaires qui vont servir à la génération des grilles."""
     
     global dictionnaire_liste_ligne
     global dictionnaire_liste_colonne
@@ -26,6 +34,13 @@ def initialiser_dictionnaires(nombre_de_valeur):
 
 
 def remplir_grille(nombre_de_valeur):
+    """Fonction qui remplie la grille vide (pleine de 0) initialisée plus tôt.
+    
+    Entrée:
+        Dimension de la grille voulue
+    Sortie:
+        Grille remplie"""
+
     grille = generateur_grille_vide(nombre_de_valeur)
     initialiser_dictionnaires(nombre_de_valeur)
     essais = [[[] for _ in range(nombre_de_valeur)] for _ in range(nombre_de_valeur)]  # valeurs déjà essayées par les cases
