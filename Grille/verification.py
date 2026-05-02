@@ -1,6 +1,6 @@
 import math
 from kenken import verifier_cage
-
+from affichage_cases_contraintes import afficher_contraintes_kakuro 
 
 ####       Fonctions "de base" lignes/colonnes       ####
 
@@ -161,3 +161,43 @@ def verification_sudoku_consecutif(grille, coord, liste_doublons_consecutifs):
     verification_carre_Sudoku(grille, coord, liste_cases_invalides)              # Verifie les carrés
     verification_consecutif(coord, liste_doublons_consecutifs, liste_cases_invalides)     # Vérifie les cases consécutive
     return liste_cases_invalides        # Renvoie la liste des cases invalides.
+
+#### Variante Kakuro ####
+
+def analyser_erreurs(grille_joueur, grille_indices, r, c):
+    """Retourne un set de coordonnées (r, c) qui violent une règle."""
+    segments = afficher_contraintes_kakuro(grille_indices, r, c)
+    cases_rouges = set()
+
+    for cle in ['h', 'v']:
+        info = segments[cle]
+        cases_du_groupe = info['cases']
+        cible = info['cible']
+        
+        somme_actuelle = 0
+        remplies = 0
+        doublons = {} # Valeur -> Coordonnée
+
+        for (curr_r, curr_c) in cases_du_groupe:
+            val = grille_joueur[curr_r][curr_c]
+            
+            if val != 0 and val != ".":
+                somme_actuelle += int(val)
+                remplies += 1
+                
+                # Règle 1 : Pas de doublons
+                if val in doublons:
+                    cases_rouges.add((curr_r, curr_c))
+                    cases_rouges.add(doublons[val])
+                else:
+                    doublons[val] = (curr_r, curr_c)
+
+        # Règle 2 : La somme ne doit jamais dépasser l'indice
+        if somme_actuelle > cible:
+            cases_rouges.update(cases_du_groupe)
+        
+        # Règle 3 : Si groupe plein, la somme doit être exacte
+        elif remplies == len(cases_du_groupe) and somme_actuelle != cible:
+            cases_rouges.update(cases_du_groupe)
+
+    return cases_rouges

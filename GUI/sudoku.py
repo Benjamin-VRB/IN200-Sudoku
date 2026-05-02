@@ -5,7 +5,7 @@ from GUI.animations import mouvement_exterieur_fond_menu, retour_menu
 from GUI.widgets import creer_grille_sudoku, creer_boutton_arrondi, survole_non_survole, remplir_grille_sudoku_GUI, \
 barre_entree_sauv
 
-from Grille.Sudoku import supprimer_valeur
+from Grille.sudoku import supprimer_valeur
 
 
 def aller_sudoku(canvas: tk.Canvas) -> None:
