@@ -1,39 +1,55 @@
 import json 
 
-FICHIER_SAUVEGARDE = "Sauvegardes/grilles_jouees.json"
-FICHIER_SAUVEGARDE_TEMPO = "Sauvegardes/grilles_en_cours.json"
+FICHIER_SAUVEGARDE = "Sauvegardes/grilles_sauvegardees.json"
 
-def sauvegarde (grille, temps, difficulte, score):
-    
-    #On charge l'historique
-    lecture=open(FICHIER_SAUVEGARDE, "r")
-    liste_parties = json.load(lecture)
-    lecture.close()
-    
-    #Les données de la partie qu'on va sauvegarder 
-    nouvelle_partie={
-        "difficulte" : difficulte,
-        "grille" : grille,
-        "temps" : temps,
-        "score" : score,
-    }
 
-    #On ajoute notre nouvelle partie au début de la pile
-    liste_parties.insert(0,nouvelle_partie)
+def charger_sauvegardes() -> list:
 
-    #On garde les 100 dernieres parties 
-    liste_parties=liste_parties[:100]
+    try:
+        lecture=open(
+            file=FICHIER_SAUVEGARDE, 
+            mode="r"
+        )
+        sauv: list = json.load(fp=lecture)
+        lecture.close()
+    except:
+        sauv: list = []
+    return sauv
 
-    #On sauvegarde notre fichier 
-    ecriture = open(FICHIER_SAUVEGARDE,"w")
-    json.dump(liste_parties,ecriture,indent=4)
-    ecriture.close()
 
-    return 
+def modifier_sauvegardes(fonction):
+    def fonction_modifiee(**arguments):
+        sauv: list = charger_sauvegardes()
+        sauv: list = fonction(
+            sauv=sauv, 
+            **arguments
+        )
+        fich = open(
+            file=FICHIER_SAUVEGARDE, 
+            mode="w"
+        )
+        json.dump(
+            obj=sauv, 
+            fp=fich, 
+            indent=2, 
+            sort_keys=True
+        )
+    return fonction_modifiee
 
-def sauvegarde_progression(nom: str, grille_actuelle: list[list[int]], 
-                           grille_solution: list[list[int]], cases_verr: tuple[list[int], list[int]], 
-                           temps: int, date: str, type_grille: str) -> None:
+
+@modifier_sauvegardes
+def sauvegarder(
+    sauv: list,
+    nom: str, 
+    grille_actuelle: list[list[int]], 
+    grille_solution: list[list[int]], 
+    cases_verr: tuple[list[int], list[int]], 
+    temps: int, 
+    date: str, 
+    type_grille: str, 
+    statut: str, 
+    difficulte: str
+) -> list:
     
     donnee: dict[str, str | list[list[int]] | tuple[list[int], list[int]] | int] = {
         "nom" : nom,
@@ -42,42 +58,29 @@ def sauvegarde_progression(nom: str, grille_actuelle: list[list[int]],
         "grille_actuelle" : grille_actuelle,
         "grille_solution" : grille_solution,
         "cases_verrouillees" : cases_verr,
-        "temps" : temps
+        "temps" : temps, 
+        "statut" : statut, 
+        "difficulte" : difficulte
     }
     
-    try:
-        fich = open(file=FICHIER_SAUVEGARDE_TEMPO, mode="r")
-        sauv: list = json.load(fp=fich)
-        fich.close()
-    except:
-        sauv: list = []
-    sauv.append(donnee)
-
-    fich = open(file=FICHIER_SAUVEGARDE_TEMPO, mode="w")
-    json.dump(obj=sauv, fp=fich, indent=2, sort_keys=True)
+    sauv.insert(0, donnee)
+    return sauv
 
 
-def reinitialisation():
+@modifier_sauvegardes
+def supprimer_sauvegardes(
+    sauv: list, 
+    indices: list[int]
+) -> list:
     
-    donnee = {
-        "grille_actuelle" : None,
-        "grille_solution" : None,
-        "temps" : None,
-        "etat" : "vide"
-    }
+    for indice in indices:
+        if indice < 0:
+            indice += len(sauv)
+    list(set(indices)).sort(reverse=True) 
+    for indice in indices:
+        if indice < len(sauv):
+            sauv.pop(indice)
+    return sauv
+    
 
-    ecriture = open(FICHIER_SAUVEGARDE_TEMPO,"w")
-    json.dump(donnee,ecriture)
-    ecriture.close()
 
-    return
-
-def charger_sauvegarde():
-
-    lecture=open(FICHIER_SAUVEGARDE_TEMPO, "r")
-    donnee = json.load(lecture)
-    lecture.close()
-
-    if donnee["etat"] == "vide" : 
-        return None
-    return donnee

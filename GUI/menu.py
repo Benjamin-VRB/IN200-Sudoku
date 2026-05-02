@@ -17,11 +17,11 @@ def aller_menu() -> tk.Canvas:
     COULEUR_FOND_CNV: str = "#fffbf4"
 
     canvas: tk.Canvas = tk.Canvas(
-        racine, 
+        master=racine, 
         width=LARGEUR_PIXEL_FENETRE,
         height=HAUTEUR_PIXEL_FENETRE,
         bg=COULEUR_FOND_CNV
-        )
+    )
 
     canvas.pack()
 
@@ -33,15 +33,22 @@ def aller_menu() -> tk.Canvas:
     x_lim_gauche_haut: int = LARGEUR_PIXEL_FENETRE // 4 + 100
     x_lim_gauche_bas: int = LARGEUR_PIXEL_FENETRE // 5 + 100
 
-    canvas.create_polygon(((-x_lim_gauche_haut, 0), (0, 0), 
-                           (x_lim_gauche_bas - x_lim_gauche_haut, HAUTEUR_PIXEL_FENETRE), 
-                           (-x_lim_gauche_haut, HAUTEUR_PIXEL_FENETRE)), fill=COULEUR_FOND_GAUCHE, 
-                           outline=COULEUR_FOND_GAUCHE, tags=TAG_FOND_GAUCHE)
+    canvas.create_polygon(
+        ((-x_lim_gauche_haut, 0), (0, 0), (x_lim_gauche_bas - x_lim_gauche_haut, HAUTEUR_PIXEL_FENETRE), 
+         (-x_lim_gauche_haut, HAUTEUR_PIXEL_FENETRE)), 
+        fill=COULEUR_FOND_GAUCHE, 
+        outline=COULEUR_FOND_GAUCHE, 
+        tags=TAG_FOND_GAUCHE
+    )
 
-    canvas.create_polygon(((-50, 0), (-25, 0), 
-                           (x_lim_gauche_bas - x_lim_gauche_haut - 25, HAUTEUR_PIXEL_FENETRE), 
-                           (x_lim_gauche_bas - x_lim_gauche_haut - 50, HAUTEUR_PIXEL_FENETRE)), 
-                           fill=COULEUR_FOND_CNV, outline=COULEUR_FOND_CNV, tags=TAG_FOND_GAUCHE)
+    canvas.create_polygon(
+        ((-50, 0), (-25, 0), 
+         (x_lim_gauche_bas - x_lim_gauche_haut - 25, HAUTEUR_PIXEL_FENETRE), 
+         (x_lim_gauche_bas - x_lim_gauche_haut - 50, HAUTEUR_PIXEL_FENETRE)), 
+        fill=COULEUR_FOND_CNV, 
+        outline=COULEUR_FOND_CNV, 
+        tags=TAG_FOND_GAUCHE
+    )
     
     # côté droite du fond
     COULEUR_FOND_DROITE: str = "#CE8450"
@@ -49,17 +56,25 @@ def aller_menu() -> tk.Canvas:
     x_lim_droite_haut: int = 4 * LARGEUR_PIXEL_FENETRE // 5 - 100
     x_lim_droite_bas: int = 3 * LARGEUR_PIXEL_FENETRE // 4 - 100
 
-    canvas.create_polygon(((2 * LARGEUR_PIXEL_FENETRE - x_lim_droite_bas, 0), 
-                           (x_lim_droite_haut + LARGEUR_PIXEL_FENETRE - x_lim_droite_bas, 0), 
-                           (LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE), 
-                           (2 * LARGEUR_PIXEL_FENETRE - x_lim_droite_bas, HAUTEUR_PIXEL_FENETRE)), 
-                           fill=COULEUR_FOND_DROITE, outline=COULEUR_FOND_DROITE, tags=TAG_FOND_DROITE)
+    canvas.create_polygon(
+        ((2 * LARGEUR_PIXEL_FENETRE - x_lim_droite_bas, 0), 
+         (x_lim_droite_haut + LARGEUR_PIXEL_FENETRE - x_lim_droite_bas, 0), 
+         (LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE), 
+         (2 * LARGEUR_PIXEL_FENETRE - x_lim_droite_bas, HAUTEUR_PIXEL_FENETRE)), 
+        fill=COULEUR_FOND_DROITE, 
+        outline=COULEUR_FOND_DROITE, 
+        tags=TAG_FOND_DROITE
+    )
 
-    canvas.create_polygon(((x_lim_droite_haut + 25 + LARGEUR_PIXEL_FENETRE - x_lim_droite_bas, 0),
-                           (x_lim_droite_haut + 50 + LARGEUR_PIXEL_FENETRE - x_lim_droite_bas, 0), 
-                           (LARGEUR_PIXEL_FENETRE + 50, HAUTEUR_PIXEL_FENETRE), 
-                           (LARGEUR_PIXEL_FENETRE + 25, HAUTEUR_PIXEL_FENETRE)), fill=COULEUR_FOND_CNV, 
-                           outline=COULEUR_FOND_CNV, tags=TAG_FOND_DROITE)
+    canvas.create_polygon(
+        ((x_lim_droite_haut + 25 + LARGEUR_PIXEL_FENETRE - x_lim_droite_bas, 0),
+         (x_lim_droite_haut + 50 + LARGEUR_PIXEL_FENETRE - x_lim_droite_bas, 0), 
+         (LARGEUR_PIXEL_FENETRE + 50, HAUTEUR_PIXEL_FENETRE), 
+         (LARGEUR_PIXEL_FENETRE + 25, HAUTEUR_PIXEL_FENETRE)), 
+        fill=COULEUR_FOND_CNV, 
+        outline=COULEUR_FOND_CNV, 
+        tags=TAG_FOND_DROITE
+    )
     
     # boutons
     PARAMS_BOUTON: dict[str, int | tuple[str, int]] = {
@@ -94,66 +109,152 @@ def aller_menu() -> tk.Canvas:
     TAG_QUITTER: str = "bouton_quitter"
 
     bouton_perso: dict[str, list[int] | int] = \
-        creer_boutton_arrondi(canvas=canvas, coord=(COLONNE1, RANGEE1), tag=TAG_PERSO, 
-                              texte="Partie personnalisée", couleur_texte=COULEUR_FOND_GAUCHE, 
-                              **(PARAMS_BOUTON | COULEURS_BOUTON))
+        creer_boutton_arrondi(
+            canvas=canvas, 
+            coord=(COLONNE1, RANGEE1), 
+            tag=TAG_PERSO, 
+            texte="Partie personnalisée", 
+            couleur_texte=COULEUR_FOND_GAUCHE, 
+            **(PARAMS_BOUTON | COULEURS_BOUTON)
+        )
     
     bouton_puzz: dict[str, list[int] | int] = \
-        creer_boutton_arrondi(canvas=canvas, coord=(COLONNE1, RANGEE2), tag=TAG_PUZZ, 
-                              texte="Puzzles", couleur_texte=COULEUR_FOND_GAUCHE, 
-                              **(PARAMS_BOUTON | COULEURS_BOUTON))
+        creer_boutton_arrondi(
+            canvas=canvas, 
+            coord=(COLONNE1, RANGEE2), 
+            tag=TAG_PUZZ, 
+            texte="Puzzles", 
+            couleur_texte=COULEUR_FOND_GAUCHE, 
+            **(PARAMS_BOUTON | COULEURS_BOUTON)
+        )
     
     bouton_sauv: dict[str, list[int] | int] = \
-        creer_boutton_arrondi(canvas=canvas, coord=(COLONNE1, RANGEE3), tag=TAG_SAUV, 
-                              texte="Sauvegardes", couleur_texte=COULEUR_FOND_GAUCHE, 
-                              **(PARAMS_BOUTON | COULEURS_BOUTON))
+        creer_boutton_arrondi(
+            canvas=canvas, 
+            coord=(COLONNE1, RANGEE3), 
+            tag=TAG_SAUV, 
+            texte="Sauvegardes", 
+            couleur_texte=COULEUR_FOND_GAUCHE, 
+            **(PARAMS_BOUTON | COULEURS_BOUTON)
+        )
     
     bouton_stats: dict[str, list[int] | int] = \
-        creer_boutton_arrondi(canvas=canvas, coord=(COLONNE2, RANGEE1), tag=TAG_STATS, 
-                              texte="Statistiques", couleur_texte=COULEUR_FOND_DROITE, 
-                              **(PARAMS_BOUTON | COULEURS_BOUTON))
+        creer_boutton_arrondi(
+            canvas=canvas, 
+            coord=(COLONNE2, RANGEE1), 
+            tag=TAG_STATS, 
+            texte="Statistiques", 
+            couleur_texte=COULEUR_FOND_DROITE, 
+            **(PARAMS_BOUTON | COULEURS_BOUTON)
+        )
     
     bouton_credits: dict[str, list[int] | int] = \
-        creer_boutton_arrondi(canvas=canvas, coord=(COLONNE2, RANGEE2), tag=TAG_CREDITS, 
-                              texte="Crédits", couleur_texte=COULEUR_FOND_DROITE, 
-                              **(PARAMS_BOUTON | COULEURS_BOUTON))
+        creer_boutton_arrondi(
+            canvas=canvas, 
+            coord=(COLONNE2, RANGEE2), 
+            tag=TAG_CREDITS, 
+            texte="Crédits", 
+            couleur_texte=COULEUR_FOND_DROITE, 
+            **(PARAMS_BOUTON | COULEURS_BOUTON)
+        )
     
     bouton_quitter: dict[str, list[int] | int] = \
-        creer_boutton_arrondi(canvas=canvas, coord=(COLONNE2, RANGEE3), tag=TAG_QUITTER, 
-                              texte="Quitter", couleur_texte=COULEUR_FOND_DROITE, 
-                              **(PARAMS_BOUTON | COULEURS_BOUTON))
+        creer_boutton_arrondi(
+            canvas=canvas, 
+            coord=(COLONNE2, RANGEE3), 
+            tag=TAG_QUITTER, 
+            texte="Quitter", 
+            couleur_texte=COULEUR_FOND_DROITE, 
+            **(PARAMS_BOUTON | COULEURS_BOUTON)
+        )
 
-    survole_non_survole(canvas=canvas, tag=TAG_PERSO, fond=bouton_perso["fond"], 
-                        bordure=bouton_perso["bordure"], **(COULEURS_BOUTON | COULEURS_SURVOLE))
+    survole_non_survole(
+        canvas=canvas, 
+        tags_ou_ids=[TAG_PERSO], 
+        fond=bouton_perso["fond"], 
+        bordure=bouton_perso["bordure"], 
+        **(COULEURS_BOUTON | COULEURS_SURVOLE)
+    )
     
-    survole_non_survole(canvas=canvas, tag=TAG_PUZZ, fond=bouton_puzz["fond"], 
-                        bordure=bouton_puzz["bordure"], **(COULEURS_BOUTON | COULEURS_SURVOLE))
+    survole_non_survole(
+        canvas=canvas, 
+        tags_ou_ids=[TAG_PUZZ], 
+        fond=bouton_puzz["fond"], 
+        bordure=bouton_puzz["bordure"], 
+        **(COULEURS_BOUTON | COULEURS_SURVOLE)
+    )
     
-    survole_non_survole(canvas=canvas, tag=TAG_SAUV, fond=bouton_sauv["fond"], 
-                        bordure=bouton_sauv["bordure"], **(COULEURS_BOUTON | COULEURS_SURVOLE))
+    survole_non_survole(
+        canvas=canvas, 
+        tags_ou_ids=[TAG_SAUV], 
+        fond=bouton_sauv["fond"], 
+        bordure=bouton_sauv["bordure"], 
+        **(COULEURS_BOUTON | COULEURS_SURVOLE)
+    )
 
-    survole_non_survole(canvas=canvas, tag=TAG_STATS, fond=bouton_stats["fond"], 
-                        bordure=bouton_stats["bordure"], **(COULEURS_BOUTON | COULEURS_SURVOLE))
+    survole_non_survole(
+        canvas=canvas, 
+        tags_ou_ids=[TAG_STATS], 
+        fond=bouton_stats["fond"], 
+        bordure=bouton_stats["bordure"], 
+        **(COULEURS_BOUTON | COULEURS_SURVOLE)
+    )
     
-    survole_non_survole(canvas=canvas, tag=TAG_CREDITS, fond=bouton_credits["fond"], 
-                        bordure=bouton_credits["bordure"], **(COULEURS_BOUTON | COULEURS_SURVOLE))
+    survole_non_survole(
+        canvas=canvas, 
+        tags_ou_ids=[TAG_CREDITS], 
+        fond=bouton_credits["fond"], 
+        bordure=bouton_credits["bordure"], 
+        **(COULEURS_BOUTON | COULEURS_SURVOLE)
+    )
     
-    survole_non_survole(canvas=canvas, tag=TAG_QUITTER, fond=bouton_quitter["fond"], 
-                        bordure=bouton_quitter["bordure"], **(COULEURS_BOUTON | COULEURS_SURVOLE))
+    survole_non_survole(
+        canvas=canvas, 
+        tags_ou_ids=[TAG_QUITTER], 
+        fond=bouton_quitter["fond"], 
+        bordure=bouton_quitter["bordure"], 
+        **(COULEURS_BOUTON | COULEURS_SURVOLE)
+    )
 
-    canvas.tag_bind(tagOrId=TAG_PERSO, sequence="<Button-1>", 
-                    func=lambda event: aller_sudoku(canvas=canvas))
-    canvas.tag_bind(tagOrId=TAG_SAUV, sequence="<Button-1>", 
-                    func=lambda event: aller_menu_sauvegardes(canvas=canvas))
-    canvas.tag_bind(tagOrId=TAG_STATS, sequence="<Button-1>", 
-                    func=lambda event: aller_stats(canvas=canvas))
-    canvas.tag_bind(tagOrId=TAG_CREDITS, sequence="<Button-1>", func=lambda event: aller_credits(canvas=canvas))
-    canvas.tag_bind(tagOrId=TAG_QUITTER, sequence="<Button-1>", func=lambda event: exit())
+    canvas.tag_bind(
+        tagOrId=TAG_PERSO, 
+        sequence="<Button-1>", 
+        func=lambda event: aller_sudoku(canvas=canvas)
+    )
+    
+    canvas.tag_bind(
+        tagOrId=TAG_SAUV, 
+        sequence="<Button-1>", 
+        func=lambda event: aller_menu_sauvegardes(canvas=canvas)
+    )
+    
+    canvas.tag_bind(
+        tagOrId=TAG_STATS, 
+        sequence="<Button-1>", 
+        func=lambda event: aller_stats(canvas=canvas)
+    )
+    
+    canvas.tag_bind(
+        tagOrId=TAG_CREDITS, 
+        sequence="<Button-1>", 
+        func=lambda event: aller_credits(canvas=canvas)
+    )
+    
+    canvas.tag_bind(
+        tagOrId=TAG_QUITTER, 
+        sequence="<Button-1>", 
+        func=lambda event: exit()
+    )
 
     # titre
-    canvas.create_text((LARGEUR_PIXEL_FENETRE // 2, 0), 
-                       text="Sudoku", font=("Californian fb", 100), anchor=tk.S, 
-                       fill="#A38D54", tags="titre_menu")
+    canvas.create_text(
+        (LARGEUR_PIXEL_FENETRE // 2, 0), 
+        text="Sudoku", 
+        font=("Californian fb", 100), 
+        anchor=tk.S, 
+        fill="#A38D54", 
+        tags="titre_menu"
+    )
     
     mouvement_interieur_fond_menu(canvas=canvas)
     return canvas
