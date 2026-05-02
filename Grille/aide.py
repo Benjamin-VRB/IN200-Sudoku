@@ -9,6 +9,13 @@ def indicateur_sudoku(grille_joueur : list, grille_complete : list, dimension : 
     
     racine = int(math.sqrt(dimension))
 
+    # On verifie que la grille est déjà correcte
+    for lig in range(dimension): 
+        for col in range(dimension):
+            # Si la case n'est pas vide et differente de la solution on l'indique au joueur
+            if grille_joueur[lig][col] != 0 and grille_joueur[lig][col] != grille_complete[lig][col] : 
+                return "Erreur", (lig,col)
+
     def obtenir_candidats(grille, lig, col):
         """Retourne la liste des chiffres possibles pour une case donnée."""
         candidats_possibles = []
@@ -94,6 +101,13 @@ def indicateur_sudoku(grille_joueur : list, grille_complete : list, dimension : 
 def indicateur_kenken(grille_joueur : list, grille_complete : list, dictionnaire_cages : dict, dimension : int):
     """permet d'indiquer à l'utilisateur une case d'une grille de kenken"""
 
+    # On verifie que la grille est déjà correcte
+    for lig in range(dimension): 
+        for col in range(dimension):
+            # Si la case n'est pas vide et differente de la solution on l'indique au joueur
+            if grille_joueur[lig][col] != 0 and grille_joueur[lig][col] != grille_complete[lig][col] : 
+                return "Erreur", (lig,col)
+        
     def obtenir_candidats(grille, lig, col):
         """Retourne la liste des chiffres possibles pour une case donnée."""
         candidats_possibles = []
@@ -184,6 +198,14 @@ def indicateur_kenken(grille_joueur : list, grille_complete : list, dictionnaire
 def indicateur_irregulier (grille_joueur : list, plan_cage : list, grille_complete : list):
     """permet d'indiquer à l'utilisateur une case à partir d'une grille d'un Sudoku Irregulier"""
     dimension = len(grille_joueur)
+    
+    # On verifie que la grille est déjà correcte
+    for lig in range(dimension): 
+        for col in range(dimension):
+            # Si la case n'est pas vide et differente de la solution on l'indique au joueur
+            if grille_joueur[lig][col] != 0 and grille_joueur[lig][col] != grille_complete[lig][col] : 
+                return "Erreur", (lig,col)
+            
     l_u, c_u, cage_u = irregulier.initialiser_contraintes(grille_joueur, plan_cage, dimension)
     
     # On cherche d'abord s'il y a une case avec un seul candidat
@@ -242,10 +264,16 @@ print(indicateur_irregulier(grille_joueur,plan_cage,grille_complete))
 
 def indicateur_windoku(grille_joueur : list, grille_complete : list, dimension : int = 9):
     """permet d'indiquer à l'utilisateur une case d'une grille de windoku"""
-
     racine = int(math.sqrt(dimension))
     # Positions des coins supérieurs gauches des 4 fenêtres Windoku
     fenetres_pos = [(1, 1), (1, 5), (5, 1), (5, 5)]
+
+    # On verifie que la grille est déjà correcte
+    for lig in range(dimension): 
+        for col in range(dimension):
+            # Si la case n'est pas vide et differente de la solution on l'indique au joueur
+            if grille_joueur[lig][col] != 0 and grille_joueur[lig][col] != grille_complete[lig][col] : 
+                return "Erreur", (lig,col)
 
     def obtenir_candidats(grille, lig, col):
         """Retourne la liste des chiffres possibles pour une case donnée."""
@@ -338,9 +366,15 @@ print(indicateur_windoku(grille_windoku_test,solution_windoku))
 
 def indicateur_consecutif(grille_joueur : list, grille_complete : list, duos_consecutifs : list, dimension : int = 9):
     """permet d'indiquer à l'utilisateur une case d'une grille de sudoku consécutif"""
-
     racine = int(math.sqrt(dimension))
 
+    # On verifie que la grille est déjà correcte
+    for lig in range(dimension): 
+        for col in range(dimension):
+            # Si la case n'est pas vide et differente de la solution on l'indique au joueur
+            if grille_joueur[lig][col] != 0 and grille_joueur[lig][col] != grille_complete[lig][col] : 
+                return "Erreur", (lig,col)
+            
     def obtenir_candidats(grille, lig, col):
         """Retourne la liste des chiffres possibles pour une case donnée."""
         candidats_possibles = []
@@ -444,7 +478,14 @@ print(indicateur_consecutif(grille_vidée_consecutif,grille_complete_consectutif
 
 def indicateur_kakuro(grille_joueur : list, grille_complete : list, dimension : int = 9):
     """permet d'indiquer à l'utilisateur une case d'une grille de kakuro"""
-
+    
+    # On verifie que la grille est déjà correcte
+    for lig in range(dimension): 
+        for col in range(dimension):
+            # Si la case n'est pas vide et differente de la solution on l'indique au joueur
+            if grille_joueur[lig][col] != 0 and grille_joueur[lig][col] != grille_complete[lig][col] : 
+                return "Erreur", (lig,col)
+            
     def obtenir_candidats(grille, lig, col):
         """Retourne la liste des chiffres possibles pour une case donnée."""
         candidats_possibles = []
