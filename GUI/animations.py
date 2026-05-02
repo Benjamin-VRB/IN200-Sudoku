@@ -2,8 +2,13 @@ import tkinter as tk
 
 from GUI.fenetre import LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
 
+from Grille.sauvegarde import supprimer_sauvegardes
 
-def mouvement_interieur_fond_menu(canvas: tk.Canvas, iteration: int = 1) -> None:
+
+def mouvement_interieur_fond_menu(
+    canvas: tk.Canvas, 
+    iteration: int = 1
+) -> None:
     """
     Déplace le fond du menu, le titre ainsi que les boutons vers l'intérieur de la fenêtre
     """
@@ -14,27 +19,76 @@ def mouvement_interieur_fond_menu(canvas: tk.Canvas, iteration: int = 1) -> None
     NB_ITERATION: int = 80
 
     # fond
-    canvas.move("fond_bleu", DISTANCE_FINALE_FOND / NB_ITERATION, 0)
-    canvas.move("fond_orange", -DISTANCE_FINALE_FOND / NB_ITERATION, 0)
+    canvas.move(
+        "fond_bleu", 
+        DISTANCE_FINALE_FOND / NB_ITERATION, 
+        0
+    )
+
+    canvas.move(
+        "fond_orange", -
+        DISTANCE_FINALE_FOND / NB_ITERATION, 
+        0
+    )
     
     # titre
-    canvas.move("titre_menu", 0, distance_finale_titre / NB_ITERATION)
+    canvas.move(
+        "titre_menu", 
+        0, 
+        distance_finale_titre / NB_ITERATION
+    )
    
     # boutons
-    canvas.move("bouton_perso", DISTANCE_FINALE_BOUTON / NB_ITERATION, 0)
-    canvas.move("bouton_puzz", DISTANCE_FINALE_BOUTON / NB_ITERATION, 0)
-    canvas.move("bouton_sauv", DISTANCE_FINALE_BOUTON / NB_ITERATION, 0)
-    canvas.move("bouton_stats", -DISTANCE_FINALE_BOUTON / NB_ITERATION, 0)
-    canvas.move("bouton_credits", -DISTANCE_FINALE_BOUTON / NB_ITERATION, 0)
-    canvas.move("bouton_quitter", -DISTANCE_FINALE_BOUTON / NB_ITERATION, 0)
+    canvas.move(
+        "bouton_perso", 
+        DISTANCE_FINALE_BOUTON / NB_ITERATION, 
+        0
+    )
+
+    canvas.move(
+        "bouton_puzz", 
+        DISTANCE_FINALE_BOUTON / NB_ITERATION, 
+        0
+    )
+
+    canvas.move(
+        "bouton_sauv", 
+        DISTANCE_FINALE_BOUTON / NB_ITERATION, 
+        0
+    )
+
+    canvas.move(
+        "bouton_stats", 
+        -DISTANCE_FINALE_BOUTON / NB_ITERATION, 
+        0
+    )
+
+    canvas.move(
+        "bouton_credits", 
+        -DISTANCE_FINALE_BOUTON / NB_ITERATION, 
+        0
+    )
+
+    canvas.move(
+        "bouton_quitter", 
+        -DISTANCE_FINALE_BOUTON / NB_ITERATION, 
+        0
+    )
 
     if iteration < NB_ITERATION:
         temps_attente: int = 630 // NB_ITERATION
-        canvas.after(temps_attente, mouvement_interieur_fond_menu, *[canvas, iteration + 1])
+        canvas.after(
+            temps_attente, 
+            mouvement_interieur_fond_menu, 
+            *[canvas, iteration + 1]
+        )
 
 
-def mouvement_exterieur_fond_menu(canvas: tk.Canvas, instantane: bool = True, 
-                                  iteration: int = 1) -> None:
+def mouvement_exterieur_fond_menu(
+    canvas: tk.Canvas, 
+    instantane: bool = True, 
+    iteration: int = 1
+) -> None:
     """
     Déplace le fond du menu, le titre ainsi que les boutons vers l'extérieur de la fenêtre
     """
@@ -48,29 +102,130 @@ def mouvement_exterieur_fond_menu(canvas: tk.Canvas, instantane: bool = True,
         nb_iteration = 1
     
     # fond
-    canvas.move("fond_bleu", -DISTANCE_FINALE_FOND / nb_iteration, 0)
-    canvas.move("fond_orange", DISTANCE_FINALE_FOND / nb_iteration, 0)
+    canvas.move(
+        "fond_bleu", 
+        -DISTANCE_FINALE_FOND / nb_iteration, 
+        0
+    )
+
+    canvas.move(
+        "fond_orange", 
+        DISTANCE_FINALE_FOND / nb_iteration, 
+        0
+    )
 
     # titre
-    canvas.move("titre_menu", 0, -distance_finale_titre / nb_iteration)
+    canvas.move(
+        "titre_menu", 
+        0, 
+        -distance_finale_titre / nb_iteration
+    )
 
     # boutons
-    canvas.move("bouton_perso", -DISTANCE_FINALE_BOUTON / nb_iteration, 0)
-    canvas.move("bouton_puzz", -DISTANCE_FINALE_BOUTON / nb_iteration, 0)
-    canvas.move("bouton_sauv", -DISTANCE_FINALE_BOUTON / nb_iteration, 0)
-    canvas.move("bouton_stats", DISTANCE_FINALE_BOUTON / nb_iteration, 0)
-    canvas.move("bouton_credits", DISTANCE_FINALE_BOUTON / nb_iteration, 0)
-    canvas.move("bouton_quitter", DISTANCE_FINALE_BOUTON / nb_iteration, 0)
+    canvas.move(
+        "bouton_perso", 
+        -DISTANCE_FINALE_BOUTON / nb_iteration, 
+        0
+    )
+
+    canvas.move(
+        "bouton_puzz", 
+        -DISTANCE_FINALE_BOUTON / nb_iteration, 
+        0
+    )
+
+    canvas.move(
+        "bouton_sauv", 
+        -DISTANCE_FINALE_BOUTON / nb_iteration, 
+        0
+    )
+
+    canvas.move(
+        "bouton_stats", 
+        DISTANCE_FINALE_BOUTON / nb_iteration, 
+        0
+    )
+
+    canvas.move(
+        "bouton_credits", 
+        DISTANCE_FINALE_BOUTON / nb_iteration, 
+        0
+    )
+
+    canvas.move(
+        "bouton_quitter", 
+        DISTANCE_FINALE_BOUTON / nb_iteration, 
+        0
+    )
 
     if iteration < nb_iteration:
         temps_attente: int = 630 // nb_iteration
-        canvas.after(temps_attente, mouvement_exterieur_fond_menu, *[canvas, False, iteration + 1])
+        canvas.after(
+            temps_attente, 
+            mouvement_exterieur_fond_menu, 
+            *[canvas, False, iteration + 1]
+        )
     
 
-def retour_menu(canvas: tk.Canvas, tags_or_ids: list[str | int]) -> None:
+def supprimer_elements(
+    canvas: tk.Canvas,
+    tags_ou_ids: list[str | int] = None, 
+    widgets: list[tk.Widget] = None
+) -> None:
+    
+    if tags_ou_ids is not None:
+        canvas.delete(*tags_ou_ids)
+    if widgets is not None:
+        for widget in widgets:
+            widget.destroy()
+
+
+def retour_menu(
+    canvas: tk.Canvas, 
+    tags_ou_ids: list[str | int] = None, 
+    widgets: list[tk.Widget] = None
+) -> None:
     """
     Retourne au menu en supprimant les éléments de l'interface qu'on désire quitter et en 
     actionnant l'animation du menu
     """
-    canvas.delete(*tags_or_ids)
+    supprimer_elements(
+        canvas=canvas, 
+        tags_ou_ids=tags_ou_ids, 
+        widgets=widgets
+    )
     mouvement_interieur_fond_menu(canvas=canvas)
+
+
+def actualiser_page(
+    canvas: tk.Canvas,
+    fonction_page, 
+    arguments: dict = {},
+    tags_ou_ids: list[str | int] = None, 
+    widgets: list[tk.Widget] = None
+) -> None:
+
+    retour_menu(
+        canvas=canvas, 
+        tags_ou_ids=tags_ou_ids, 
+        widgets=widgets
+    )
+    fonction_page(**arguments)
+
+
+def supprimer_sauv_menu_sauvegardes(
+    canvas: tk.Canvas, 
+    fonction_page, 
+    indices: list[int], 
+    tags_ou_ids: list[str | int] = None, 
+    widgets: list[tk.Widget] = None
+) -> None:
+    
+    supprimer_sauvegardes(indices=indices)
+    actualiser_page(
+        canvas=canvas, 
+        fonction_page=fonction_page, 
+        arguments={"canvas" : canvas}, 
+        tags_ou_ids=tags_ou_ids, 
+        widgets=widgets
+    )

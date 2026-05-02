@@ -192,7 +192,7 @@ def supprimer_valeur(nombre_valeur_a_supprimer : int, dimension : int):
             if (nombre_valeur_a_supprimer - nombre_case_supprime) > 5:   
                 return supprimer_valeur(nombre_valeur_a_supprimer, dimension)
             else:
-                return grille_vidée, grille_complete
+                return grille_vidée
 
         ligne, colonne = positions.pop()
         valeur_originale = grille_vidée[ligne][colonne]
@@ -203,5 +203,5 @@ def supprimer_valeur(nombre_valeur_a_supprimer : int, dimension : int):
         else:
             grille_vidée[ligne][colonne] = valeur_originale
 
-    return grille_vidée, grille_complete
+    return grille_vidée
 
