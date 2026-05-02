@@ -41,8 +41,7 @@ def modifier_sauvegardes(fonction):
 def sauvegarder(
     sauv: list,
     nom: str, 
-    grille_actuelle: list[list[int]], 
-    grille_solution: list[list[int]], 
+    grille_actuelle: list[list[int]],  
     cases_verr: tuple[list[int], list[int]], 
     temps: int, 
     date: str, 
@@ -56,7 +55,6 @@ def sauvegarder(
         "date" : date,
         "type" : type_grille,
         "grille_actuelle" : grille_actuelle,
-        "grille_solution" : grille_solution,
         "cases_verrouillees" : cases_verr,
         "temps" : temps, 
         "statut" : statut, 

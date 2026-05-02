@@ -1,6 +1,6 @@
 import math
-from kenken import verifier_cage
-from affichage_cases_contraintes import afficher_contraintes_kakuro 
+from Grille.kenken import verifier_cage
+from Grille.affichage_cases_contraintes import afficher_contraintes_kakuro 
 
 ####       Fonctions "de base" lignes/colonnes       ####
 

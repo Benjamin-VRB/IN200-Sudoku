@@ -32,7 +32,7 @@ def aller_sudoku(canvas: tk.Canvas) -> None:
             nb_carre_cote=NB_CARRE_COTE
         )
     
-    grille_valeur, grille_solution = supprimer_valeur(
+    grille_valeur = supprimer_valeur(
         nombre_valeur_a_supprimer=60, 
         dimension=NB_CASE_COTE
     )
@@ -139,8 +139,7 @@ def aller_sudoku(canvas: tk.Canvas) -> None:
             hauteur=HAUTEUR_BARRE_ENTREE_SAUV, 
             epaisseur_cadre=EPAISSEUR_CADRE_BARRE_ENTREE_SAUV, 
             page=page, 
-            cases=grille["cases"], 
-            grille_solution=grille_solution, 
+            cases=grille["cases"],  
             tag=TAG_BARRE_ENTREE_SAUV, 
             type_grille="Sudoku", 
             temps=126, 

@@ -1,10 +1,18 @@
 import tkinter as tk
 import datetime
+import math
 
 from GUI.fenetre import LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
 from GUI.decorations import creer_cadre
 
 from Grille.sauvegarde import sauvegarder
+from Grille.verification import verification_sudoku_classique_complet
+
+
+COULEUR_CASE: str = "#ffffff"
+COULEUR_CASE_VERR: str = "#F0F0F0"
+COULEUR_CASE_PROBLEME: str = "#ffc5bc"
+COULEUR_CASE_PROBLEME_VERR: str = "#d3a49c"
 
 
 def creer_boutton_arrondi(
@@ -201,6 +209,47 @@ def activer_widget(
         )
 
 
+def trouver_cases_verrouillee(
+    canvas: tk.Canvas, 
+    cases: list[dict[str, int]]
+) -> list[dict[str, int]]:
+
+    cases_verr: list[dict[str, int]] = []
+    for case in cases:
+        case_vide: int = case["case_vide"]
+        if canvas.itemcget(
+            tagOrId=case_vide, 
+            option="fill"
+        ) in [COULEUR_CASE_VERR, COULEUR_CASE_PROBLEME_VERR]:
+            cases_verr.append(case)
+    return cases_verr
+
+
+def reset_couleur_cases_rouges(
+    canvas: tk.Canvas, 
+    cases: list[dict[str, int]]
+) -> None:
+    
+    for case in cases:
+        case_vide: int = case["case_vide"]
+        if canvas.itemcget(
+            tagOrId=case_vide, 
+            option="fill"
+        ) == COULEUR_CASE_PROBLEME_VERR:
+            canvas.itemconfig(
+                tagOrId=case_vide, 
+                fill=COULEUR_CASE_VERR
+            )
+        if canvas.itemcget(
+            tagOrId=case_vide, 
+            option="fill"
+        ) == COULEUR_CASE_PROBLEME:
+            canvas.itemconfig(
+                tagOrId=case_vide, 
+                fill=COULEUR_CASE
+            )
+
+
 def reset_focus_cases(
     canvas: tk.Canvas, 
     cases: list[dict[str, int]]
@@ -218,11 +267,70 @@ def reset_focus_cases(
         canvas.tag_lower(case_vide)
 
 
+def verification_cases_sudoku(
+    canvas: tk.Canvas, 
+    case: dict[str, int], 
+    cases: list[dict[str, int]]
+) -> list[tuple[int, int]]:
+    
+    grille: list[list[int]] = []
+    nombre_cases_cote_grille: int = int(math.sqrt(len(cases)))
+    for _ in range(nombre_cases_cote_grille):
+        rangee: list[int] = []
+        for _ in range(nombre_cases_cote_grille):
+            texte: int = case["texte"]
+            nombre: int = canvas.itemcget(
+                tagOrId=texte, 
+                option="text"
+            )
+            rangee.append(nombre)
+        grille.append(rangee)
+    indice_case: int = cases.index(case)
+    coord: tuple[int, int] = (indice_case % 9, indice_case // 9)
+    list_coord_nombres_identiques: list[tuple[int, int]] = verification_sudoku_classique_complet(
+        grille=grille, 
+        coord=coord
+    )
+    return list_coord_nombres_identiques
+
+
+def afficher_cases_identiques(
+    canvas: tk.Canvas, 
+    list_coord: list[tuple[int, int]], 
+    cases: list[dict[str, int]], 
+):
+    
+    reset_couleur_cases_rouges(
+        canvas=canvas, 
+        cases=cases
+    )
+
+    cases_verr: list[dict[str, int]] = trouver_cases_verrouillee(
+        canvas=canvas, 
+        cases=cases
+    )
+    for coord in list_coord:
+        indice: int = coord[1] * 9 + coord[0]
+        case: dict[str, int] = cases[indice]
+        case_vide: int = case["case_vide"]
+        if case in cases_verr:
+            canvas.itemconfig(
+                tagOrId=case_vide,
+                fill=COULEUR_CASE_PROBLEME_VERR
+            )
+        else:
+            canvas.itemconfig(
+                tagOrId=case_vide,
+                fill=COULEUR_CASE_PROBLEME
+            )
+
+
 def modifier_valeur_case_grille(
     event, 
     canvas: tk.Canvas, 
     case: dict[str, int], 
-    valeur_max: int
+    valeur_max: int, 
+    cases: list[dict[str, int]]
 ) -> None:
     
     texte: int = case["texte"]
@@ -240,6 +348,16 @@ def modifier_valeur_case_grille(
         reset_focus_cases(
             canvas=canvas, 
             cases=[case]
+        )
+        list_coord: list[tuple[int, int]] = verification_cases_sudoku(
+            canvas=canvas, 
+            case=case, 
+            cases=cases
+        )
+        afficher_cases_identiques(
+            canvas=canvas, 
+            list_coord=list_coord, 
+            cases=cases
         )
     elif len(nombre_actuel) > 0:
         if event.char == "0" and int(nombre_actuel + event.char) <= valeur_max:
@@ -579,7 +697,7 @@ def entree_focus_case(
     canvas: tk.Canvas, 
     case: dict[str, int], 
     valeur_max: int, 
-    cases_grille: list[int]
+    cases: list[dict[str, int]]
 ) -> None:
     
     case_vide: int = case["case_vide"]
@@ -587,7 +705,7 @@ def entree_focus_case(
 
     reset_focus_cases(
         canvas=canvas, 
-        cases=cases_grille
+        cases=cases
     )
     canvas.tag_raise(case_vide)
     canvas.tag_raise(texte)
@@ -614,7 +732,8 @@ def entree_focus_case(
             event, 
             canvas=canvas, 
             case=case,
-            valeur_max=valeur_max
+            valeur_max=valeur_max, 
+            cases=cases
         )
     )
 
@@ -628,7 +747,7 @@ def creer_case(
 
     case_vide: int = canvas.create_rectangle(
         (coord, (coord[0] + longueur_cote, coord[1] + longueur_cote)),
-        fill="#ffffff", 
+        fill=COULEUR_CASE, 
         outline="#000000", 
         width=1, 
         tags=tag
@@ -698,7 +817,7 @@ def creer_grille_sudoku(
                 canvas=canvas, 
                 case=case, 
                 valeur_max=nb_case_cote, 
-                cases_grille=cases
+                cases=cases
             )
         )
         canvas.tag_bind(
@@ -708,14 +827,11 @@ def creer_grille_sudoku(
                 canvas=canvas, 
                 case=case, 
                 valeur_max=nb_case_cote, 
-                cases_grille=cases
+                cases=cases
             )
         )
         
     return {"cases" : cases, "carres" : carres}
-
-
-COULEUR_CASE_REMPLIE: str = "#F0F0F0"
 
 
 def remplir_grille_sudoku_GUI(
@@ -736,28 +852,12 @@ def remplir_grille_sudoku_GUI(
                 )
                 canvas.itemconfig(
                     tagOrId=case_vide, 
-                    fill=COULEUR_CASE_REMPLIE
+                    fill=COULEUR_CASE_VERR
                 )
                 canvas.itemconfig(
                     tagOrId=texte, 
                     text=grille_valeur[rangee][colonne]
                 )
-
-
-def trouver_cases_verrouillee(
-    canvas: tk.Canvas, 
-    cases: list[dict[str, int]]
-) -> list[dict[str, int]]:
-
-    cases_verr: list[dict[str, int]] = []
-    for case in cases:
-        case_vide: int = case["case_vide"]
-        if canvas.itemcget(
-            tagOrId=case_vide, 
-            option="fill"
-        ) == COULEUR_CASE_REMPLIE:
-            cases_verr.append(case)
-    return cases_verr
 
 
 def interagir_barre_sauv(
@@ -767,7 +867,6 @@ def interagir_barre_sauv(
     nom_sauv: str, 
     cases: list[dict[str, int]], 
     cases_verr: list[dict[str, int]],
-    grille_solution: list[list[int]], 
     temps: int, 
     page: list[str | int], 
     type_grille: str, 
@@ -781,10 +880,11 @@ def interagir_barre_sauv(
             if nom_sauv == "":
                 nom_sauv = "Aucun nom"
             grille: list[list[int]] = []
-            for i in range(len(grille_solution)):
+            nombre_cases_cote_grille: int = math.sqrt(len(cases))
+            for i in range(nombre_cases_cote_grille):
                 rangee: list[int] = []
-                for j in range(len(grille_solution[0])):
-                    indice: int = i * len(grille_solution[0]) + j
+                for j in range(nombre_cases_cote_grille):
+                    indice: int = i * nombre_cases_cote_grille + j
                     texte: str = canvas.itemcget(
                         tagOrId=cases[indice]["texte"], 
                         option="text"
@@ -798,8 +898,7 @@ def interagir_barre_sauv(
             temps_str: str = f"{temps // 60}min {temps % 60}s"
             sauvegarder(
                 nom=nom_sauv, 
-                grille_actuelle=grille, 
-                grille_solution=grille_solution, 
+                grille_actuelle=grille,  
                 cases_verr=cases_verr_indices, 
                 temps=temps_str, 
                 date=date_str, 
@@ -825,7 +924,6 @@ def barre_entree_sauv(
     epaisseur_cadre: int, 
     page: list[str | int], 
     cases: list[dict[str, int]], 
-    grille_solution: list[list[int]], 
     temps: int, 
     difficulte: str, 
     tag: str, 
@@ -888,7 +986,6 @@ def barre_entree_sauv(
             nom_sauv=entree.get(), 
             cases=cases, 
             cases_verr=cases_verr, 
-            grille_solution=grille_solution, 
             temps=temps, 
             difficulte=difficulte, 
             page=page, 
