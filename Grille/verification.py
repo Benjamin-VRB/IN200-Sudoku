@@ -21,16 +21,16 @@ def verification_lignes_colonnes(grille: list[list[int]], coord: tuple[int, int]
     liste_indices_lignes.remove(ligne)                     # à laquelle on enlève l'indice de la case venant d'être remplie.
 
     for i in liste_indices_lignes:
-        if grille[i][colonne] == valeur:
-            liste_cases_invalides.append((i, colonne))     # On regarde dans toute la ligne.
+        if grille[i][colonne] != 0 and  grille[i][colonne] == valeur:
+            liste_cases_invalides.append((i, colonne))     # On regarde dans toute la colonne.
 
 
     liste_indices_colonnes = [i for i in range(dimension)]  # Liste des indices des colonnes a tester.
     liste_indices_colonnes.remove(colonne)                  # à laquelle on enlève l'indice de la case venant d'être remplie.
 
     for i in liste_indices_colonnes:
-        if grille[ligne][i] == valeur:
-            liste_cases_invalides.append((ligne, i))        # On regarde dans toute la colonne
+        if grille[ligne][i] != 0 and grille[ligne][i] == valeur:
+            liste_cases_invalides.append((ligne, i))        # On regarde dans toute la ligne
 
 
 
@@ -41,8 +41,7 @@ def verification_carre_Sudoku(grille: list[list[int]], coord: tuple[int, int], l
         La grille de sudoku, les coordonnées de la case venant d'ête remplie, et une liste (qui sera 
         une liste vide)."""
 
-    dimension = len(grille)
-    liste_cases_invalides = []     
+    dimension = len(grille)     
 
     ligne = coord[0]
     colonne = coord[1]
@@ -63,21 +62,24 @@ def verification_carre_Sudoku(grille: list[list[int]], coord: tuple[int, int], l
 
 ####       Sudoku classique       ####
 
-def verification_sudoku_classique_complet(grille: list[list[int]], coord: tuple[int, int]):
-    """"Vérifie que la valeur qui vient dêtre saisie vérifie toutes les conditions du Sudoku.
+def verification_sudoku_classique_complet(grille: list[list[int]]):
+    """"Vérifie que toutes les cases du sudoku vérifient les conditions.
     
     Entrée:
-        La grille de sudoku et les coordonnées de la case venant d'ête remplie.
+        La grille de sudoku.
     Sortie:
-        Renvoie la liste de toutes les cases pour lesquelles cette valeur ne fonctionne pas."""
+        Liste des coordonnées des cases pour lesquelles cela ne fonctionne pas."""
+    
+    liste_cases_invalides = []       # On teste toutes les cases.
+    for i in range(9):
+        for j in range(9):
+            if grille[i][j] != 0:
+                verification_lignes_colonnes(grille, (i, j), liste_cases_invalides)  # Vérification des lignes et ds colonnes.
+                verification_carre_Sudoku(grille, (i, j), liste_cases_invalides)    # Vérification des carrés.
+                if len(liste_cases_invalides) != 0 :      # Si on a trouvé une anomalie, on rajoute la case considérée.
+                    liste_cases_invalides.append((i, j))
 
-    liste_cases_invalides = []
-    verification_lignes_colonnes(grille, coord, liste_cases_invalides)  # Vérification des lignes et ds colonnes.
-    verification_carre_Sudoku(grille, coord, liste_cases_invalides)    # Vérification des carrés.
     return liste_cases_invalides
-
-
-
 
 ####       Variante Kenken       ####
 
