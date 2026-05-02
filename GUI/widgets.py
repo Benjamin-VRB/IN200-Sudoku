@@ -285,12 +285,8 @@ def verification_cases_sudoku(
             )
             rangee.append(nombre)
         grille.append(rangee)
-    indice_case: int = cases.index(case)
-    coord: tuple[int, int] = (indice_case % 9, indice_case // 9)
-    list_coord_nombres_identiques: list[tuple[int, int]] = verification_sudoku_classique_complet(
-        grille=grille, 
-        coord=coord
-    )
+    list_coord_nombres_identiques: list[tuple[int, int]] = \
+        verification_sudoku_classique_complet(grille=grille)
     return list_coord_nombres_identiques
 
 
