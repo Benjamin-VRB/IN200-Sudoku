@@ -1,18 +1,30 @@
-import random,math
-import kenken as kenken
-import sudoku_chaos as irregulier
-import windoku as windoku
-import sudoku as sudoku
+import math
+import Grille.kenken as kenken
+import Grille.sudoku_chaos as irregulier
+import Grille.windoku as windoku
+import Grille.sudoku as sudoku
 
 def indicateur_sudoku(grille_joueur : list, grille_complete : list, dimension : int):
-    """permet d'indiquer à l'utilisateur une case d'une grille de sudoku"""
+    """permet d'indiquer à l'utilisateur une case d'une grille de sudoku
+    Entrée : 
+        grille_joueur : la grille actuelle du joueur pouvant contenir des erreurs
+        grille_complete : la grille solution
+    Sortie : 
+        Statut ("Erreur" ou "Correct"), (Valeur, Coordonnées)
+    """
     
     racine = int(math.sqrt(dimension))
+
+    # On verifie que la grille est déjà correcte
+    for lig in range(dimension): 
+        for col in range(dimension):
+            # Si la case n'est pas vide et differente de la solution on l'indique au joueur
+            if grille_joueur[lig][col] != 0 and grille_joueur[lig][col] != grille_complete[lig][col] : 
+                return "Erreur", (grille_complete[lig][col], (lig, col))
 
     def obtenir_candidats(grille, lig, col):
         """Retourne la liste des chiffres possibles pour une case donnée."""
         candidats_possibles = []
-        numero_carre = (lig // racine) * racine + (col // racine)
         
         for valeur in range(1, dimension + 1):
             valide = True
@@ -60,7 +72,7 @@ def indicateur_sudoku(grille_joueur : list, grille_complete : list, dimension : 
                 
                 # Si une case n'a qu'une seule valeur possible, on s'arrête
                 if len(candidats_actuels) == 1:
-                    return grille_complete[lig][col], (lig, col)
+                    return "Correct", (grille_complete[lig][col], (lig, col))
 
     if not coords:
         return None, None
@@ -85,15 +97,28 @@ def indicateur_sudoku(grille_joueur : list, grille_complete : list, dimension : 
                 
                 # Si apres on a qu'une seule valeur qui ne bloque pas la grille on la renvoie
                 if len(valides_apres_test) == 1:
-                    return grille_complete[lig][col], (lig, col)
+                    return "Correct", (grille_complete[lig][col], (lig, col))
 
     # En dernier recours, on donne simplement la solution de la case la plus contrainte
     lig, col = coords
-    return grille_complete[lig][col], (lig, col)
+    return "Correct", (grille_complete[lig][col], (lig, col))
 
 def indicateur_kenken(grille_joueur : list, grille_complete : list, dictionnaire_cages : dict, dimension : int):
-    """permet d'indiquer à l'utilisateur une case d'une grille de kenken"""
+    """permet d'indiquer à l'utilisateur une case d'une grille de kenken
+    Entrée : 
+        grille_joueur : la grille actuelle du joueur pouvant contenir des erreurs
+        grille_complete : la grille solution
+    Sortie : 
+        Statut ("Erreur" ou "Correct"), (Valeur, Coordonnées)
+    """
 
+    # On verifie que la grille est déjà correcte
+    for lig in range(dimension): 
+        for col in range(dimension):
+            # Si la case n'est pas vide et differente de la solution on l'indique au joueur
+            if grille_joueur[lig][col] != 0 and grille_joueur[lig][col] != grille_complete[lig][col] : 
+                return "Erreur", (grille_complete[lig][col], (lig, col))
+        
     def obtenir_candidats(grille, lig, col):
         """Retourne la liste des chiffres possibles pour une case donnée."""
         candidats_possibles = []
@@ -150,7 +175,7 @@ def indicateur_kenken(grille_joueur : list, grille_complete : list, dictionnaire
                 
                 # Si la case n'a qu'un seul choix on a fini
                 if len(candidats_actuels) == 1: 
-                    return grille_complete[lig][col], (lig, col)
+                    return "Correct", (grille_complete[lig][col], (lig, col))
 
     if not coords: 
         return None, None
@@ -175,15 +200,30 @@ def indicateur_kenken(grille_joueur : list, grille_complete : list, dictionnaire
                 
                 # Si apres on a qu'une seule valeur qui ne bloque pas la grille on la renvoie
                 if len(valides_apres_test) == 1:
-                    return grille_complete[lig][col], (lig, col)
+                    return "Correct", (grille_complete[lig][col], (lig, col))
 
     # En dernier recours, on donne simplement la solution de la case la plus contrainte
     lig, col = coords
-    return grille_complete[lig][col], (lig, col)
+    return "Correct", (grille_complete[lig][col], (lig, col))
 
-def indicateur_irregulier (grille_joueur : list, plan_cage : list, grille_complete : list):
-    """permet d'indiquer à l'utilisateur une case à partir d'une grille d'un Sudoku Irregulier"""
+def indicateur_irregulier (grille_joueur : list, grille_complete : list, plan_cage : list):
+    """permet d'indiquer à l'utilisateur une case à partir d'une grille d'un Sudoku Irregulier
+    Entrée : 
+        grille_joueur : la grille actuelle du joueur pouvant contenir des erreurs
+        grille_complete : la grille solution
+        plan_cage : une grille avec le numéro des cages
+    Sortie : 
+        Statut ("Erreur" ou "Correct"), (Valeur, Coordonnées)
+    """
     dimension = len(grille_joueur)
+    
+    # On verifie que la grille est déjà correcte
+    for lig in range(dimension): 
+        for col in range(dimension):
+            # Si la case n'est pas vide et differente de la solution on l'indique au joueur
+            if grille_joueur[lig][col] != 0 and grille_joueur[lig][col] != grille_complete[lig][col] : 
+                return "Erreur", (grille_complete[lig][col], (lig, col))
+            
     l_u, c_u, cage_u = irregulier.initialiser_contraintes(grille_joueur, plan_cage, dimension)
     
     # On cherche d'abord s'il y a une case avec un seul candidat
@@ -196,8 +236,7 @@ def indicateur_irregulier (grille_joueur : list, plan_cage : list, grille_comple
     l_meilleure, c_meilleure = coords
 
     if coords and len(candidats) == 1:
-        return grille_complete[l_meilleure][c_meilleure],coords
-    
+        return "Correct", (grille_complete[l_meilleure][c_meilleure], (l_meilleure, c_meilleure))
 
     # Si aucune case n'est évidente, on cherche la case qui devient évidente en regardant juste un coup plus loin comme ses autres candidats sont devenus invalides
     for l in range(dimension):
@@ -227,25 +266,30 @@ def indicateur_irregulier (grille_joueur : list, plan_cage : list, grille_comple
                 
                 # Si après ce test au rang d'apres il ne reste qu'un seul candidat valide on le renvoie
                 if len(candidats_valides) == 1:
-                    return grille_complete[l][c],(l, c)
+                    return "Correct", (grille_complete[l][c], (l, c))
 
     # En dernier recours, on donne simplement la solution de la case la plus contrainte
     l,c = coords
-    return grille_complete[l][c],(l,c)
-
-# Irregulier : 
-grille_complete = [[7, 6, 5, 1, 2, 8, 9, 3, 4], [5, 1, 3, 7, 9, 6, 4, 8, 2], [4, 8, 9, 2, 3, 7, 6, 5, 1], [6, 2, 7, 3, 1, 9, 5, 4, 8], [3, 4, 2, 6, 8, 5, 1, 7, 9], [9, 5, 1, 8, 4, 2, 3, 6, 7], [1, 9, 8, 4, 6, 3, 7, 2, 5], [8, 3, 4, 5, 7, 1, 2, 9, 6], [2, 7, 6, 9, 5, 4, 8, 1, 3]]
-grille_joueur = [[7, 0, 0, 1, 0, 8, 9, 0, 0], [0, 0, 3, 7, 9, 6, 0, 0, 0], [0, 8, 9, 2, 0, 7, 0, 0, 0], [0, 0, 7, 0, 0, 9, 0, 0, 0], [3, 0, 0, 6, 0, 0, 1, 7, 0], [9, 5, 1, 8, 0, 2, 0, 0, 0], [1, 0, 0, 0, 0, 3, 7, 2, 5], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 7, 0, 0, 5, 0, 0, 1, 0]]
-plan_cage = [[1, 1, 2, 2, 2, 3, 3, 3, 3], [1, 1, 2, 2, 2, 2, 2, 2, 3], [1, 1, 1, 1, 1, 3, 3, 3, 3], [4, 4, 4, 5, 5, 5, 5, 5, 6], [7, 4, 5, 5, 5, 6, 6, 5, 6], [7, 4, 4, 8, 6, 6, 6, 6, 6], [7, 4, 4, 8, 8, 8, 9, 9, 9], [7, 4, 7, 7, 8, 8, 8, 9, 9], [7, 7, 7, 8, 8, 9, 9, 9, 9]]
-print("indicateur Irregulier")
-print(indicateur_irregulier(grille_joueur,plan_cage,grille_complete))
+    return "Correct", (grille_complete[l][c], (l, c))
 
 def indicateur_windoku(grille_joueur : list, grille_complete : list, dimension : int = 9):
-    """permet d'indiquer à l'utilisateur une case d'une grille de windoku"""
-
+    """permet d'indiquer à l'utilisateur une case d'une grille de windoku
+    Entrée : 
+        grille_joueur : la grille actuelle du joueur pouvant contenir des erreurs
+        grille_complete : la grille solution
+    Sortie : 
+        Statut ("Erreur" ou "Correct"), (Valeur, Coordonnées)
+    """
     racine = int(math.sqrt(dimension))
     # Positions des coins supérieurs gauches des 4 fenêtres Windoku
     fenetres_pos = [(1, 1), (1, 5), (5, 1), (5, 5)]
+
+    # On verifie que la grille est déjà correcte
+    for lig in range(dimension): 
+        for col in range(dimension):
+            # Si la case n'est pas vide et differente de la solution on l'indique au joueur
+            if grille_joueur[lig][col] != 0 and grille_joueur[lig][col] != grille_complete[lig][col] : 
+                return "Erreur", (grille_complete[lig][col], (lig, col))
 
     def obtenir_candidats(grille, lig, col):
         """Retourne la liste des chiffres possibles pour une case donnée."""
@@ -305,7 +349,7 @@ def indicateur_windoku(grille_joueur : list, grille_complete : list, dimension :
                     coords_meilleure = (lig, col)
                 # Si la case n'a qu'un seul choix on a fini
                 if len(candidats_actuels) == 1: 
-                    return grille_complete[lig][col], (lig, col)
+                    return "Correct", (grille_complete[lig][col], (lig, col))
 
     if not coords_meilleure: 
         return None, None
@@ -324,23 +368,29 @@ def indicateur_windoku(grille_joueur : list, grille_complete : list, dimension :
 
         #Si apres ce test il reste qu'un candidats on arrete
         if len(valides_apres_test) == 1:
-            return grille_complete[lig_m][col_m], (lig_m, col_m)
+            return "Correct", (grille_complete[lig_m][col_m], (lig_m, col_m))
 
     # En dernier recours, on donne simplement la solution de la case la plus contrainte
     lig, col = coords_meilleure
-    return grille_complete[lig][col], (lig, col)
-
-#Windoku 
-grille_windoku_test = [[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 8, 4, 0, 0, 0, 3, 5, 0],[0, 6, 2, 0, 0, 0, 1, 7, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 5, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 2, 1, 0, 0, 0, 8, 3, 0],[0, 4, 3, 0, 0, 0, 5, 9, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0]]
-solution_windoku = [[4, 6, 8, 9, 2, 5, 1, 3, 7],[2, 3, 7, 1, 8, 4, 6, 5, 9],[9, 5, 1, 3, 6, 7, 4, 2, 8],[3, 2, 6, 5, 9, 8, 7, 1, 4],[7, 8, 9, 6, 1, 4, 3, 5, 2],[5, 4, 1, 7, 3, 2, 9, 8, 6],[6, 9, 3, 4, 5, 1, 2, 7, 0],[8, 7, 2, 4, 5, 1, 9, 6, 3],[1, 7, 4, 2, 3, 9, 5, 8, 6]]
-print("indicateur Windoku")
-print(indicateur_windoku(grille_windoku_test,solution_windoku))
+    return "Correct", (grille_complete[lig][col], (lig, col))
 
 def indicateur_consecutif(grille_joueur : list, grille_complete : list, duos_consecutifs : list, dimension : int = 9):
-    """permet d'indiquer à l'utilisateur une case d'une grille de sudoku consécutif"""
-
+    """permet d'indiquer à l'utilisateur une case d'une grille de sudoku consécutif
+    Entrée : 
+        grille_joueur : la grille actuelle du joueur pouvant contenir des erreurs
+        grille_complete : la grille solution
+    Sortie : 
+        Statut ("Erreur" ou "Correct"), (Valeur, Coordonnées)
+    """
     racine = int(math.sqrt(dimension))
 
+    # On verifie que la grille est déjà correcte
+    for lig in range(dimension): 
+        for col in range(dimension):
+            # Si la case n'est pas vide et differente de la solution on l'indique au joueur
+            if grille_joueur[lig][col] != 0 and grille_joueur[lig][col] != grille_complete[lig][col] : 
+                return "Erreur", (grille_complete[lig][col], (lig, col))
+            
     def obtenir_candidats(grille, lig, col):
         """Retourne la liste des chiffres possibles pour une case donnée."""
         candidats_possibles = []
@@ -404,7 +454,7 @@ def indicateur_consecutif(grille_joueur : list, grille_complete : list, duos_con
                 
                 # Si la case n'a qu'un seul choix on a fini
                 if len(candidats_actuels) == 1: 
-                    return grille_complete[lig][col], (lig, col)
+                    return "Correct", (grille_complete[lig][col], (lig, col))
 
     if not coords: 
         return None, None
@@ -429,37 +479,40 @@ def indicateur_consecutif(grille_joueur : list, grille_complete : list, duos_con
 
                 # Si apres on a qu'une seule valeur qui ne bloque pas la grille on la renvoie
                 if len(valides_apres_test) == 1:
-                    return grille_complete[lig][col], (lig, col)
+                    return "Correct", (grille_complete[lig][col], (lig, col))
 
     # En dernier recours, on donne simplement la solution de la case la plus contrainte
     lig, col = coords
-    return grille_complete[lig][col], (lig, col)
-
-#consecutif
-grille_complete_consectutif = [[9, 5, 4, 7, 3, 8, 2, 6, 1], [8, 3, 6, 9, 1, 2, 7, 4, 5], [1, 7, 2, 5, 4, 6, 9, 3, 8], [2, 1, 7, 4, 5, 9, 3, 8, 6], [3, 4, 8, 6, 2, 1, 5, 7, 9], [6, 9, 5, 8, 7, 3, 1, 2, 4], [4, 8, 1, 3, 9, 7, 6, 5, 2], [5, 2, 3, 1, 6, 4, 8, 9, 7], [7, 6, 9, 2, 8, 5, 4, 1, 3]]
-grille_vidée_consecutif = [[9, 5, 0, 0, 0, 8, 0, 6, 0], [0, 0, 0, 0, 1, 0, 7, 0, 0], [0, 7, 0, 5, 4, 6, 0, 0, 0], [0, 1, 0, 0, 0, 9, 3, 8, 0], [0, 4, 8, 0, 0, 0, 0, 7, 0], [0, 0, 0, 0, 7, 0, 0, 0, 0], [0, 8, 0, 0, 0, 0, 0, 5, 0], [0, 0, 3, 0, 0, 4, 0, 0, 0], [0, 0, 9, 2, 0, 0, 0, 0, 0]]
-duos =[((0, 0), (1, 0)), ((0, 1), (0, 2)), ((1, 4), (1, 5)), ((1, 7), (1, 8)), ((1, 7), (2, 7)), ((2, 0), (3, 0)), ((2, 3), (2, 4)), ((2, 3), (3, 3)), ((2, 4), (3, 4)), ((3, 0), (3, 1)), ((3, 0), (4, 0)), ((3, 2), (4, 2)), ((3, 3), (3, 4)), ((3, 7), (4, 7)), ((4, 0), (4, 1)), ((4, 4), (4, 5)), ((5, 1), (6, 1)), ((5, 3), (5, 4)), ((5, 6), (5, 7)), ((6, 0), (7, 0)), ((6, 5), (6, 6)), ((6, 6), (6, 7)), ((7, 1), (7, 2)), ((7, 3), (8, 3)), ((7, 5), (8, 5)), ((7, 6), (7, 7)), ((8, 0), (8, 1)), ((8, 5), (8, 6))]
-print("indicateur consecutif")
-print(indicateur_consecutif(grille_vidée_consecutif,grille_complete_consectutif,duos))
+    return "Correct", (grille_complete[lig][col], (lig, col))
 
 def indicateur_kakuro(grille_joueur : list, grille_complete : list, dimension : int = 9):
-    """permet d'indiquer à l'utilisateur une case d'une grille de kakuro"""
-
+    """permet d'indiquer à l'utilisateur une case d'une grille de kakuro
+    Entrée : 
+        grille_joueur : la grille actuelle du joueur pouvant contenir des erreurs
+        grille_complete : la grille solution
+    Sortie : 
+        Statut ("Erreur" ou "Correct"), (Valeur, Coordonnées)
+    """
+    
+    # On verifie que la grille est déjà correcte
+    for lig in range(dimension): 
+        for col in range(dimension):
+            # Si la case n'est pas vide et differente de la solution on l'indique au joueur
+            if grille_joueur[lig][col] != 0 and grille_joueur[lig][col] != grille_complete[lig][col] : 
+                return "Erreur", (grille_complete[lig][col], (lig, col))
+            
     def obtenir_candidats(grille, lig, col):
         """Retourne la liste des chiffres possibles pour une case donnée."""
         candidats_possibles = []
         
         # indices horizontaux
         col_debut = col
-        # On verifie qu'on ne sort pas de la grille et qu'on ne tombe pas sur une cases noire (un tuple)
-        # On fait de meme pour la fin de la colonne et pour les indices verticales
         while col_debut > 0 and isinstance(grille[lig][col_debut - 1], int):
             col_debut -= 1
         col_fin = col
         while col_fin < dimension - 1 and isinstance(grille[lig][col_fin + 1], int):
             col_fin += 1
         
-        # Pour gerer les cases noires qui sont [Somme_h,Somme_v] = [None, 12] ce qui bloquerait apres les calculs si on garde None
         if col_debut > 0:
             indice_h = grille[lig][col_debut - 1][0]
         else:
@@ -480,9 +533,7 @@ def indicateur_kakuro(grille_joueur : list, grille_complete : list, dimension : 
 
         # La somme actuelle dans le segment horizontale
         somme_h_actuelle = 0
-        # On regarde le nombre de cases vides sur le segment 
         vides_h = 0
-        # Les chiffres déjà présents dans notre ligne
         valeurs_h = []
         for c_k in range(col_debut, col_fin + 1):
             if c_k != col:
@@ -514,17 +565,12 @@ def indicateur_kakuro(grille_joueur : list, grille_complete : list, dimension : 
             
             # Vérification validité somme horizontale
             if valide and indice_h is not None:
-                # S'il reste qu'une case à remplir (vides_h=0) et que la somme avec notre valeur est fausse on arrete la tentative
                 if vides_h == 0: 
                     if somme_h_actuelle + valeur != indice_h:
                         valide = False
-                
                 else:
-                    # Le minimum pour remplir les autres cases restantes
                     minimum_requis_restant = sum(range(1, vides_h + 1))
-                    # On regarde si notre valeur est acceptable par rapport à la somme cible
                     if somme_h_actuelle + valeur + minimum_requis_restant > indice_h:
-                        # Si trop grande on l'invalide
                         valide = False
 
             # Vérification validité somme verticale
@@ -558,7 +604,7 @@ def indicateur_kakuro(grille_joueur : list, grille_complete : list, dimension : 
                 
                 # Si la case n'a qu'un seul choix on a fini
                 if len(candidats_actuels) == 1: 
-                    return grille_complete[lig][col], (lig, col)
+                    return "Correct", (grille_complete[lig][col], (lig, col))
 
     if not coords: 
         return None, None
@@ -593,15 +639,8 @@ def indicateur_kakuro(grille_joueur : list, grille_complete : list, dimension : 
                 
                 # Si apres on a qu'une seule valeur qui ne bloque pas la grille on la renvoie
                 if len(valides_apres_test) == 1:
-                    return grille_complete[lig][col], (lig, col)
+                    return "Correct", (grille_complete[lig][col], (lig, col))
 
     # En dernier recours, on donne simplement la solution de la case la plus contrainte
     lig, col = coords
-    return grille_complete[lig][col], (lig, col)
-    
-#Kakuro 
-grille_kakuro_joueur = [[[None, None], [None, 11], [None, 13], [None, 24], [None, 11], [None, 4], [None, 22], [None, 10], [None, 3]],[[12, None], 0, 0, [3, None], 0, 0, [4, None], 0, 0],[[10, 10], 0, 0, [15, 12], 0, 0, [17, 13], 0, 0],[[None, 17], [13, None], 0, 0, 0, 0, [10, 9], 0, 0],[[35, None], 0, 0, 0, 0, 0, 0, 0, 0],[[11, 10], 0, 0, [None, 21], [15, 15], 0, 0, [None, None], [None, None]],[[None, 14], [10, None], 0, 0, 0, 0, [12, 10], 0, 0],[[32, None], 0, 0, 0, 0, 0, 0, 0, 0],[[10, None], 0, 0, [7, None], 0, 0, [3, None], 0, 0]]
-grille_kakuro_complete = [[[None, None], [None, 11], [None, 13], [None, 24], [None, 11], [None, 4], [None, 22], [None, 10], [None, 3]],[[12, None], 4, 8, [3, None], 2, 1, [4, None], 3, 1],[[10, 10], 7, 3, [15, 12], 9, 6, [17, 13], 9, 8],[[None, 17], [13, None], 2, 4, 6, 1, [10, 9], 8, 2],[[35, None], 9, 1, 3, 4, 2, 5, 7, 4],[[11, 10], 8, 3, [None, 21], [15, 15], 6, 9, [None, None], [None, None]],[[None, 14], [10, None], 1, 2, 4, 3, [12, 10], 9, 3],[[32, None], 6, 7, 8, 5, 4, 1, 2, 9],[[10, None], 3, 7, [7, None], 5, 2, [3, None], 1, 2]]
-
-print("indicateur kakuro")
-print(indicateur_kakuro(grille_kakuro_joueur,grille_kakuro_complete))
+    return "Correct", (grille_complete[lig][col], (lig, col))

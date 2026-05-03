@@ -1216,3 +1216,143 @@ def creer_fiche_sauv(
         )
     
     return  {"fiche" : fiche, "bouton_charger" : bouton_charger, "bouton_suppr" : bouton_suppr}
+
+
+def creer_grille_sudoku_irregulier(
+    canvas: tk.Canvas, 
+    tag: str, 
+    coord: tuple[int, int], 
+    nb_case_cote: int, 
+    longueur_cote_case: int, 
+    plan_cage: list[list[int]]
+) -> dict[str, list[dict[str, int]] | list[int]]:
+    """
+    Permet de dessiner une grille de sudoku irregulier.
+    """
+    # Son format : [ {"case_vide": 1, "texte": 2} ...] où 1 et 2 sont les identifiants de la case vide et le texte
+    cases: list[dict[str, int]] = []
+    
+    # Quadrilage de base à l'aide de deux boucles
+    for rangee in range(nb_case_cote):
+        for colonne in range(nb_case_cote):
+            # On calcule la position exacte pour chaque case
+            x_case: int = coord[0] + colonne * longueur_cote_case
+            y_case: int = coord[1] + rangee * longueur_cote_case
+            
+            # On crée cette case
+            nouvelle_case = creer_case(
+                canvas=canvas, 
+                tag=tag, 
+                coord=(x_case, y_case), 
+                longueur_cote=longueur_cote_case
+            )
+            cases.append(nouvelle_case) 
+    
+    # Création du pourtour
+    bordures: list[int] = [] 
+    longueur_totale: int = nb_case_cote * longueur_cote_case
+    
+    cadre_exterieur = creer_cadre(
+        canvas=canvas, 
+        coord=coord, 
+        largeur=longueur_totale, 
+        hauteur=longueur_totale, 
+        couleur="#000000", 
+        rayon_coins=0,
+        tag=tag
+    )
+    bordures.extend(cadre_exterieur) 
+
+    # Delimitation des bordures des cages
+    EPAISSEUR_BORDURE: int = 3 
+    
+    for i in range(nb_case_cote):
+        for j in range(nb_case_cote):
+            # On détermine les coordonnées des 4 coins de notre case traitée
+            x1: int = coord[0] + j * longueur_cote_case
+            y1: int = coord[1] + i * longueur_cote_case
+            x2: int = x1 + longueur_cote_case
+            y2: int = y1 + longueur_cote_case
+            
+
+            num_cage: int = plan_cage[i][j]
+            
+            # On détermine si notre case actuelle est limitrophe à droite d'une autre cage
+            # Ce qui revient à voir si la case à droite de celle qu'on traite est differente et evidemment qj'on ne soit pas dans la derniere colonne
+            if j < nb_case_cote - 1 and plan_cage[i][j+1] != num_cage:
+                bordures.append(
+                    canvas.create_line(x2, y1, x2, y2, fill="#000000", width=EPAISSEUR_BORDURE, tags=tag)
+                )
+                
+            # De meme on regarde si notre case est limitrophe en bas
+            # Ce qui revient à voir si la case en bas de celle qu'on traite est differente et qu'evidemment qu'on ne soit pas dans la derniere ligne
+            if i < nb_case_cote - 1 and plan_cage[i+1][j] != num_cage:
+                bordures.append(
+                    canvas.create_line(x1, y2, x2, y2, fill="#000000", width=EPAISSEUR_BORDURE, tags=tag)
+                )
+
+    # Maintenant faisons que les cases soient interactives
+    sequence: str = "<Button-1>"
+    FUNC = entree_focus_case
+    for case in cases:
+        case_vide: int = case["case_vide"]
+        texte: int = case["texte"]
+        canvas.tag_bind(
+            tagOrId=case_vide, 
+            sequence=sequence, 
+            func=lambda event, case=case: FUNC(
+                canvas=canvas, 
+                case=case, 
+                valeur_max=nb_case_cote, 
+                cases=cases
+            )
+        )
+        canvas.tag_bind(
+            tagOrId=texte, 
+            sequence=sequence, 
+            func=lambda event, case=case: FUNC(
+                canvas=canvas, 
+                case=case, 
+                valeur_max=nb_case_cote, 
+                cases=cases
+            )
+        )
+        
+    return {"cases": cases, "bordures": bordures}
+
+def ajouter_indications_kenken(canvas: tk.Canvas, dico_cage: dict, x_grille: int, y_grille: int, longueur_cote_case: int, tag: str):
+    """ Ajoute les indications des cibles et des opérations pour le Kenken"""
+    
+    for nom_cage in dico_cage:
+        # On accède directement aux données avec les clés
+        infos_cage = dico_cage[nom_cage]
+        cible = infos_cage["cible"]
+        operation = infos_cage["operation"]
+
+        texte_indication = str(cible) + str(operation)
+
+        liste_cases = infos_cage["cases"]
+
+        # On doit trouver la case la plus haute et la plus à gauche parmi ces cases
+        case_haut_gauche = liste_cases[0] 
+
+        for case in liste_cases:
+        # Si la ligne est plus haute, ou si ligne est à la meme hauteur mais plus à gauche
+            if case[0] < case_haut_gauche[0] or (case[0] == case_haut_gauche[0] and case[1] < case_haut_gauche[1]):
+                case_haut_gauche = case
+
+        lig, col = case_haut_gauche
+
+        # Calcul des coordonnées 
+        x_texte = x_grille + (col * longueur_cote_case) + 4
+        y_texte = y_grille + (lig * longueur_cote_case) + 4
+
+        canvas.create_text(
+            x_texte, 
+            y_texte,
+            text=texte_indication,
+            anchor="nw",
+            font=("Arial", 10, "bold"),
+            fill="black",
+            tags=(tag, "indication_kenken")
+        )

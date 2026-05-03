@@ -177,9 +177,14 @@ def supprimer_valeur(nombre_valeur_a_supprimer : int, dimension : int):
         nombre_valeurs_a_supprimer: Le nombre de cases que l'on veut vider.
         dimension : taille de notre grille
     Sortie : 
+        grille_complete : Une grille solution
         grille_vidée : Une grille de Sudoku prête à être resolue par l'utilisateur
     """
     grille_complete = remplir_grille_V2(dimension)
+
+    if grille_complete is None:
+        return supprimer_valeur(nombre_valeur_a_supprimer, dimension)
+    
     grille_vidée = copy.deepcopy(grille_complete)
     positions = [(ligne, colonne) for ligne in range(dimension) for colonne in range(dimension)]
     random.shuffle(positions)
@@ -203,5 +208,5 @@ def supprimer_valeur(nombre_valeur_a_supprimer : int, dimension : int):
         else:
             grille_vidée[ligne][colonne] = valeur_originale
 
-    return grille_vidée
+    return grille_complete, grille_vidée
 

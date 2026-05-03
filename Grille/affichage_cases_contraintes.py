@@ -66,7 +66,7 @@ def afficher_contraintes_consecutif(coord, liste_doublons):
 
 
 def afficher_contraintes_Kenken(coord, dictionnaire_cages):
-    """Fonction qui affiche les coordonnées des cases sur lesquelles portent lew contraintes du jeu en fonction
+    """Fonction qui affiche les coordonnées des cases sur lesquelles portent les contraintes du jeu en fonction
     de la case sélectionnée.
     
     Entrée:
