@@ -132,7 +132,7 @@ def generer_cages_remplies(grille, taille_min=2, taille_max=10):
 
 
 
-def générer_grille_KenKen(taille : int, max_case : int):
+def generer_grille_KenKen(taille : int, max_case : int):
     """Fonction qui génère une grille de Kenken complète avec les gages munies de leur opération et du 
     résultat de cette opération.
     
@@ -157,8 +157,13 @@ def générer_grille_KenKen(taille : int, max_case : int):
 
     cages_finales = {}
     for position in cages:   # On choisit aléatoirement une opération qu'on éxécute dans une cage et on rend un dictionnaire qui nous donne toutes les informations d'une cage.
-        if len(position) == 2 and (grille[position[0][0]][position[0][1]] % grille[position[1][0]][position[1][1]] == 0 or grille[1][0] % grille[1][1] == 0):
-            opération = random.choice(["+", "*", "-", "/", "/", "/", "/", "/"])
+        # Si la cage a un element on ne met pas d'opération
+        if len(position) == 1:
+            valeur = grille[position[0][0]][position[0][1]]
+            cages_finales["cage" + str(cages.index(position) + 1)] = {"opération": "", "résultat": valeur, "cases": position}
+            continue
+
+        if len(position) == 2 and (grille[position[0][0]][position[0][1]] % grille[position[1][0]][position[1][1]] == 0 or grille[position[1][0]][position[1][1]] % grille[position[0][0]][position[0][1]] == 0):            opération = random.choice(["+", "*", "-", "/", "/", "/", "/", "/"])
         elif len(position) == 2 and abs(grille[position[0][0]][position[0][1]] - grille[position[1][0]][position[1][1]]) != 0:
             opération = random.choice(["+", "*", "-", "-", "-"])
         else:
@@ -336,7 +341,7 @@ def verifier_unicite_kenken(dimension, cages, limite=2):
 
 
 
-def retourner_infos_kenken(dimensions=9):
+def retourner_infos_kenken(dimensions=6):
     """Fonction qui génère et affiche une les infos d'une grille de Kenken.
     
     Entrée:
@@ -345,7 +350,9 @@ def retourner_infos_kenken(dimensions=9):
     sortie:
         Grille générée + dictionnaire contenant les infos de la grille."""
 
-    a = générer_grille_KenKen(dimensions, 4)
+    a = generer_grille_KenKen(dimensions, 4)
     while not verifier_unicite_kenken(dimensions, cages_finales, limite=2):
-        a = générer_grille_KenKen(dimensions, 4)
+        a = generer_grille_KenKen(dimensions, 4)
     print(a)
+
+

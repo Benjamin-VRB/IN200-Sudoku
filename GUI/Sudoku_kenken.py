@@ -3,9 +3,9 @@ import tkinter as tk
 
 from GUI.fenetre import LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
 from GUI.animations import mouvement_exterieur_fond_menu, retour_menu
-from GUI.widgets import creer_boutton_arrondi, survole_non_survole, remplir_grille_sudoku_GUI, barre_entree_sauv
+from GUI.widgets import creer_boutton_arrondi, survole_non_survole, remplir_grille_sudoku_GUI, barre_entree_sauv, ajouter_indications_kenken
 from GUI.widgets import creer_grille_sudoku_irregulier 
-
+ 
 from Grille.aide import indicateur_kenken
 import Grille.kenken as Kenken
 
@@ -16,7 +16,7 @@ def aller_kenken(canvas: tk.Canvas):
     mouvement_exterieur_fond_menu(canvas=canvas)
 
     TAG: str = "kenken"
-    NB_CASE_COTE: int = 9
+    NB_CASE_COTE: int = 5
 
     LONGUEUR_COTE_GRILLE: int = NB_CASE_COTE * 60
     LONGUEUR_COTE_CASE: int = LONGUEUR_COTE_GRILLE // NB_CASE_COTE
@@ -54,6 +54,16 @@ def aller_kenken(canvas: tk.Canvas):
         carte_regions=plan_cage 
     )
 
+    # On ajoute les indications des opérations
+    ajouter_indications_kenken(
+        canvas=canvas, 
+        dico_cage=dico_cage, 
+        x_grille=X_GRILLE, 
+        y_grille=Y_GRILLE, 
+        longueur_cote_case=LONGUEUR_COTE_CASE, 
+        tag=TAG
+    )
+
     # On remplit notre grille avec les nombre que nous avons
     remplir_grille_sudoku_GUI(
         canvas=canvas, 
@@ -62,7 +72,6 @@ def aller_kenken(canvas: tk.Canvas):
     )
 
     # Boutons
-
     PARAMS_BOUTON: dict[str, int | str | tuple[str, int]] = {
         "largeur" : 200,
         "hauteur" : 76,

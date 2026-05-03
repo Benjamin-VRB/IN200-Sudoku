@@ -1304,3 +1304,40 @@ def creer_grille_sudoku_irregulier(
         )
         
     return {"cases": cases, "bordures": bordures}
+
+def ajouter_indications_kenken(canvas: tk.Canvas, dico_cage: dict, x_grille: int, y_grille: int, longueur_cote_case: int, tag: str):
+    """ Ajoute les indications des cibles et des opérations pour le Kenken"""
+    
+    for nom_cage in dico_cage:
+        # On accède directement aux données avec les clés
+        infos_cage = dico_cage[nom_cage]
+        cible = infos_cage["cible"]
+        operation = infos_cage["operation"]
+
+        texte_indication = str(cible) + str(operation)
+
+        liste_cases = infos_cage["cases"]
+
+        # On doit trouver la case la plus haute et la plus à gauche parmi ces cases
+        case_haut_gauche = liste_cases[0] 
+
+        for case in liste_cases:
+        # Si la ligne est plus haute, ou si ligne est à la meme hauteur mais plus à gauche
+            if case[0] < case_haut_gauche[0] or (case[0] == case_haut_gauche[0] and case[1] < case_haut_gauche[1]):
+                case_haut_gauche = case
+
+        lig, col = case_haut_gauche
+
+        # Calcul des coordonnées 
+        x_texte = x_grille + (col * longueur_cote_case) + 4
+        y_texte = y_grille + (lig * longueur_cote_case) + 4
+
+        canvas.create_text(
+            x_texte, 
+            y_texte,
+            text=texte_indication,
+            anchor="nw",
+            font=("Arial", 10, "bold"),
+            fill="black",
+            tags=(tag, "indication_kenken")
+        )
