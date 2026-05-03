@@ -5,10 +5,9 @@ from GUI.fenetre import LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
 from GUI.animations import mouvement_exterieur_fond_menu, retour_menu
 from GUI.widgets import creer_boutton_arrondi, survole_non_survole, remplir_grille_sudoku_GUI, barre_entree_sauv
 from GUI.widgets import creer_grille_sudoku_irregulier 
-from Grille.sudoku import supprimer_valeur
-import Grille.sudoku_chaos as Irregulier
-import Grille.aide as Aide
 
+from Grille.aide import indicateur_irregulier
+import Grille.sudoku_chaos as Irregulier
 
 def aller_sudoku_irregulier(canvas: tk.Canvas):
 
@@ -57,7 +56,7 @@ def aller_sudoku_irregulier(canvas: tk.Canvas):
         coord=(X_GRILLE, Y_GRILLE), 
         nb_case_cote=NB_CASE_COTE, 
         longueur_cote_case=LONGUEUR_COTE_CASE, 
-        carte_regions=plan_cage # C'est le plan généré au-dessus !
+        carte_regions=plan_cage
     )
 
     # On remplit notre grille avec les nombre que nous avons
@@ -185,20 +184,23 @@ def aller_sudoku_irregulier(canvas: tk.Canvas):
                     ligne.append(0)
             grille_joueur.append(ligne)
 
-        reponse, coords = Aide.indicateur_irregulier(grille_joueur, plan_cage, grille_complete)
-        lig, col = coords
+        resultat = indicateur_irregulier(grille_joueur, grille_complete, NB_CASE_COTE)
+        if resultat == (None, None) : 
+            return 
+        
+        statut, donnees = resultat
+        valeur_solution, (lig, col) = donnees
         index = lig * NB_CASE_COTE + col
-        # On recupere les identifiants de cette case
         id_case = grille["cases"][index]["case_vide"]
         id_texte = grille["cases"][index]["texte"]
-
-        if reponse == "Erreur":
-            # On colorie la case en rouge pour indiquer l'erreur
+        if statut == "Erreur":
+            # On change en conséquence la case problématique
+            canvas.itemconfig(id_texte, text=str(valeur_solution))
             canvas.itemconfig(id_case, fill="#FF6666")
         
-        else:
-            # On affiche la solution dans la case et on la colorie en vert
-            canvas.itemconfig(id_texte, text=str(reponse))
+        elif statut == "Correct":
+            # On ajoute une case pour aider le joueur
+            canvas.itemconfig(id_texte, text=str(valeur_solution))
             canvas.itemconfig(id_case, fill="#99FF99")
 
     
@@ -230,4 +232,5 @@ def aller_sudoku_irregulier(canvas: tk.Canvas):
         )
     )
 
+    # Bouton aide
     canvas.tag_bind(TAG_AIDE, "<Button-1>", action_aide)
