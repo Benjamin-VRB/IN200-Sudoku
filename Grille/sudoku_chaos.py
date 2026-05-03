@@ -4,28 +4,42 @@ import random
 # I. Création de la structure des cages 
 
 
-def creer_plan(dimension=9):
-    """Crée un plan de 9 blocs 3x3 classiques."""
+def creer_plan(DIMENSION=9):
+    """
+    Crée un plan initial de 9 blocs 3x3 classiques
+
+    Entrée : 
+        DIMENSION (int) : La taille de la grille (par défaut 9)
+    Sortie :
+        plan (list) : La grille de la repartion des cages
+    """
     
-    plan = [[0 for _ in range(dimension)] for _ in range(dimension)]
+    plan = [[0 for _ in range(DIMENSION)] for _ in range(DIMENSION)]
     
-    for l in range(dimension):
-        for c in range(dimension):
+    for l in range(DIMENSION):
+        for c in range(DIMENSION):
             # On donne un numéro aux cages suivant leur position horizontale et verticale le + 1 est pour commencer le marquage à 1 
             num_cage = (l // 3) * 3 + (c // 3) + 1
             plan[l][c] = num_cage
     return plan
 
-def est_joint(plan : list, num_cage : int, dimension=9):
+def est_joint(plan : list, num_cage : int, DIMENSION=9):
     """
-    On verifie si notre cage est toujours en un seul tenant
+    Vérifie si toutes les cases d'une cage donnée sont toujours en un seul tenant
+
+    Entrée : 
+        plan (list) : La grille représentant les cages
+        num_cage (int) : Le numéro de la cage à analyser
+        DIMENSION (int) : La taille de la grille (par défaut 9)
+    Sortie :
+        bool : True si la cage est d'un seul tenant, False sinon
     """
 
     cases = []
     
     # On cherche les coordonnées des cases de notre cage
-    for l in range(dimension):
-        for c in range(dimension):
+    for l in range(DIMENSION):
+        for c in range(DIMENSION):
             if plan[l][c] == num_cage:
                 cases.append((l, c))
 
@@ -48,23 +62,30 @@ def est_joint(plan : list, num_cage : int, dimension=9):
             
     return len(vus) == len(cases) 
 
-def interchanger_cages(plan : list, dimension : int, iterations=500):
+def interchanger_cages(plan : list, DIMENSION : int, iterations=500):
     """
-    Déforme les cages par échanges de cases frontalières de cages differentes
+    Déforme les cages par échanges de cases frontalières appartenant à des cages différentes
+
+    Entrée :
+        plan (list) : La grille de la repartion des cages
+        DIMENSION (int) : La taille de la grille
+        iterations (int) : Le nombre de tentatives d'échanges (par défaut 500)
+    Sortie :
+        plan (list) : La grille modifiée avec les nouvelles formes de cages
     """
     # On compte le nombre cases échangées
     succes = 0
-    directions = [(-1, 0), (1, 0), (0, 1), (0, -1)]
+    DIRECTIONS = [(-1, 0), (1, 0), (0, 1), (0, -1)]
     # On cherche toutes les cases qui sont en conctats avec deux cages ce qu'on appelle frontiere
     frontieres = set() 
-    for l in range(dimension):
-        for c in range(dimension):
+    for l in range(DIMENSION):
+        for c in range(DIMENSION):
             num_1 = plan[l][c]
-            for dl, dc in directions:
+            for dl, dc in DIRECTIONS:
                 l2, c2 = l + dl, c + dc
 
                 # On vérifie que cette nouvelle case est bien comprise dans la grille
-                if 0 <= l2 < dimension and 0 <= c2 < dimension:
+                if 0 <= l2 < DIMENSION and 0 <= c2 < DIMENSION:
                     num_2 = plan[l2][c2]
                     if num_1 != num_2:
                         frontieres.add((l, c))
@@ -80,9 +101,9 @@ def interchanger_cages(plan : list, dimension : int, iterations=500):
 
         # Trouver les cases voisines de cette case pour voir les cages qu'elle touche 
         voisines_possibles = set()
-        for dl, dc in directions:
+        for dl, dc in DIRECTIONS:
             nl, nc = lig_1 + dl, col_1 + dc
-            if 0 <= nl < dimension and 0 <= nc < dimension:
+            if 0 <= nl < DIMENSION and 0 <= nc < DIMENSION:
                 if plan[nl][nc] != cage_a:
                     # Ajoutons cette case qui a une cage differente
                     voisines_possibles.add(plan[nl][nc])
@@ -98,10 +119,10 @@ def interchanger_cages(plan : list, dimension : int, iterations=500):
             cage_f = plan[lig_f][col_f]
             # Cette deuxieme case doit appartenir à la cage b
             if cage_f == cage_b : 
-                #Cette deuxieme case doit toucher la cage a
+                # Cette deuxieme case doit toucher la cage a
                 touche_a = False
                 for dl, dc in [(-1, 0), (1, 0), (0, 1), (0, -1)]:
-                    if 0 <= lig_f+dl < dimension and 0 <= col_f+dc < dimension:
+                    if 0 <= lig_f+dl < DIMENSION and 0 <= col_f+dc < DIMENSION:
                         if plan[lig_f+dl][col_f+dc] == cage_a:
                             touche_a = True
                             break
@@ -130,9 +151,9 @@ def interchanger_cages(plan : list, dimension : int, iterations=500):
             cases_a_verifier = set()
             for l, c in [(lig_1, col_1), (lig_2, col_2)]:
                 cases_a_verifier.add((l, c))
-                for dl, dc in directions:
+                for dl, dc in DIRECTIONS:
                     nl, nc = l + dl, c + dc
-                    if 0 <= nl < dimension and 0 <= nc < dimension:
+                    if 0 <= nl < DIMENSION and 0 <= nc < DIMENSION:
                         cases_a_verifier.add((nl, nc))
 
             # Pour chaque case de cette zone, on décide si elle doit être dans le set ou non
@@ -141,9 +162,9 @@ def interchanger_cages(plan : list, dimension : int, iterations=500):
                 val_case = plan[l][c]
                 
                 # On regarde ses voisins pour voir si elle touche une cage différente
-                for dl, dc in directions:
+                for dl, dc in DIRECTIONS:
                     nl, nc = l + dl, c + dc
-                    if 0 <= nl < dimension and 0 <= nc < dimension:
+                    if 0 <= nl < DIMENSION and 0 <= nc < DIMENSION:
                         if plan[nl][nc] != val_case:
                             est_frontiere = True
                             break
@@ -159,18 +180,26 @@ def interchanger_cages(plan : list, dimension : int, iterations=500):
 
     return plan
 
-def generer_structure_valide(dimension=9):
-    """Genère la structure des cages pour un sudoku irrégulier"""
+def generer_structure_valide(DIMENSION=9):
+    """
+    Genère la structure des cages pour un sudoku irrégulier
+
+    Entrée :
+        DIMENSION (int) : La taille de la grille (par défaut 9)
+    Sortie :
+        plan (list) : La grille de la repartion des cages
+        dico_cage (dict): Dictionnaire associant chaque numéro de cage à la liste de ses coordonnées
+    """
     # On part d'un plan classique de Sudoku
-    plan = creer_plan(dimension)
+    plan = creer_plan(DIMENSION)
     
     # On déforme ce plan 
-    interchanger_cages(plan, dimension, iterations=200)
+    interchanger_cages(plan, DIMENSION, iterations=200)
     
     # On crée le dictionnaire de nos cages lié à notre nouveau plan
     dico_cage = {}
-    for l in range(dimension):
-        for c in range(dimension):
+    for l in range(DIMENSION):
+        for c in range(DIMENSION):
             num_cage = plan[l][c]
         
             # Si la cage n'est pas encore dans le dico on crée sa liste
@@ -186,16 +215,27 @@ def generer_structure_valide(dimension=9):
 # II. Remplissage de cette structure de cages
 
 
-def initialiser_contraintes(grille, plan_cage, dimension=9):
-    """Pour preparer les set contenant les informations des lignes/colonnes/cages"""
+def initialiser_contraintes(grille, plan_cage, DIMENSION=9):
+    """
+    Prépare les sets contenant les valeurs déjà placées pour chaque ligne, colonne et cage
 
-    lignes_utilisees = [set() for _ in range(dimension)]
-    cols_utilisees = [set() for _ in range(dimension)]
+    Entrée :
+        grille (list) : La grille de Sudoku actuelle.
+        plan_cage (list) : La grille de la repartion des cages
+        DIMENSION (int) : La taille de la grille (par défaut 9)
+    Sortie :
+        lignes_utilisees (list) : Liste de sets contenant les nombres présents sur chaque ligne
+        cols_utilisees (list) : Liste de sets contenant les nombres présents sur chaque colonne
+        cages_utilisees (dict) : Dictionnaire associant chaque numéro de cage au set des nombres qu'elle contient
+    """
+
+    lignes_utilisees = [set() for _ in range(DIMENSION)]
+    cols_utilisees = [set() for _ in range(DIMENSION)]
     
     cages_utilisees = {}
 
-    for l in range(dimension):
-        for c in range(dimension):
+    for l in range(DIMENSION):
+        for c in range(DIMENSION):
             val = grille[l][c]
             num_cage = plan_cage[l][c]
             
@@ -210,22 +250,35 @@ def initialiser_contraintes(grille, plan_cage, dimension=9):
                 
     return lignes_utilisees, cols_utilisees, cages_utilisees
 
-def trouver_meilleure_case(grille : list, plan_cage : list, lignes_u : set, cols_u :set, cages_u : dict, dimension=9):
-    """Détermine la case la plus contrainte c'est à dire avec le moins de candidats possibles"""
+def trouver_meilleure_case(grille : list, plan_cage : list, lignes_u : set, cols_u :set, cages_u : dict, DIMENSION=9):
+    """
+    Détermine la case vide la plus contrainte de la grille (celle ayant le moins de candidats possibles)
 
-    min_candidats = dimension + 1
+    Entrée :
+        grille (list) : La grille de Sudoku en cours de remplissage
+        plan_cage (list) : La grille de la repartion des cages
+        lignes_u (list) : Ensembles des valeurs utilisées par ligne
+        cols_u (list) : Ensembles des valeurs utilisées par colonne
+        cages_u (dict) : Ensembles des valeurs utilisées par cage
+        DIMENSION (int) : La taille de la grille (par défaut 9)
+    Sortie :
+        meilleure_case : Les coordonnées (l, c) de la meilleure case cad celle ayant le moins de candidats 
+        candidats_meilleure : La liste de ses candidats 
+    """
+
+    min_candidats = DIMENSION + 1
     meilleure_case = None
     candidats_meilleure = []
 
-    for l in range(dimension):
-        for c in range(dimension):
+    for l in range(DIMENSION):
+        for c in range(DIMENSION):
             # Si notre case est nulle :
             if grille[l][c] == 0:
                 num_cage = plan_cage[l][c]
 
                 candidats = []
                 # Déterminons les candidats pour cette case
-                for val in range(1, dimension + 1):
+                for val in range(1, DIMENSION + 1):
                     if val not in lignes_u[l] and val not in cols_u[c] and val not in cages_u[num_cage]:
                         candidats.append(val)
                 
@@ -247,7 +300,20 @@ def trouver_meilleure_case(grille : list, plan_cage : list, lignes_u : set, cols
     return meilleure_case, candidats_meilleure
 
 def generer_grille_complete(grille : list, plan_cage : list, lignes_u : set, cols_u :set, cages_u : dict, dimension=9, compteur=None):    
-    """Genère une grille complétée à partir du plan des cages"""
+    """
+    Genère une grille complétée à partir du plan des cages
+
+    Entrée :
+        grille (list) : La grille de Sudoku à remplir
+        plan_cage (list) : La grille de la repartion des cages
+        lignes_u (list) : Ensembles des valeurs utilisées par ligne
+        cols_u (list) : Ensembles des valeurs utilisées par colonne
+        cages_u (dict) : Ensembles des valeurs utilisées par cage
+        dimension (int) : La taille de la grille 
+        compteur (list) : Compteur de sécurité pour limiter la récursion
+    Sortie :
+        list ou bool : La grille complétée en cas de succès, False si échec ou délai dépassé
+    """
     # On initialise notre compteur
     if compteur is None:
         compteur = [0]
@@ -257,7 +323,7 @@ def generer_grille_complete(grille : list, plan_cage : list, lignes_u : set, col
     dimension = len(grille)
 
     # Si c'est trop long on arrete cette tentative
-    if compteur[0] > 30000:         
+    if compteur[0] > 30000:        
         return False
     
     # On cherche la meilleure case vide avec le moins de possibilités
@@ -298,7 +364,16 @@ def generer_grille_complete(grille : list, plan_cage : list, lignes_u : set, col
 
 def compter_solutions_irregulier (grille : list, plan_cage : list, lignes_u : set, cols_u : set, cages_u :set):
     """
-    S'arrête dès qu'il trouve 2 solutions pour prouver que la grille n'est pas unique.
+    Vérifie l'unicité de la solution de la grille
+
+    Entrée :
+        grille (list) : La grille de Sudoku à vérifier
+        plan_cage (list) : La grille de la repartion des cages
+        lignes_u (list) : Ensembles des valeurs utilisées par ligne
+        cols_u (list) : Ensembles des valeurs utilisées par colonne
+        cages_u (dict) : Ensembles des valeurs utilisées par cage
+    Sortie :
+        nb_solutions (int) : 1 si la solution est unique, 2 ou plus s'il y a des solutions multiples, 0 si aucune
     """
     dimension = len(grille)
 
@@ -345,6 +420,13 @@ def compter_solutions_irregulier (grille : list, plan_cage : list, lignes_u : se
 def cree_grille_a_resoudre (grille_complete : list, plan_cage : list, nb_cases_a_vider : int):
     """
     Crée un Sudoku irrégulier à résoudre qui verifie que la solution reste unique
+
+    Entrée :
+        grille_complete (list) : La grille résolue
+        plan_cage (list) : Le plan de répartition des cages
+        nb_cases_a_vider (int) : Le nombre de cases à vider dans la grille résolue
+    Sortie :
+        grille_joueur (list) : La grille de Sudoku irrégulier vidée
     """ 
     dimension = len(grille_complete)
     toutes_les_cases=[]
@@ -381,61 +463,3 @@ def cree_grille_a_resoudre (grille_complete : list, plan_cage : list, nb_cases_a
             grille_joueur[l][c] = valeur_sauvegardee
             
     return grille_joueur
-
-
-# IV. Exécution
-
-
-def afficher_grille(grille):
-    """Affiche la grille de maniere lisible."""
-    for ligne in grille:
-        for val in ligne:
-            # Si la case est vide on affiche un point pour la lisibilité
-            if val == 0:
-                print(".", end=" ")
-            else:
-                print(val, end=" ")
-        print()
-    print()
-
-def main(nb_cases_a_vider : int):
-
-    grille_generee = False
-    tentatives = 0
-    dimension = 9
-    
-    while not grille_generee :
-        tentatives += 1
-        print(f"Tentative n°{tentatives}...")
-
-        # On crée une structure de cages
-        plan_cage, dico_cage = generer_structure_valide(dimension)
-        
-        # On prépare une grille vide et les contraintes
-        grille_vide = [[0 for _ in range(dimension)] for _ in range(dimension)]
-        l_u, c_u, cage_u = initialiser_contraintes(grille_vide, plan_cage, dimension)
-
-        # On tente de remplir cette structure 
-        # Si generer_grille_complete échoue, elle renvoie False
-        resultat = generer_grille_complete(grille_vide, plan_cage, l_u, c_u, cage_u, dimension)
-
-        if resultat:
-            grille_complete = resultat
-            grille_generee = True
-            print("Grille générée")
-        else:
-            print("Échec du remplissage")
-
-    print("\nPlan_cage :")
-    afficher_grille(plan_cage)
-
-    
-    print("\nGrille complète :")
-    afficher_grille(grille_complete)
-
-    print("Remplissage de la grille")
-    grille_joueur = cree_grille_a_resoudre(grille_complete, plan_cage, nb_cases_a_vider)
-    
-    print("\nGrille à résoudre :")
-    afficher_grille(grille_joueur)
-    print(dico_cage)
