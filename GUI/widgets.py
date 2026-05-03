@@ -289,6 +289,15 @@ def reset_focus_cases(
             outline="#000000"
         )
         canvas.tag_lower(case_vide)
+    list_coord: list[tuple[int, int]] = verification_cases_sudoku(
+        canvas=canvas, 
+        cases=cases
+    )
+    afficher_cases_identiques(
+        canvas=canvas, 
+        list_coord=list_coord, 
+        cases=cases
+    )
 
 
 def verification_cases_sudoku(
@@ -359,15 +368,6 @@ def modifier_valeur_case_grille(
     elif event.keysym in ["Return", "Escape"]:
         reset_focus_cases(
             canvas=canvas, 
-            cases=[case]
-        )
-        list_coord: list[tuple[int, int]] = verification_cases_sudoku(
-            canvas=canvas, 
-            cases=cases
-        )
-        afficher_cases_identiques(
-            canvas=canvas, 
-            list_coord=list_coord, 
             cases=cases
         )
     elif len(nombre_actuel) > 0:
@@ -747,7 +747,7 @@ def entree_focus_case(
             cases=cases
         )
     )
-
+    
 
 def creer_case(
         canvas: tk.Canvas, 
