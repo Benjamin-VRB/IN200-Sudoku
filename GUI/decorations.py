@@ -2,14 +2,14 @@ import tkinter as tk
 
 
 def creer_cadre(
-    canvas: tk.Canvas, 
-    coord: tuple[int, int], 
-    largeur: int, 
-    hauteur: int, 
-    couleur: str, 
-    rayon_coins: int, 
-    tag: str
-) -> list[int]:
+        canvas: tk.Canvas, 
+        coord: tuple[int, int], 
+        largeur: int, 
+        hauteur: int, 
+        couleur: str, 
+        rayon_coins: int, 
+        tag: str
+    ) -> list[int]:
     
     cadre: list[int] = []
 

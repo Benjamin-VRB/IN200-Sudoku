@@ -1,12 +1,13 @@
 import tkinter as tk
 
 from GUI.fenetre import racine, LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
-from GUI.sudoku import aller_sudoku
 from GUI.stats import aller_stats
 from GUI.credits import aller_credits
 from GUI.menu_sauvegardes import aller_menu_sauvegardes
 from GUI.widgets import creer_boutton_arrondi, survole_non_survole
 from GUI.animations import mouvement_interieur_fond_menu
+from GUI.menu_partie_perso import aller_menu_partie_perso
+from GUI.interface_jeu import aller_grille
 
 
 def aller_menu() -> tk.Canvas:
@@ -219,7 +220,7 @@ def aller_menu() -> tk.Canvas:
     canvas.tag_bind(
         tagOrId=TAG_PERSO, 
         sequence="<Button-1>", 
-        func=lambda event: aller_sudoku(canvas=canvas)
+        func=lambda event: aller_grille(canvas=canvas, type="sudoku", difficulte="", temps_depart=0)
     )
     
     canvas.tag_bind(

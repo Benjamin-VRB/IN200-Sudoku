@@ -6,9 +6,9 @@ from Grille.sauvegarde import supprimer_sauvegardes
 
 
 def mouvement_interieur_fond_menu(
-    canvas: tk.Canvas, 
-    iteration: int = 1
-) -> None:
+        canvas: tk.Canvas, 
+        iteration: int = 1
+    ) -> None:
     """
     Déplace le fond du menu, le titre ainsi que les boutons vers l'intérieur de la fenêtre
     """
@@ -85,10 +85,10 @@ def mouvement_interieur_fond_menu(
 
 
 def mouvement_exterieur_fond_menu(
-    canvas: tk.Canvas, 
-    instantane: bool = True, 
-    iteration: int = 1
-) -> None:
+        canvas: tk.Canvas, 
+        instantane: bool = True, 
+        iteration: int = 1
+    ) -> None:
     """
     Déplace le fond du menu, le titre ainsi que les boutons vers l'extérieur de la fenêtre
     """
@@ -168,10 +168,10 @@ def mouvement_exterieur_fond_menu(
     
 
 def supprimer_elements(
-    canvas: tk.Canvas,
-    tags_ou_ids: list[str | int] = None, 
-    widgets: list[tk.Widget] = None
-) -> None:
+        canvas: tk.Canvas,
+        tags_ou_ids: list[str | int] = None, 
+        widgets: list[tk.Widget] = None
+    ) -> None:
     
     if tags_ou_ids is not None:
         canvas.delete(*tags_ou_ids)
@@ -181,10 +181,10 @@ def supprimer_elements(
 
 
 def retour_menu(
-    canvas: tk.Canvas, 
-    tags_ou_ids: list[str | int] = None, 
-    widgets: list[tk.Widget] = None
-) -> None:
+        canvas: tk.Canvas, 
+        tags_ou_ids: list[str | int] = None, 
+        widgets: list[tk.Widget] = None
+    ) -> None:
     """
     Retourne au menu en supprimant les éléments de l'interface qu'on désire quitter et en 
     actionnant l'animation du menu
@@ -198,12 +198,12 @@ def retour_menu(
 
 
 def actualiser_page(
-    canvas: tk.Canvas,
-    fonction_page, 
-    arguments: dict = {},
-    tags_ou_ids: list[str | int] = None, 
-    widgets: list[tk.Widget] = None
-) -> None:
+        canvas: tk.Canvas,
+        fonction_page, 
+        arguments: dict = {},
+        tags_ou_ids: list[str | int] = None, 
+        widgets: list[tk.Widget] = None
+    ) -> None:
 
     retour_menu(
         canvas=canvas, 
@@ -214,12 +214,12 @@ def actualiser_page(
 
 
 def supprimer_sauv_menu_sauvegardes(
-    canvas: tk.Canvas, 
-    fonction_page, 
-    indices: list[int], 
-    tags_ou_ids: list[str | int] = None, 
-    widgets: list[tk.Widget] = None
-) -> None:
+        canvas: tk.Canvas, 
+        fonction_page, 
+        indices: list[int], 
+        tags_ou_ids: list[str | int] = None, 
+        widgets: list[tk.Widget] = None
+    ) -> None:
     
     supprimer_sauvegardes(indices=indices)
     actualiser_page(

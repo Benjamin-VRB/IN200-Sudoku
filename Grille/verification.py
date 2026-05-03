@@ -79,7 +79,7 @@ def verification_sudoku_classique_complet(grille: list[list[int]]):
                 if len(liste_cases_invalides) != 0 :      # Si on a trouvé une anomalie, on rajoute la case considérée.
                     liste_cases_invalides.append((i, j))
 
-    return liste_cases_invalides
+    return list(set(liste_cases_invalides))
 
 ####       Variante Kenken       ####
 
