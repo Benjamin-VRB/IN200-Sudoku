@@ -11,23 +11,23 @@ from Grille.verification import verification_sudoku_classique_complet
 
 COULEUR_CASE: str = "#ffffff"
 COULEUR_CASE_VERR: str = "#F0F0F0"
-COULEUR_CASE_PROBLEME: str = "#ffc5bc"
-COULEUR_CASE_PROBLEME_VERR: str = "#d3a49c"
+COULEUR_CASE_PROBLEME: str = "#ffb4b4"
+COULEUR_CASE_PROBLEME_VERR: str = "#d99b9b"
 
 
 def creer_boutton_arrondi(
-    canvas: tk.Canvas, 
-    coord: tuple[int, int], 
-    tag: str, 
-    largeur: int, 
-    hauteur: int, 
-    texte: str, 
-    couleur_texte: str,
-    couleur_fond: str, 
-    epaisseur_bordure: int, 
-    couleur_bordure: str, 
-    police: tuple[str | int, ...]
-) -> dict[str, list[int] | int]:
+        canvas: tk.Canvas, 
+        coord: tuple[int, int], 
+        tag: str, 
+        largeur: int, 
+        hauteur: int, 
+        texte: str, 
+        couleur_texte: str,
+        couleur_fond: str, 
+        epaisseur_bordure: int, 
+        couleur_bordure: str, 
+        police: tuple[str | int, ...]
+    ) -> dict[str, list[int] | int]:
     """
     Crée un bouton sur le canvas 
     """
@@ -118,12 +118,12 @@ def creer_boutton_arrondi(
 
 
 def changer_couleurs(
-    canvas: tk.Canvas, 
-    fond: list[int], 
-    bordure: list[int], 
-    couleur_fond: str, 
-    couleur_bordure: str
-) -> None:
+        canvas: tk.Canvas, 
+        fond: list[int], 
+        bordure: list[int], 
+        couleur_fond: str, 
+        couleur_bordure: str
+    ) -> None:
     """
     Change les couleurs des éléments
     """
@@ -142,15 +142,15 @@ def changer_couleurs(
 
 
 def survole_non_survole(
-    canvas: tk.Canvas, 
-    tags_ou_ids: list[str | int], 
-    fond: list[int], 
-    bordure: list[int], 
-    couleur_fond: str, 
-    couleur_bordure: str, 
-    couleur_fond_surv: str, 
-    couleur_bordure_surv: str
-) -> None:
+        canvas: tk.Canvas, 
+        tags_ou_ids: list[str | int], 
+        fond: list[int], 
+        bordure: list[int], 
+        couleur_fond: str, 
+        couleur_bordure: str, 
+        couleur_fond_surv: str, 
+        couleur_bordure_surv: str
+    ) -> None:
     """
     Change les couleurs du widgets lorqu'il est survolé et lorsqu'il n'est plus survolé par la souris
     """
@@ -182,9 +182,9 @@ def survole_non_survole(
 
 
 def desactiver_widget(
-    canvas: tk.Canvas, 
-    tags_ou_ids: list[str | int]
-) -> None:
+        canvas: tk.Canvas, 
+        tags_ou_ids: list[str | int]
+    ) -> None:
     """
     Desactive les interactions avec les widgets indiqués
     """
@@ -196,9 +196,9 @@ def desactiver_widget(
 
 
 def activer_widget(
-    canvas: tk.Canvas, 
-    tags_ou_ids: list[str | int]
-) -> None:
+        canvas: tk.Canvas, 
+        tags_ou_ids: list[str | int]
+    ) -> None:
     """
     Active les interactions avec les widgets indiqués
     """
@@ -209,10 +209,34 @@ def activer_widget(
         )
 
 
+def renvoyer_grille(
+        canvas: tk.Canvas, 
+        cases: list[dict[str, int]]
+    ) -> list[list[int]]:
+
+    grille: list[list[int]] = []
+    nombre_cases_cote_grille: int = int(math.sqrt(len(cases)))
+    for i in range(nombre_cases_cote_grille):
+        rangee: list[int] = []
+        for j in range(nombre_cases_cote_grille):
+            texte: int = cases[i * nombre_cases_cote_grille + j]["texte"]
+            nombre: str = canvas.itemcget(
+                tagOrId=texte, 
+                option="text"
+            )
+            if nombre == "":
+                nombre = 0
+            else:
+                nombre = int(nombre)
+            rangee.append(nombre)
+        grille.append(rangee)
+    return grille
+
+
 def trouver_cases_verrouillee(
-    canvas: tk.Canvas, 
-    cases: list[dict[str, int]]
-) -> list[dict[str, int]]:
+        canvas: tk.Canvas, 
+        cases: list[dict[str, int]]
+    ) -> list[dict[str, int]]:
 
     cases_verr: list[dict[str, int]] = []
     for case in cases:
@@ -226,9 +250,9 @@ def trouver_cases_verrouillee(
 
 
 def reset_couleur_cases_rouges(
-    canvas: tk.Canvas, 
-    cases: list[dict[str, int]]
-) -> None:
+        canvas: tk.Canvas, 
+        cases: list[dict[str, int]]
+    ) -> None:
     
     for case in cases:
         case_vide: int = case["case_vide"]
@@ -251,9 +275,9 @@ def reset_couleur_cases_rouges(
 
 
 def reset_focus_cases(
-    canvas: tk.Canvas, 
-    cases: list[dict[str, int]]
-) -> None:
+        canvas: tk.Canvas, 
+        cases: list[dict[str, int]]
+    ) -> None:
 
     canvas.unbind_all(sequence="<KeyPress>")
     canvas.delete("clavier_num")
@@ -268,33 +292,24 @@ def reset_focus_cases(
 
 
 def verification_cases_sudoku(
-    canvas: tk.Canvas, 
-    case: dict[str, int], 
-    cases: list[dict[str, int]]
-) -> list[tuple[int, int]]:
+        canvas: tk.Canvas, 
+        cases: list[dict[str, int]]
+    ) -> list[tuple[int, int]]:
     
-    grille: list[list[int]] = []
-    nombre_cases_cote_grille: int = int(math.sqrt(len(cases)))
-    for _ in range(nombre_cases_cote_grille):
-        rangee: list[int] = []
-        for _ in range(nombre_cases_cote_grille):
-            texte: int = case["texte"]
-            nombre: int = canvas.itemcget(
-                tagOrId=texte, 
-                option="text"
-            )
-            rangee.append(nombre)
-        grille.append(rangee)
+    grille: list[list[int]] = renvoyer_grille(
+        canvas=canvas, 
+        cases=cases
+    )
     list_coord_nombres_identiques: list[tuple[int, int]] = \
         verification_sudoku_classique_complet(grille=grille)
     return list_coord_nombres_identiques
 
 
 def afficher_cases_identiques(
-    canvas: tk.Canvas, 
-    list_coord: list[tuple[int, int]], 
-    cases: list[dict[str, int]], 
-):
+        canvas: tk.Canvas, 
+        list_coord: list[tuple[int, int]], 
+        cases: list[dict[str, int]], 
+    ) -> None:
     
     reset_couleur_cases_rouges(
         canvas=canvas, 
@@ -305,8 +320,9 @@ def afficher_cases_identiques(
         canvas=canvas, 
         cases=cases
     )
+
     for coord in list_coord:
-        indice: int = coord[1] * 9 + coord[0]
+        indice: int = coord[0] * 9 + coord[1]
         case: dict[str, int] = cases[indice]
         case_vide: int = case["case_vide"]
         if case in cases_verr:
@@ -322,12 +338,12 @@ def afficher_cases_identiques(
 
 
 def modifier_valeur_case_grille(
-    event, 
-    canvas: tk.Canvas, 
-    case: dict[str, int], 
-    valeur_max: int, 
-    cases: list[dict[str, int]]
-) -> None:
+        event, 
+        canvas: tk.Canvas, 
+        case: dict[str, int], 
+        valeur_max: int, 
+        cases: list[dict[str, int]]
+    ) -> None:
     
     texte: int = case["texte"]
     nombre_actuel: str = canvas.itemcget(
@@ -347,7 +363,6 @@ def modifier_valeur_case_grille(
         )
         list_coord: list[tuple[int, int]] = verification_cases_sudoku(
             canvas=canvas, 
-            case=case, 
             cases=cases
         )
         afficher_cases_identiques(
@@ -369,11 +384,11 @@ def modifier_valeur_case_grille(
 
 
 def modifier_valeur_case_clavier_num(
-    canvas: tk.Canvas, 
-    case: dict[str, int], 
-    valeur_max: int, 
-    valeur: str
-) -> None:
+        canvas: tk.Canvas, 
+        case: dict[str, int], 
+        valeur_max: int, 
+        valeur: str
+    ) -> None:
     
     texte: int = case["texte"]
     nombre_actuel: str = canvas.itemcget(
@@ -399,13 +414,13 @@ def modifier_valeur_case_clavier_num(
 
 
 def creer_clavier_numerique(
-    canvas: tk.Canvas, 
-    coord: tuple[int, int], 
-    largeur: int, 
-    hauteur: int, 
-    case: dict[str, int], 
-    valeur_max: int
-) -> dict[str, dict[str, dict[str, tk.Button | int]] | int]:
+        canvas: tk.Canvas, 
+        coord: tuple[int, int], 
+        largeur: int, 
+        hauteur: int, 
+        case: dict[str, int], 
+        valeur_max: int
+    ) -> dict[str, dict[str, dict[str, tk.Button | int]] | int]:
 
     largeur_bouton: int = largeur // 3
     hauteur_bouton: int = hauteur // 4
@@ -690,11 +705,11 @@ def creer_clavier_numerique(
     
 
 def entree_focus_case(
-    canvas: tk.Canvas, 
-    case: dict[str, int], 
-    valeur_max: int, 
-    cases: list[dict[str, int]]
-) -> None:
+        canvas: tk.Canvas, 
+        case: dict[str, int], 
+        valeur_max: int, 
+        cases: list[dict[str, int]]
+    ) -> None:
     
     case_vide: int = case["case_vide"]
     texte: int = case["texte"]
@@ -735,11 +750,11 @@ def entree_focus_case(
 
 
 def creer_case(
-    canvas: tk.Canvas, 
-    tag: str, 
-    coord: tuple[int, int], 
-    longueur_cote: int
-) -> dict[str, int]:
+        canvas: tk.Canvas, 
+        tag: str, 
+        coord: tuple[int, int], 
+        longueur_cote: int
+    ) -> dict[str, int]:
 
     case_vide: int = canvas.create_rectangle(
         (coord, (coord[0] + longueur_cote, coord[1] + longueur_cote)),
@@ -762,13 +777,13 @@ def creer_case(
 
 
 def creer_grille_sudoku(
-    canvas: tk.Canvas, 
-    tag: str, 
-    coord: tuple[int, int], 
-    nb_case_cote: int, 
-    longueur_cote_case: int, 
-    nb_carre_cote: int
-) -> dict[str, list[dict[str, int]] | list[int]]:
+        canvas: tk.Canvas, 
+        tag: str, 
+        coord: tuple[int, int], 
+        nb_case_cote: int, 
+        longueur_cote_case: int, 
+        nb_carre_cote: int
+    ) -> dict[str, list[dict[str, int]] | list[int]]:
     
     cases: list[dict[str, int]] = []
     for rangee in range(nb_case_cote):
@@ -831,10 +846,10 @@ def creer_grille_sudoku(
 
 
 def remplir_grille_sudoku_GUI(
-    canvas: tk.Canvas, 
-    cases: list[dict[str, int]], 
-    grille_valeur: list[list[int]]
-) -> None:
+        canvas: tk.Canvas, 
+        cases: list[dict[str, int]], 
+        grille_valeur: list[list[int]]
+    ) -> None:
     
     for rangee in range(len(grille_valeur)):
         for colonne in range(len(grille_valeur[0])):
@@ -857,17 +872,17 @@ def remplir_grille_sudoku_GUI(
 
 
 def interagir_barre_sauv(
-    event, 
-    canvas: tk.Canvas, 
-    tag_barre_sauv: str, 
-    nom_sauv: str, 
-    cases: list[dict[str, int]], 
-    cases_verr: list[dict[str, int]],
-    temps: int, 
-    page: list[str | int], 
-    type_grille: str, 
-    difficulte: str
-) -> None:
+        event, 
+        canvas: tk.Canvas, 
+        tag_barre_sauv: str, 
+        nom_sauv: str, 
+        cases: list[dict[str, int]], 
+        cases_verr: list[dict[str, int]],
+        temps: int, 
+        page: list[str | int], 
+        type_grille: str, 
+        difficulte: str
+    ) -> None:
     
     if event.keysym in ["Return", "Escape"]:
         cases_vides_verr: list[int] = [case["case_vide"] for case in cases_verr]
@@ -876,7 +891,7 @@ def interagir_barre_sauv(
             if nom_sauv == "":
                 nom_sauv = "Aucun nom"
             grille: list[list[int]] = []
-            nombre_cases_cote_grille: int = math.sqrt(len(cases))
+            nombre_cases_cote_grille: int = int(math.sqrt(len(cases)))
             for i in range(nombre_cases_cote_grille):
                 rangee: list[int] = []
                 for j in range(nombre_cases_cote_grille):
@@ -914,17 +929,17 @@ def interagir_barre_sauv(
 
 
 def barre_entree_sauv(
-    canvas: tk.Canvas, 
-    largeur: int, 
-    hauteur: int, 
-    epaisseur_cadre: int, 
-    page: list[str | int], 
-    cases: list[dict[str, int]], 
-    temps: int, 
-    difficulte: str, 
-    tag: str, 
-    type_grille: str
-) -> dict[str, int | tk.Entry]:
+        canvas: tk.Canvas, 
+        largeur: int, 
+        hauteur: int, 
+        epaisseur_cadre: int, 
+        page: list[str | int], 
+        cases: list[dict[str, int]], 
+        temps: int, 
+        difficulte: str, 
+        tag: str, 
+        type_grille: str
+    ) -> dict[str, int | tk.Entry]:
     
     desactiver_widget(
         canvas=canvas, 
@@ -993,18 +1008,18 @@ def barre_entree_sauv(
 
 
 def creer_bouton_rect(
-    canvas: tk.Canvas, 
-    coord: tuple[int, int], 
-    largeur: int, 
-    hauteur: int, 
-    tag: str, 
-    texte: str, 
-    couleur_fond: str, 
-    couleur_texte: str, 
-    epaisseur_bordure: int, 
-    couleur_bordure: str, 
-    police: tuple[str | int, ...]
-) -> dict[str, list[int] | int]:
+        canvas: tk.Canvas, 
+        coord: tuple[int, int], 
+        largeur: int, 
+        hauteur: int, 
+        tag: str, 
+        texte: str, 
+        couleur_fond: str, 
+        couleur_texte: str, 
+        epaisseur_bordure: int, 
+        couleur_bordure: str, 
+        police: tuple[str | int, ...]
+    ) -> dict[str, list[int] | int]:
     
     bordure: list[int] = creer_cadre(
         canvas=canvas, 
@@ -1042,25 +1057,25 @@ def creer_bouton_rect(
 
 
 def creer_fiche_sauv(
-    canvas: tk.Canvas, 
-    coord: tuple[int, int], 
-    largeur: int, 
-    hauteur: int, 
-    tag: str, 
-    nom_sauv: str, 
-    date: str, 
-    temps: str,
-    difficulte: str,
-    type_grille: str, 
-    statut: str,
-    couleur_fond: str, 
-    couleur_texte: str, 
-    epaisseur_bordure_fiche: int, 
-    epaisseur_bordure_boutons: int, 
-    couleur_bordure: str, 
-    style_police_texte: str, 
-    style_police_boutons: str
-) -> dict[str, dict[str, list[int] | dict[str, int]] | dict[str, list[int] | int]]:
+        canvas: tk.Canvas, 
+        coord: tuple[int, int], 
+        largeur: int, 
+        hauteur: int, 
+        tag: str, 
+        nom_sauv: str, 
+        date: str, 
+        temps: str,
+        difficulte: str,
+        type_grille: str, 
+        statut: str,
+        couleur_fond: str, 
+        couleur_texte: str, 
+        epaisseur_bordure_fiche: int, 
+        epaisseur_bordure_boutons: int, 
+        couleur_bordure: str, 
+        style_police_texte: str, 
+        style_police_boutons: str
+    ) -> dict[str, dict[str, list[int] | dict[str, int]] | dict[str, list[int] | int]]:
     
     bordure: list[int] = creer_cadre(
         canvas=canvas, 
