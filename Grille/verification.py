@@ -69,16 +69,14 @@ def verification_sudoku_classique_complet(grille: list[list[int]]):
         La grille de sudoku.
     Sortie:
         Liste des coordonnées des cases pour lesquelles cela ne fonctionne pas."""
-    
-    liste_cases_invalides = []       # On teste toutes les cases.
-    for i in range(9):
+
+    liste_cases_invalides = []
+    for i in range(9):                   # On regarde dans toutes les cases...
         for j in range(9):
             if grille[i][j] != 0:
-                verification_lignes_colonnes(grille, (i, j), liste_cases_invalides)  # Vérification des lignes et ds colonnes.
-                verification_carre_Sudoku(grille, (i, j), liste_cases_invalides)    # Vérification des carrés.
-                if len(liste_cases_invalides) != 0 :      # Si on a trouvé une anomalie, on rajoute la case considérée.
-                    liste_cases_invalides.append((i, j))
-
+                verification_lignes_colonnes(grille, (i, j), liste_cases_invalides) # les lignes et colonnes
+                verification_carre_Sudoku(grille, (i, j), liste_cases_invalides)  # les carrés
+    
     return list(set(liste_cases_invalides))
 
 ####       Variante Kenken       ####
@@ -110,7 +108,7 @@ def verification_kenken(grille, coord, dictionnaire_cages):
     verif = verification_cages_kenken(grille, dictionnaire_cages)         # Vérifications des cages du kenken
 
     if  liste_cases_invalides != [] and verif:         # traitement des différents cas.
-        return liste_cases_invalides
+        return list(set(liste_cases_invalides))
     
     elif liste_cases_invalides != []:
         return liste_cases_invalides, verif
@@ -145,9 +143,7 @@ def verification_consecutif(grille, coord, liste_doublons_consecutifs, liste_cas
 
                 if abs(grille[j[0]][j[1]] - grille[deuxieme_case[0]][deuxieme_case[1]]) != 1:          # On regarde si les valeurs sont bien adjacentes
                     liste_cases_invalides.append(deuxieme_case)
-                    return liste_cases_invalides        # Si elles ne le sont pas on rajoute l'autre case dans la liste des cases invalides.
-    return liste_cases_invalides
-    
+
 
 def verification_sudoku_consecutif(grille, coord, liste_doublons_consecutifs):
     """Vérifie que toutes les conditions du sudoku consecutif sont bien respectées..
@@ -203,3 +199,53 @@ def analyser_erreurs(grille_joueur, grille_indices, r, c):
             cases_rouges.update(cases_du_groupe)
 
     return cases_rouges
+
+#### Variante Windoku ####
+
+def verification_contrainte_windoku(grille, coord, liste_cases_invalides):
+    """Vérifie que la contrainte du Windoku est bien respectée..
+    
+    Entrée:
+        La grille en cours de remplissage, les coordonnées de la cases venant d'être remplie,
+        une liste vide à remplir."""
+    
+    
+    ligne = coord[0]
+    colonne = coord[1]
+    val = grille[ligne][colonne]
+
+    if val == 0:
+        return
+
+    regions_windoku = [
+    [(i, j) for i in range(1, 4) for j in range(1, 4)], 
+    [(i, j) for i in range(1, 4) for j in range(5, 8)],
+    [(i, j) for i in range(5, 8) for j in range(1, 4)],
+    [(i, j) for i in range(5, 8) for j in range(5, 8)]
+    ]
+
+    for region in regions_windoku:
+        if coord in region:
+            for case in region:
+                if val == case:
+                    liste_cases_invalides.append(case)
+
+
+def verifiction_windoku_complet(grille):
+        
+    """Vérifie que toutes les contraintes du Windoku sont bien respectées...
+    
+    Entrée:
+        La grille en cours de remplissage
+    Sortie:
+        Liste des cases invalides."""
+    
+    liste_cases_invalides = []
+    for i in range(9):                   # On regarde dans toutes les cases...
+        for j in range(9):
+            if grille[i][j] != 0:
+                verification_lignes_colonnes(grille, (i, j), liste_cases_invalides) # les lignes et colonnes
+                verification_carre_Sudoku(grille, (i, j), liste_cases_invalides)  # les carrés
+                verification_contrainte_windoku(grille, (i, j), liste_cases_invalides) # Les autres régions.
+
+    return list(set(liste_cases_invalides))
