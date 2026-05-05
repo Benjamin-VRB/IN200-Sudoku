@@ -158,7 +158,7 @@ def verification_sudoku_consecutif(grille, coord, liste_doublons_consecutifs):
     verification_lignes_colonnes(grille, coord, liste_cases_invalides)        # Verifie les lignes et les colonnes
     verification_carre_Sudoku(grille, coord, liste_cases_invalides)              # Verifie les carrés
     verification_consecutif(coord, liste_doublons_consecutifs, liste_cases_invalides)     # Vérifie les cases consécutive
-    return liste_cases_invalides        # Renvoie la liste des cases invalides.
+    return list(set(liste_cases_invalides))       # Renvoie la liste des cases invalides.
 
 #### Variante Kakuro ####
 
