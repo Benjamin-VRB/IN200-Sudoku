@@ -1,6 +1,7 @@
 import tkinter as tk
 import datetime
 import math
+from PIL import Image, ImageTk
 
 from GUI.fenetre import LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
 from GUI.decorations import creer_cadre
@@ -1217,6 +1218,80 @@ def creer_fiche_sauv(
     
     return  {"fiche" : fiche, "bouton_charger" : bouton_charger, "bouton_suppr" : bouton_suppr}
 
+def creer_fiche_puzzle(
+        canvas: tk.Canvas,
+        coord: tuple[int, int],
+        largeur: int,
+        hauteur: int,
+        tag: str,
+        image_file: str,
+        couleur_fond: str,
+        couleur_bordure: str,
+        epaisseur_bordure_fiche: int,
+        epaisseur_bordure_boutons: int,
+        style_police_boutons: str
+    ) -> dict[str, dict[str, list[int] | dict[str, int]] | dict[str, list[int] | int]]:
+    bordure: list[int] = creer_cadre(
+        canvas=canvas,
+        coord=coord,
+        largeur=largeur,
+        hauteur=hauteur,
+        couleur=couleur_bordure,
+        rayon_coins=epaisseur_bordure_fiche,
+        tag=tag
+    )
+    RAYON_COINS_FOND: int = 0
+    x_fond: int = coord[0] + epaisseur_bordure_fiche
+    y_fond: int = coord[1] + epaisseur_bordure_fiche
+    largeur_fond: int = largeur - 2 * epaisseur_bordure_fiche
+    hauteur_fond: int = hauteur - 2 * epaisseur_bordure_fiche
+    fond: list[int] = creer_cadre(
+        canvas=canvas,
+        coord=(x_fond, y_fond),
+        largeur=largeur_fond,
+        hauteur=hauteur_fond,
+        couleur=couleur_fond,
+        rayon_coins=RAYON_COINS_FOND,
+        tag=tag
+    )
+    # Ajout de l'image
+    image = Image.open(image_file)
+    image = image.resize((100, 100))
+    image_tk = ImageTk.PhotoImage(image)
+    image_id = canvas.create_image(
+        (x_fond + largeur_fond // 6 + 7, y_fond + hauteur_fond // 2),
+        anchor=tk.CENTER,
+        image=image_tk
+    )
+    if not hasattr(canvas, 'images'):
+        canvas.images = []
+    canvas.images.append(image_tk)  # Garder une référence à l'image
+    fiche: dict[str, list[int] | dict[str, int]] = \
+        {"fond": fond, "bordure": bordure}
+    y_boutons: int = y_fond + hauteur_fond // 5
+    hauteur_boutons: int = 3 * hauteur_fond // 5
+    ecart_horizontal: int = largeur_fond // 32
+    largeur_boutons: int = 120
+    police_boutons: tuple[str, int] = (style_police_boutons, hauteur_boutons // 4)
+    x_suppr: int = x_fond + largeur_fond - ecart_horizontal - largeur_boutons
+    x_charger: int = x_suppr - ecart_horizontal - largeur_boutons + 100
+    bouton_charger: dict[str, list[int] | int] = \
+        creer_bouton_rect(
+            canvas=canvas,
+            coord=(x_charger, y_boutons),
+            largeur=largeur_boutons,
+            hauteur=hauteur_boutons,
+            tag=tag,
+            texte="Charger",
+            couleur_bordure=couleur_bordure,
+            couleur_fond=couleur_fond,
+            couleur_texte="#949494",
+            epaisseur_bordure=epaisseur_bordure_boutons,
+            police=police_boutons
+        )
+
+    return {"fiche": fiche, "bouton_charger": bouton_charger}
+
 
 def creer_grille_sudoku_irregulier(
     canvas: tk.Canvas, 
@@ -1356,3 +1431,108 @@ def ajouter_indications_kenken(canvas: tk.Canvas, dico_cage: dict, x_grille: int
             fill="black",
             tags=(tag, "indication_kenken")
         )
+
+def creer_trait_consecutif(canvas, x1, y1, x2, y2, epaisseur=7, marge=5):
+    if x1 == x2:  # Vertical
+        canvas.create_line(x1, y1 + marge, x2, y2 - marge, width=epaisseur, capstyle=tk.ROUND)
+    elif y1 == y2:  # Horizontal
+        canvas.create_line(x1 + marge, y1, x2 - marge, y2, width=epaisseur, capstyle=tk.ROUND)
+
+
+def creer_grille_sudoku_consecutif(
+    canvas: tk.Canvas, 
+    tag: str, 
+    coord: tuple[int, int], 
+    nb_case_cote: int, 
+    longueur_cote_case: int, 
+    liste_doublons: list[tuple[tuple[int, int], tuple[int, int]]],
+) -> dict[str, list[dict[str, int]] | list[int]]:
+    """
+    Permet de dessiner une grille de sudoku consecutif.
+    """
+    # Son format : [ {"case_vide": 1, "texte": 2} ...] où 1 et 2 sont les identifiants de la case vide et le texte
+    cases: list[dict[str, int]] = []
+    
+    # Quadrilage de base à l'aide de deux boucles
+    for rangee in range(nb_case_cote):
+        for colonne in range(nb_case_cote):
+            # On calcule la position exacte pour chaque case
+            x_case: int = coord[0] + colonne * longueur_cote_case
+            y_case: int = coord[1] + rangee * longueur_cote_case
+            
+            # On crée cette case
+            nouvelle_case = creer_case(
+                canvas=canvas, 
+                tag=tag, 
+                coord=(x_case, y_case), 
+                longueur_cote=longueur_cote_case
+            )
+            cases.append(nouvelle_case) 
+    
+    for i in liste_doublons:
+        case1, case2 = i
+        x1 = coord[0] + case1[1] * longueur_cote_case
+        y1 = coord[1] + case1[0] * longueur_cote_case
+        x2 = coord[0] + case2[1] * longueur_cote_case
+        y2 = coord[1] + case2[0] * longueur_cote_case
+        
+        creer_trait_consecutif(canvas, x1, y1, x2, y2)
+
+
+    # Création du pourtour
+    bordures: list[int] = [] 
+    longueur_totale: int = nb_case_cote * longueur_cote_case
+    
+    cadre_exterieur = creer_cadre(
+        canvas=canvas, 
+        coord=coord, 
+        largeur=longueur_totale, 
+        hauteur=longueur_totale, 
+        couleur="#000000", 
+        rayon_coins=0,
+        tag=tag
+    )
+    bordures.extend(cadre_exterieur) 
+
+    # Delimitation des bordures des cages
+    EPAISSEUR_BORDURE: int = 3 
+    
+    for i in range(nb_case_cote):
+        for j in range(nb_case_cote):
+            # On détermine les coordonnées des 4 coins de notre case traitée
+            x1: int = coord[0] + j * longueur_cote_case
+            y1: int = coord[1] + i * longueur_cote_case
+            x2: int = x1 + longueur_cote_case
+            y2: int = y1 + longueur_cote_case
+            
+
+           
+
+    # Maintenant faisons que les cases soient interactives
+    sequence: str = "<Button-1>"
+    FUNC = entree_focus_case
+    for case in cases:
+        case_vide: int = case["case_vide"]
+        texte: int = case["texte"]
+        canvas.tag_bind(
+            tagOrId=case_vide, 
+            sequence=sequence, 
+            func=lambda event, case=case: FUNC(
+                canvas=canvas, 
+                case=case, 
+                valeur_max=nb_case_cote, 
+                cases=cases
+            )
+        )
+        canvas.tag_bind(
+            tagOrId=texte, 
+            sequence=sequence, 
+            func=lambda event, case=case: FUNC(
+                canvas=canvas, 
+                case=case, 
+                valeur_max=nb_case_cote, 
+                cases=cases
+            )
+        )
+        
+    return {"cases": cases, "bordures": bordures}
