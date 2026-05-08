@@ -41,21 +41,21 @@ def modifier_sauvegardes(fonction):
 def sauvegarder(
     sauv: list,
     nom: str, 
-    grille_actuelle: list[list[int]],  
-    cases_verr: tuple[list[int], list[int]], 
+    grille_actuelle: list[list[str]],  
+    cases_verr_indices: list[int], 
     temps: int, 
     date: str, 
     type_grille: str, 
     statut: str, 
-    difficulte: str
+    difficulte: int
 ) -> list:
     
-    donnee: dict[str, str | list[list[int]] | tuple[list[int], list[int]] | int] = {
+    donnee: dict[str, str | list[list[str]] | list[int] | int | list] = {
         "nom" : nom,
         "date" : date,
         "type" : type_grille,
         "grille_actuelle" : grille_actuelle,
-        "cases_verrouillees" : cases_verr,
+        "cases_verrouillees" : cases_verr_indices,
         "temps" : temps, 
         "statut" : statut, 
         "difficulte" : difficulte

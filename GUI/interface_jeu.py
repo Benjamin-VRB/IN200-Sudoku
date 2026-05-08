@@ -1,22 +1,33 @@
 import tkinter as tk
 
 from GUI.fenetre import LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
-from GUI.animations import mouvement_exterieur_fond_menu, retour_menu
-from GUI.widgets import creer_boutton_arrondi, survole_non_survole, \
-barre_entree_sauv
+from GUI.animations import supprimer_elements, retour_menu
+from GUI.widgets import creer_boutton_arrondi, survole_non_survole, barre_entree_sauv, COULEUR_CASE, \
+afficher_conflits, verification_cases_sudoku
 from GUI.sudoku import creer_sudoku_GUI
 
 def aller_grille(
         canvas: tk.Canvas, 
-        type: str, 
-        difficulte: str, 
-        temps_depart: int
+        type_grille: str | None, 
+        difficulte: int | None, 
+        temps_depart: int, 
+        tags_ou_ids_page_suppr: list[int | str] = None, 
+        widgets_page_suppr: list[tk.Widget] = None, 
+        grille_par_defaut: list[list[int]] = None, 
+        indices_cases_verr: list[int] = None
     ) -> None:
-        
-    mouvement_exterieur_fond_menu(canvas=canvas)
 
-    type: str = type.lower()
-    if type == "sudoku":
+    COULEUR_BORDURE_CASES: str = "#000000"
+    COULEUR_TEXTE_CASES: str = "#000000"
+
+    supprimer_elements(
+        canvas=canvas, 
+        tags_ou_ids=tags_ou_ids_page_suppr, 
+        widgets=widgets_page_suppr
+    )
+
+    type_grille: str = type_grille.lower().strip()
+    if type_grille == "sudoku":
         TAG: str = "sudoku"
         NB_CASE_COTE: int = 9
         LONGUEUR_COTE_GRILLE: int = NB_CASE_COTE * 60
@@ -30,9 +41,26 @@ def aller_grille(
             nb_case_cote=NB_CASE_COTE, 
             longueur_cote_case=LONGUEUR_COTE_CASE, 
             nb_carre_cote=NB_CARRE_COTE, 
-            tag=TAG
+            tag=TAG, 
+            couleur_cases=COULEUR_CASE, 
+            couleur_bordure_cases=COULEUR_BORDURE_CASES, 
+            couleur_textes=COULEUR_TEXTE_CASES, 
+            difficulte=difficulte, 
+            grille_par_defaut=grille_par_defaut, 
+            indices_cases_verr=indices_cases_verr
         )
-    
+        cases: list[dict[str, int]] = grille["cases"]
+        list_coord: list[tuple[int, int]] = verification_cases_sudoku(
+            canvas=canvas, 
+            cases=cases
+        )
+        afficher_conflits(
+            canvas=canvas, 
+            list_coord=list_coord, 
+            cases=cases
+        )
+    else:
+        return
     
     PARAMS_BOUTON: dict[str, int | str | tuple[str, int]] = {
         "largeur" : 200,
@@ -44,10 +72,7 @@ def aller_grille(
 
     COULEURS_BOUTON: dict[str, str] = {
         "couleur_fond" : "#E0D4C1",
-        "couleur_bordure" : "#E9E0CE"
-    }
-    
-    COULEURS_SURVOLE: dict[str, str] = {
+        "couleur_bordure" : "#E9E0CE", 
         "couleur_fond_surv" : "#BEB2A4",
         "couleur_bordure_surv" : "#A89E90"
     }
@@ -68,7 +93,9 @@ def aller_grille(
             coord=(COLONNE1, RANGEE3), 
             tag=TAG_AIDE, 
             texte="Aide", 
-            **(PARAMS_BOUTON | COULEURS_BOUTON)
+            couleur_fond=COULEURS_BOUTON["couleur_fond"], 
+            couleur_bordure=COULEURS_BOUTON["couleur_bordure"], 
+            **PARAMS_BOUTON
         )
 
     bouton_sauv: dict[str, list[int] | int] =  \
@@ -77,7 +104,9 @@ def aller_grille(
             coord=(COLONNE1, RANGEE2), 
             tag=TAG_SAUV, 
             texte="Sauvegarder", 
-            **(PARAMS_BOUTON | COULEURS_BOUTON)
+            couleur_fond=COULEURS_BOUTON["couleur_fond"], 
+            couleur_bordure=COULEURS_BOUTON["couleur_bordure"], 
+            **PARAMS_BOUTON
         )
 
     bouton_retour: dict[str, list[int] | int] =  \
@@ -86,7 +115,9 @@ def aller_grille(
             coord=(COLONNE1, RANGEE1), 
             tag=TAG_RETOUR, 
             texte="Retour", 
-            **(PARAMS_BOUTON | COULEURS_BOUTON)
+            couleur_fond=COULEURS_BOUTON["couleur_fond"], 
+            couleur_bordure=COULEURS_BOUTON["couleur_bordure"], 
+            **PARAMS_BOUTON
         )
 
     survole_non_survole(
@@ -94,7 +125,7 @@ def aller_grille(
         tags_ou_ids=[TAG_AIDE], 
         fond=bouton_aide["fond"], 
         bordure=bouton_aide["bordure"], 
-        **(COULEURS_BOUTON | COULEURS_SURVOLE)
+        couleurs=COULEURS_BOUTON
     )
 
     survole_non_survole(
@@ -102,7 +133,7 @@ def aller_grille(
         tags_ou_ids=[TAG_SAUV], 
         fond=bouton_sauv["fond"], 
         bordure=bouton_sauv["bordure"], 
-        **(COULEURS_BOUTON | COULEURS_SURVOLE)
+        couleurs=COULEURS_BOUTON
     )
 
     survole_non_survole(
@@ -110,7 +141,7 @@ def aller_grille(
         tags_ou_ids=[TAG_RETOUR], 
         fond=bouton_retour["fond"], 
         bordure=bouton_retour["bordure"], 
-        **(COULEURS_BOUTON | COULEURS_SURVOLE)
+        couleurs=COULEURS_BOUTON
     )
     
     page: list[str] = [TAG, TAG_AIDE, TAG_RETOUR, TAG_SAUV, *[case["case_vide"] for case in grille["cases"]], 
@@ -132,9 +163,11 @@ def aller_grille(
             page=page, 
             cases=grille["cases"],  
             tag=TAG_BARRE_ENTREE_SAUV, 
-            type_grille="Sudoku", 
+            type_grille=type_grille, 
             temps=126, 
-            difficulte="facile"
+            difficulte=difficulte, 
+            couleur_nombres_normale=COULEUR_TEXTE_CASES, 
+            couleur_bordure_cases_normale=COULEUR_BORDURE_CASES
         )
     )
 

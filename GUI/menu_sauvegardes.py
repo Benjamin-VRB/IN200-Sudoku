@@ -3,6 +3,7 @@ import tkinter as tk
 from GUI.fenetre import LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
 from GUI.animations import mouvement_exterieur_fond_menu, retour_menu, supprimer_sauv_menu_sauvegardes
 from GUI.widgets import creer_boutton_arrondi, survole_non_survole, creer_fiche_sauv
+from GUI.interface_jeu import aller_grille
 
 from Grille.sauvegarde import charger_sauvegardes
 
@@ -159,8 +160,8 @@ def aller_menu_sauvegardes(canvas: tk.Canvas) -> None:
                 nom_sauv=sauv["nom"], 
                 date=sauv["date"], 
                 type_grille=sauv["type"], 
-                temps="5min 32s", 
-                difficulte="Facile", 
+                temps=sauv["temps"], 
+                difficulte=sauv["difficulte"], 
                 statut="en_cours", 
                 style_police_texte="Century", 
                 style_police_boutons="Cooper Black", 
@@ -200,7 +201,19 @@ def aller_menu_sauvegardes(canvas: tk.Canvas) -> None:
         for id in bouton_charger:
             canvas_defilement.tag_bind(
                 tagOrId=id, 
-                sequence="<Button-1>"
+                sequence="<Button-1>", 
+                func=lambda event, type_grille=sauv["type"], difficulte=sauv["difficulte"], 
+                temps_depart=sauv["temps"], grille_par_defaut=sauv["grille_actuelle"], 
+                indices_cases_verr=sauv["cases_verrouillees"]: aller_grille(
+                    canvas=canvas, 
+                    type_grille=type_grille, 
+                    difficulte=difficulte, 
+                    temps_depart=temps_depart, 
+                    tags_ou_ids_page_suppr=[TAG, TAG_RETOUR], 
+                    widgets_page_suppr=[canvas_defilement], 
+                    grille_par_defaut=grille_par_defaut, 
+                    indices_cases_verr=indices_cases_verr
+                )
             )
 
         for id in bouton_suppr:

@@ -1,9 +1,42 @@
 import tkinter as tk
 
 from GUI.fenetre import LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
-from GUI.widgets import creer_boutton_arrondi, survole_non_survole, creer_bouton_rect, bouton_active
+from GUI.widgets import creer_boutton_arrondi, survole_non_survole, creer_bouton_rect, bouton_active, \
+renvoyer_mode_et_dif
 from GUI.animations import retour_menu, mouvement_exterieur_fond_menu
 from GUI.decorations import creer_cadre
+from GUI.interface_jeu import aller_grille
+
+
+def jouer_debut(
+        canvas: tk.Canvas, 
+        boutons_mode: list[dict[str, int | list[int]]],
+        boutons_dif: list[dict[str, int | list[int]]],
+        couleurs_bouton_act: dict[str, str], 
+        tags_ou_ids_page_suppr: list[int | str] = None, 
+        widgets_page_suppr: list[tk.Widget] = None
+    ) -> None:
+
+    info_partie: dict[str, str | int] = renvoyer_mode_et_dif(
+        canvas=canvas, 
+        boutons_dif=boutons_dif, 
+        boutons_mode=boutons_mode,
+        couleurs_bouton_act=couleurs_bouton_act
+    )
+
+    if (info_partie["mode"] in ["sudoku", "16x16", "windoku", "consecutif"] and \
+    info_partie["difficulte"] is None) or info_partie["mode"] is None:
+        return
+
+    aller_grille(
+        canvas=canvas, 
+        type_grille=info_partie["mode"], 
+        difficulte=info_partie["difficulte"], 
+        temps_depart=0, 
+        tags_ou_ids_page_suppr=tags_ou_ids_page_suppr, 
+        widgets_page_suppr=widgets_page_suppr
+    )
+
 
 def aller_menu_partie_perso(canvas: tk.Canvas) -> None:
 
@@ -261,8 +294,6 @@ def aller_menu_partie_perso(canvas: tk.Canvas) -> None:
         couleurs=couleurs_bouton_consecutif
     )
 
-    
-    
     PARAMS_BOUTONS_DIF: dict[str, str | int] = {
         "largeur" : 230, 
         "hauteur" : 74, 
@@ -649,5 +680,14 @@ def aller_menu_partie_perso(canvas: tk.Canvas) -> None:
 
     canvas.tag_bind(
         tagOrId=TAG_JOUER, 
-        sequence="<Button-1>"
+        sequence="<Button-1>", 
+        func=lambda event: jouer_debut(
+            canvas=canvas, 
+            boutons_mode=list_boutons_mode, 
+            boutons_dif=list_boutons_dif, 
+            couleurs_bouton_act=COULEURS_BOUTONS_MODE_DIF_ACT, 
+            tags_ou_ids_page_suppr=[TAG, TAG_16X16, TAG_CHAOS, TAG_CONSECUTIF, TAG_DIFFICILE, 
+                                    TAG_FACILE, TAG_JOUER, TAG_KAKURO, TAG_KENKEN, TAG_MOYEN, 
+                                    TAG_RETOUR, TAG_SUDOKU, TAG_TRES_DIFFICILE, TAG_WINDOKU]
+        )
     )

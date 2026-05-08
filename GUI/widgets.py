@@ -332,24 +332,31 @@ def reset_couleur_cases_rouges(
 
 def reset_focus_cases(
         canvas: tk.Canvas, 
-        cases: list[dict[str, int]]
+        cases: list[dict[str, int]], 
+        couleur_nombres_normale: str, 
+        couleur_bordure_cases_normale: str
     ) -> None:
 
     canvas.unbind_all(sequence="<KeyPress>")
     canvas.delete("clavier_num")
+    changer_couleur_nombres(
+        canvas=canvas, 
+        cases=cases, 
+        couleur=couleur_nombres_normale
+    )
     for case in cases:
         case_vide: int = case["case_vide"]
         canvas.itemconfig(
             tagOrId=case_vide, 
             width=1, 
-            outline="#000000"
+            outline=couleur_bordure_cases_normale
         )
         canvas.tag_lower(case_vide)
     list_coord: list[tuple[int, int]] = verification_cases_sudoku(
         canvas=canvas, 
         cases=cases
     )
-    afficher_cases_identiques(
+    afficher_conflits(
         canvas=canvas, 
         list_coord=list_coord, 
         cases=cases
@@ -370,7 +377,7 @@ def verification_cases_sudoku(
     return list_coord_nombres_identiques
 
 
-def afficher_cases_identiques(
+def afficher_conflits(
         canvas: tk.Canvas, 
         list_coord: list[tuple[int, int]], 
         cases: list[dict[str, int]], 
@@ -402,12 +409,69 @@ def afficher_cases_identiques(
             )
 
 
+def changer_couleur_nombre_spe(
+        canvas: tk.Canvas, 
+        cases: list[dict[str, int]], 
+        nombre: str, 
+        couleur: str
+    ) -> None:
+
+    for case in cases:
+        texte: int = case["texte"]
+        if canvas.itemcget(
+            tagOrId=texte, 
+            option="text"
+        ) == nombre:
+            canvas.itemconfig(
+                tagOrId=texte, 
+                fill=couleur
+            )
+
+
+def changer_couleur_nombres(
+        canvas: tk.Canvas, 
+        cases: list[dict[str, int]], 
+        couleur: str
+    ) -> None:
+
+    for case in cases:
+        texte: int = case["texte"]
+        canvas.itemconfig(
+            tagOrId=texte, 
+            fill=couleur
+        )
+
+
+def montrer_nombre(
+        canvas: tk.Canvas, 
+        cases: list[dict[str, int]], 
+        nombre: str, 
+        couleur_normale: str, 
+        couleur_indication: str
+    ) -> None:
+
+    changer_couleur_nombres(
+        canvas=canvas, 
+        cases=cases, 
+        couleur=couleur_normale
+    )
+    changer_couleur_nombre_spe(
+        canvas=canvas, 
+        cases=cases, 
+        nombre=nombre, 
+        couleur=couleur_indication
+    )
+
+
 def modifier_valeur_case_grille(
         event, 
         canvas: tk.Canvas, 
         case: dict[str, int], 
         valeur_max: int, 
-        cases: list[dict[str, int]]
+        cases: list[dict[str, int]], 
+        couleur_nombres_normale: str, 
+        couleur_nombres_indication: str, 
+        couleur_bordure_cases_normale: str
     ) -> None:
     
     texte: int = case["texte"]
@@ -417,33 +481,69 @@ def modifier_valeur_case_grille(
     )
     if len(event.char) > 0 and event.char in "123456789" and \
         int(nombre_actuel + event.char) <= valeur_max:
+        nouveau_nombre: str = nombre_actuel + event.char
         canvas.itemconfig(
             tagOrId=texte, 
-            text=nombre_actuel + event.char
+            text=nouveau_nombre
+        )
+        montrer_nombre(
+            canvas=canvas, 
+            cases=cases, 
+            nombre=nouveau_nombre, 
+            couleur_normale=couleur_nombres_normale, 
+            couleur_indication=couleur_nombres_indication
         )
     elif event.keysym in ["Return", "Escape"]:
         reset_focus_cases(
             canvas=canvas, 
-            cases=cases
+            cases=cases, 
+            couleur_nombres_normale=couleur_nombres_normale, 
+            couleur_bordure_cases_normale=couleur_bordure_cases_normale
         )
     elif len(nombre_actuel) > 0:
         if event.char == "0" and int(nombre_actuel + event.char) <= valeur_max:
+            nouveau_nombre: str = nombre_actuel + event.char
             canvas.itemconfig(
                 tagOrId=texte, 
-                text=nombre_actuel + event.char
+                text=nouveau_nombre
+            )
+            montrer_nombre(
+                canvas=canvas, 
+                cases=cases, 
+                nombre=nouveau_nombre, 
+                couleur_normale=couleur_nombres_normale, 
+                couleur_indication=couleur_nombres_indication
             )
         elif event.keysym in ["BackSpace", "Delete"]:
+            nouveau_nombre: str = nombre_actuel[:-1]
             canvas.itemconfig(
                 tagOrId=texte, 
-                text=nombre_actuel[:-1]
+                text=nouveau_nombre
             )
+            if len(nouveau_nombre) > 0:
+                montrer_nombre(
+                    canvas=canvas, 
+                    cases=cases, 
+                    nombre=nouveau_nombre, 
+                    couleur_normale=couleur_nombres_normale, 
+                    couleur_indication=couleur_nombres_indication
+                )
+            else:
+                changer_couleur_nombres(
+                    canvas=canvas, 
+                    cases=cases, 
+                    couleur=couleur_nombres_normale
+                )
 
 
 def modifier_valeur_case_clavier_num(
         canvas: tk.Canvas, 
         case: dict[str, int], 
+        cases: list[dict[str, int]], 
         valeur_max: int, 
-        valeur: str
+        valeur: str, 
+        couleur_nombres_normale: str, 
+        couleur_nombres_indication: str
     ) -> None:
     
     texte: int = case["texte"]
@@ -452,21 +552,52 @@ def modifier_valeur_case_clavier_num(
         option="text"
     )
     if valeur in "123456789" and int(nombre_actuel + valeur) <= valeur_max:
+        nouveau_nombre: str = nombre_actuel + valeur
         canvas.itemconfig(
             tagOrId=texte, 
-            text=nombre_actuel + valeur
+            text=nouveau_nombre
+        )
+        montrer_nombre(
+            canvas=canvas, 
+            cases=cases, 
+            nombre=nouveau_nombre, 
+            couleur_normale=couleur_nombres_normale, 
+            couleur_indication=couleur_nombres_indication
         )
     elif valeur == "0" and int(nombre_actuel + valeur) <= valeur_max \
         and nombre_actuel != "":
+        nouveau_nombre: str = nombre_actuel + valeur
         canvas.itemconfig(
             tagOrId=texte, 
-            text=nombre_actuel + valeur
+            text=nouveau_nombre
+        )
+        montrer_nombre(
+            canvas=canvas, 
+            cases=cases, 
+            nombre=nouveau_nombre, 
+            couleur_normale=couleur_nombres_normale, 
+            couleur_indication=couleur_nombres_indication
         )
     elif valeur == "suppr":
+        nouveau_nombre: str = nombre_actuel[:-1]
         canvas.itemconfig(
             tagOrId=texte, 
-            text=nombre_actuel[:-1]
+            text=nouveau_nombre
         )
+        if len(nouveau_nombre) > 0:
+            montrer_nombre(
+                canvas=canvas, 
+                cases=cases, 
+                nombre=nouveau_nombre, 
+                couleur_normale=couleur_nombres_normale, 
+                couleur_indication=couleur_nombres_indication
+            )
+        else:
+            changer_couleur_nombres(
+                canvas=canvas, 
+                cases=cases, 
+                couleur=couleur_nombres_normale
+            )
 
 
 def creer_clavier_numerique(
@@ -475,7 +606,10 @@ def creer_clavier_numerique(
         largeur: int, 
         hauteur: int, 
         case: dict[str, int], 
-        valeur_max: int
+        cases: list[dict[str, int]], 
+        valeur_max: int, 
+        couleur_nombres_normale: str, 
+        couleur_nombres_indication: str
     ) -> dict[str, dict[str, dict[str, tk.Button | int]] | int]:
 
     largeur_bouton: int = largeur // 3
@@ -499,7 +633,10 @@ def creer_clavier_numerique(
             canvas=canvas, 
             case=case, 
             valeur_max=valeur_max, 
-            valeur="7"
+            valeur="7", 
+            cases=cases, 
+            couleur_nombres_normale=couleur_nombres_normale, 
+            couleur_nombres_indication=couleur_nombres_indication
         ), 
         text="7", 
         **PARAMAS_BOUTON
@@ -521,7 +658,10 @@ def creer_clavier_numerique(
             canvas=canvas, 
             case=case, 
             valeur_max=valeur_max, 
-            valeur="8"
+            valeur="8", 
+            cases=cases, 
+            couleur_nombres_normale=couleur_nombres_normale, 
+            couleur_nombres_indication=couleur_nombres_indication
         ),
         text="8", 
         **PARAMAS_BOUTON
@@ -544,7 +684,10 @@ def creer_clavier_numerique(
             canvas=canvas, 
             case=case, 
             valeur_max=valeur_max, 
-            valeur="9"
+            valeur="9", 
+            cases=cases, 
+            couleur_nombres_normale=couleur_nombres_normale, 
+            couleur_nombres_indication=couleur_nombres_indication
         ),
         text="9", 
         **PARAMAS_BOUTON
@@ -567,7 +710,10 @@ def creer_clavier_numerique(
             canvas=canvas, 
             case=case, 
             valeur_max=valeur_max, 
-            valeur="4"
+            valeur="4", 
+            cases=cases, 
+            couleur_nombres_normale=couleur_nombres_normale, 
+            couleur_nombres_indication=couleur_nombres_indication
         ),
         text="4", 
         **PARAMAS_BOUTON
@@ -590,7 +736,10 @@ def creer_clavier_numerique(
             canvas=canvas, 
             case=case, 
             valeur_max=valeur_max, 
-            valeur="5"
+            valeur="5", 
+            cases=cases, 
+            couleur_nombres_normale=couleur_nombres_normale, 
+            couleur_nombres_indication=couleur_nombres_indication
         ),
         text="5", 
         **PARAMAS_BOUTON
@@ -613,7 +762,10 @@ def creer_clavier_numerique(
             canvas=canvas, 
             case=case, 
             valeur_max=valeur_max, 
-            valeur="6"
+            valeur="6", 
+            cases=cases, 
+            couleur_nombres_normale=couleur_nombres_normale, 
+            couleur_nombres_indication=couleur_nombres_indication
         ),
         text="6", 
         **PARAMAS_BOUTON
@@ -636,7 +788,10 @@ def creer_clavier_numerique(
             canvas=canvas, 
             case=case, 
             valeur_max=valeur_max, 
-            valeur="1"
+            valeur="1", 
+            cases=cases, 
+            couleur_nombres_normale=couleur_nombres_normale, 
+            couleur_nombres_indication=couleur_nombres_indication
         ),
         text="1", 
         **PARAMAS_BOUTON
@@ -659,7 +814,10 @@ def creer_clavier_numerique(
             canvas=canvas, 
             case=case, 
             valeur_max=valeur_max, 
-            valeur="2"
+            valeur="2", 
+            cases=cases, 
+            couleur_nombres_normale=couleur_nombres_normale, 
+            couleur_nombres_indication=couleur_nombres_indication
         ),
         text="2", 
         **PARAMAS_BOUTON
@@ -682,7 +840,10 @@ def creer_clavier_numerique(
             canvas=canvas, 
             case=case, 
             valeur_max=valeur_max, 
-            valeur="3"
+            valeur="3", 
+            cases=cases, 
+            couleur_nombres_normale=couleur_nombres_normale, 
+            couleur_nombres_indication=couleur_nombres_indication
         ),
         text="3", 
         **PARAMAS_BOUTON
@@ -705,7 +866,10 @@ def creer_clavier_numerique(
             canvas=canvas, 
             case=case, 
             valeur_max=valeur_max, 
-            valeur="0"
+            valeur="0", 
+            cases=cases, 
+            couleur_nombres_normale=couleur_nombres_normale, 
+            couleur_nombres_indication=couleur_nombres_indication
         ),
         text="0", 
         **PARAMAS_BOUTON
@@ -728,7 +892,10 @@ def creer_clavier_numerique(
             canvas=canvas, 
             case=case, 
             valeur_max=valeur_max, 
-            valeur="suppr"
+            valeur="suppr", 
+            cases=cases, 
+            couleur_nombres_normale=couleur_nombres_normale, 
+            couleur_nombres_indication=couleur_nombres_indication
         ),
         text="Suppr", 
         **PARAMAS_BOUTON
@@ -764,7 +931,9 @@ def entree_focus_case(
         canvas: tk.Canvas, 
         case: dict[str, int], 
         valeur_max: int, 
-        cases: list[dict[str, int]]
+        cases: list[dict[str, int]], 
+        couleur_nombres_normale: str, 
+        couleur_bordure_cases_normale: str
     ) -> None:
     
     case_vide: int = case["case_vide"]
@@ -772,14 +941,19 @@ def entree_focus_case(
 
     reset_focus_cases(
         canvas=canvas, 
-        cases=cases
+        cases=cases, 
+        couleur_nombres_normale=couleur_nombres_normale, 
+        couleur_bordure_cases_normale=couleur_bordure_cases_normale
     )
+
+    COULEUR_INDICATION: str = "#3185ED"
+
     canvas.tag_raise(case_vide)
     canvas.tag_raise(texte)
     canvas.itemconfig(
         tagOrId=case_vide, 
         width=4, 
-        outline="#3185ED"
+        outline=COULEUR_INDICATION
     )
 
     LARGEUR_CLAVIER_NUM: int = 250
@@ -790,7 +964,10 @@ def entree_focus_case(
         largeur=LARGEUR_CLAVIER_NUM, 
         hauteur=HAUTEUR_CLAVIER_NUM, 
         case=case, 
-        valeur_max=valeur_max
+        valeur_max=valeur_max, 
+        cases=cases, 
+        couleur_nombres_normale=couleur_nombres_normale, 
+        couleur_nombres_indication=COULEUR_INDICATION
     )
     
     canvas.bind_all(
@@ -800,7 +977,10 @@ def entree_focus_case(
             canvas=canvas, 
             case=case,
             valeur_max=valeur_max, 
-            cases=cases
+            cases=cases, 
+            couleur_nombres_normale=couleur_nombres_normale, 
+            couleur_nombres_indication=COULEUR_INDICATION, 
+            couleur_bordure_cases_normale=couleur_bordure_cases_normale
         )
     )
     
@@ -809,13 +989,16 @@ def creer_case(
         canvas: tk.Canvas, 
         tag: str, 
         coord: tuple[int, int], 
-        longueur_cote: int
+        longueur_cote: int, 
+        couleur_case: str, 
+        couleur_bordure: str, 
+        couleur_texte: str
     ) -> dict[str, int]:
 
     case_vide: int = canvas.create_rectangle(
         (coord, (coord[0] + longueur_cote, coord[1] + longueur_cote)),
-        fill=COULEUR_CASE, 
-        outline="#000000", 
+        fill=couleur_case, 
+        outline=couleur_bordure, 
         width=1, 
         tags=tag
     )
@@ -824,7 +1007,7 @@ def creer_case(
         (coord[0] + longueur_cote // 2, coord[1] + longueur_cote // 2),
         anchor=tk.CENTER, 
         font=("Century", int(1 / 3  * longueur_cote)), 
-        fill="#000000", 
+        fill=couleur_texte, 
         tags=tag, 
         text=""
     )
@@ -838,7 +1021,10 @@ def creer_grille_sudoku(
         coord: tuple[int, int], 
         nb_case_cote: int, 
         longueur_cote_case: int, 
-        nb_carre_cote: int
+        nb_carre_cote: int, 
+        couleur_cases: str, 
+        couleur_bordure_cases: str, 
+        couleur_textes: str
     ) -> dict[str, list[dict[str, int]] | list[int]]:
     
     cases: list[dict[str, int]] = []
@@ -851,7 +1037,10 @@ def creer_grille_sudoku(
                     canvas=canvas, 
                     tag=tag, 
                     coord=(x_case, y_case), 
-                    longueur_cote=longueur_cote_case
+                    longueur_cote=longueur_cote_case, 
+                    couleur_case=couleur_cases, 
+                    couleur_bordure=couleur_bordure_cases, 
+                    couleur_texte=couleur_textes
                 )
             )  
     
@@ -868,7 +1057,8 @@ def creer_grille_sudoku(
                          (x_carre_1 + longueur_cote_carre, y_carre_2 + longueur_cote_carre)),
                         fill="", 
                         width=3, 
-                        tags=tag
+                        tags=tag, 
+                        outline=couleur_bordure_cases
                     )
                 )
                 
@@ -884,7 +1074,9 @@ def creer_grille_sudoku(
                 canvas=canvas, 
                 case=case, 
                 valeur_max=nb_case_cote, 
-                cases=cases
+                cases=cases, 
+                couleur_nombres_normale=couleur_textes, 
+                couleur_bordure_cases_normale=couleur_bordure_cases
             )
         )
         canvas.tag_bind(
@@ -894,14 +1086,16 @@ def creer_grille_sudoku(
                 canvas=canvas, 
                 case=case, 
                 valeur_max=nb_case_cote, 
-                cases=cases
+                cases=cases, 
+                couleur_nombres_normale=couleur_textes, 
+                couleur_bordure_cases_normale=couleur_bordure_cases
             )
         )
         
     return {"cases" : cases, "carres" : carres}
 
 
-def remplir_grille_sudoku_GUI(
+def remplir_grille_sudoku_GUI_debut(
         canvas: tk.Canvas, 
         cases: list[dict[str, int]], 
         grille_valeur: list[list[int]]
@@ -927,6 +1121,35 @@ def remplir_grille_sudoku_GUI(
                 )
 
 
+def remplir_grille_sudoku_GUI_en_cours(
+        canvas: tk.Canvas, 
+        cases: list[dict[str, int]], 
+        grille_valeur: list[list[int]], 
+        indices_cases_verr: list[int]
+    ) -> None:
+    
+    for rangee in range(len(grille_valeur)):
+        for colonne in range(len(grille_valeur[0])):
+            if grille_valeur[rangee][colonne] != 0:
+                indice: int = rangee * len(grille_valeur[0]) + colonne
+                case: tuple[int] = cases[indice]
+                case_vide: int = case["case_vide"]
+                texte: int = case["texte"]
+                if indice in indices_cases_verr:
+                    desactiver_widget(
+                        canvas=canvas, 
+                        tags_ou_ids=[case_vide, texte]
+                    )
+                    canvas.itemconfig(
+                        tagOrId=case_vide, 
+                        fill=COULEUR_CASE_VERR
+                    )
+                canvas.itemconfig(
+                    tagOrId=texte, 
+                    text=grille_valeur[rangee][colonne]
+                )
+
+
 def interagir_barre_sauv(
         event, 
         canvas: tk.Canvas, 
@@ -937,7 +1160,7 @@ def interagir_barre_sauv(
         temps: int, 
         page: list[str | int], 
         type_grille: str, 
-        difficulte: str
+        difficulte: int
     ) -> None:
     
     if event.keysym in ["Return", "Escape"]:
@@ -962,12 +1185,11 @@ def interagir_barre_sauv(
             date: datetime.datetime = datetime.datetime.now()
             date_str: str = "%02d/%02d/%04d - %02dh %02dmin %02ds" % \
                 (date.day, date.month, date.year, date.hour, date.minute, date.second)
-            temps_str: str = f"{temps // 60}min {temps % 60}s"
             sauvegarder(
                 nom=nom_sauv, 
                 grille_actuelle=grille,  
-                cases_verr=cases_verr_indices, 
-                temps=temps_str, 
+                cases_verr_indices=cases_verr_indices, 
+                temps=temps, 
                 date=date_str, 
                 type_grille=type_grille, 
                 statut="en_cours", 
@@ -992,9 +1214,11 @@ def barre_entree_sauv(
         page: list[str | int], 
         cases: list[dict[str, int]], 
         temps: int, 
-        difficulte: str, 
+        difficulte: int, 
         tag: str, 
-        type_grille: str
+        type_grille: str, 
+        couleur_nombres_normale: str, 
+        couleur_bordure_cases_normale: str
     ) -> dict[str, int | tk.Entry]:
     
     desactiver_widget(
@@ -1003,7 +1227,9 @@ def barre_entree_sauv(
     )
     reset_focus_cases(
         canvas=canvas, 
-        cases=cases
+        cases=cases, 
+        couleur_nombres_normale=couleur_nombres_normale, 
+        couleur_bordure_cases_normale=couleur_bordure_cases_normale
     )
 
     x_cadre: int = (LARGEUR_PIXEL_FENETRE - largeur) // 2
@@ -1120,8 +1346,8 @@ def creer_fiche_sauv(
         tag: str, 
         nom_sauv: str, 
         date: str, 
-        temps: str,
-        difficulte: str,
+        temps: int,
+        difficulte: int,
         type_grille: str, 
         statut: str,
         couleur_fond: str, 
@@ -1150,7 +1376,8 @@ def creer_fiche_sauv(
     fond: int = canvas.create_rectangle(
         ((x_fond, y_fond), (x_fond + largeur_fond, y_fond + hauteur_fond)), 
         fill=couleur_fond, 
-        tags=tag
+        tags=tag, 
+        outline=couleur_fond
     )
     
     textes: dict[str, int] = {}
@@ -1174,6 +1401,17 @@ def creer_fiche_sauv(
 
     taille_police_type: int = hauteur_fond // 10
 
+    if difficulte == 4:
+        difficulte_str: str = "très difficile"
+    elif difficulte == 3:
+        difficulte_str: str = "difficile"
+    elif difficulte == 2:
+        difficulte_str: str = "moyen"
+    elif difficulte == 1:
+        difficulte_str: str = "facile"
+    else:
+        difficulte_str: str = "difficulté inconnue"
+
     textes["type_grille"] = \
         canvas.create_text(
             (x_textes, 
@@ -1181,7 +1419,7 @@ def creer_fiche_sauv(
             anchor=tk.NW, 
             fill=couleur_texte, 
             font=(style_police_texte, taille_police_type), 
-            text=f"{type_grille.lower().capitalize()} {difficulte.lower()}"
+            text=f"{type_grille.lower().capitalize()} {difficulte_str}"
         )
     
     taille_police_statut: int = hauteur_fond // 10
@@ -1196,7 +1434,7 @@ def creer_fiche_sauv(
                 anchor=tk.NW, 
                 fill=couleur_texte, 
                 font=(style_police_texte, taille_police_statut), 
-                text=f"Partie terminée - meilleur temps : {temps}"
+                text=f"Partie terminée - meilleur temps : {temps // 60}min {temps % 60}s"
             )
     
     elif statut == "en_cours":
@@ -1209,7 +1447,7 @@ def creer_fiche_sauv(
                 anchor=tk.NW, 
                 fill=couleur_texte, 
                 font=(style_police_texte, taille_police_statut), 
-                text=f"Partie en cours - temps : {temps}"
+                text=f"Partie en cours - temps : {temps // 60}min {temps % 60}s"
             )
         
     taille_police_date: int = hauteur_fond // 13
@@ -1342,6 +1580,46 @@ def creer_fiche_puzzle(
         )
 
     return {"fiche": fiche, "bouton_charger": bouton_charger}
+
+
+def renvoyer_mode_et_dif(
+        canvas: tk.Canvas, 
+        boutons_mode: list[dict[str, int | list[int]]], 
+        boutons_dif: list[dict[str, int | list[int]]],
+        couleurs_bouton_act: dict[str, str], 
+    ) -> dict[str, str | int | None]:
+
+    mode: str = None
+    for bouton in boutons_mode:
+        if canvas.itemcget(
+            tagOrId=bouton["fond"], 
+            option="fill"
+        ) == couleurs_bouton_act["couleur_fond"]:
+            mode: str = canvas.itemcget(
+                tagOrId=bouton["texte"], 
+                option="text"
+            ).lower().strip()
+
+    difficulte: int = None
+    for bouton in boutons_dif:
+        if canvas.itemcget(
+            tagOrId=bouton["fond"], 
+            option="fill"
+        ) == couleurs_bouton_act["couleur_fond"]:
+            texte: str = canvas.itemcget(
+                tagOrId=bouton["texte"], 
+                option="text"
+            ).lower().strip()
+            if texte == "très difficile":
+                difficulte: int = 4
+            elif texte == "difficile":
+                difficulte: int = 3
+            elif texte == "moyen":
+                difficulte: int = 2
+            elif texte == "facile":
+                difficulte: int = 1
+    
+    return {"mode" : mode, "difficulte" : difficulte}
 
 
 def creer_grille_sudoku_irregulier(
@@ -1483,6 +1761,7 @@ def ajouter_indications_kenken(canvas: tk.Canvas, dico_cage: dict, x_grille: int
             fill="black",
             tags=(tag, "indication_kenken")
         )
+
 
 def creer_trait_consecutif(canvas, x1, y1, x2, y2, epaisseur=7, marge=5):
     if x1 == x2:  # Vertical

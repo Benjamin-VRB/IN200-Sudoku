@@ -185,7 +185,7 @@ def supprimer_valeur(nombre_valeur_a_supprimer : int, dimension : int):
     if grille_complete is None:
         return supprimer_valeur(nombre_valeur_a_supprimer, dimension)
     
-    grille_vidée = copy.deepcopy(grille_complete)
+    grille_videe = copy.deepcopy(grille_complete)
     positions = [(ligne, colonne) for ligne in range(dimension) for colonne in range(dimension)]
     random.shuffle(positions)
 
@@ -197,16 +197,16 @@ def supprimer_valeur(nombre_valeur_a_supprimer : int, dimension : int):
             if (nombre_valeur_a_supprimer - nombre_case_supprime) > 5:   
                 return supprimer_valeur(nombre_valeur_a_supprimer, dimension)
             else:
-                return grille_vidée
+                return grille_complete, grille_videe
 
         ligne, colonne = positions.pop()
-        valeur_originale = grille_vidée[ligne][colonne]
-        grille_vidée[ligne][colonne] = 0
+        valeur_originale = grille_videe[ligne][colonne]
+        grille_videe[ligne][colonne] = 0
 
-        if compter_solution_V3(grille_vidée, dimension) == 1:
+        if compter_solution_V3(grille_videe, dimension) == 1:
             nombre_case_supprime += 1
         else:
-            grille_vidée[ligne][colonne] = valeur_originale
+            grille_videe[ligne][colonne] = valeur_originale
 
-    return grille_complete, grille_vidée
+    return grille_complete, grille_videe
 
