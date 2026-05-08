@@ -7,6 +7,7 @@ from GUI.menu_sauvegardes import aller_menu_sauvegardes
 from GUI.widgets import creer_boutton_arrondi, survole_non_survole
 from GUI.animations import mouvement_interieur_fond_menu
 from GUI.menu_partie_perso import aller_menu_partie_perso
+from GUI.menu_puzzles import aller_puzzle
 
 
 def aller_menu() -> tk.Canvas:
@@ -249,6 +250,12 @@ def aller_menu() -> tk.Canvas:
         func=lambda event: aller_credits(canvas=canvas)
     )
     
+    canvas.tag_bind(
+        tagOrId=TAG_PUZZ, 
+        sequence="<Button-1>", 
+        func=lambda event: aller_puzzle(canvas=canvas)
+    )
+
     canvas.tag_bind(
         tagOrId=TAG_QUITTER, 
         sequence="<Button-1>", 

@@ -2,14 +2,14 @@ import tkinter as tk        ### A reverifier avec Benjamin
 
 from GUI.fenetre import LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
 from GUI.animations import mouvement_exterieur_fond_menu, retour_menu
-from GUI.widgets import creer_grille_sudoku, creer_boutton_arrondi, survole_non_survole, barre_entree_sauv, desactiver_widget
+from GUI.widgets import creer_grille_sudoku,  desactiver_widget
 
 from Grille.windoku import supprimer_valeur
 
 
 COULEUR_CASE_VERR: str = "#F0F0F0"
 
-def aller_sudoku(canvas: tk.Canvas) -> None:
+def aller_windoku(canvas: tk.Canvas) -> None:
     
     mouvement_exterieur_fond_menu(canvas=canvas)
 
@@ -38,7 +38,7 @@ def aller_sudoku(canvas: tk.Canvas) -> None:
         dimension=NB_CASE_COTE
     )
 
-    def remplir_grille_sudoku_GUI(
+    def remplir_grille_windoku_GUI(
     canvas: tk.Canvas,
     cases: list[dict[str, int]],
     grille_valeur: list[list[int]],
@@ -60,7 +60,7 @@ def aller_sudoku(canvas: tk.Canvas) -> None:
                         if (rangee, colonne) in region:
                             couleur_case = COULEUR_WINDOKU
                             break
-                        
+
                 # Remplir les cases avec les valeurs
                 if grille_valeur[rangee][colonne] != 0:
                     desactiver_widget(canvas=canvas, tags_ou_ids=[case_vide, texte])
@@ -81,122 +81,9 @@ def aller_sudoku(canvas: tk.Canvas) -> None:
     ]
 
 
-    remplir_grille_sudoku_GUI(
+    remplir_grille_windoku_GUI(
         canvas=canvas,
         cases=grille["cases"],
         grille_valeur=grille_valeur,
         regions_windoku=regions_windoku
-    )
-    
-    PARAMS_BOUTON: dict[str, int | str | tuple[str, int]] = {
-        "largeur" : 200,
-        "hauteur" : 76,
-        "police" : ("Cooper Black", 16),
-        "epaisseur_bordure" : 2,
-        "couleur_texte" : "#ffffff"
-    }
-
-    COULEURS_BOUTON: dict[str, str] = {
-        "couleur_fond" : "#E0D4C1",
-        "couleur_bordure" : "#E9E0CE"
-    }
-    
-    COULEURS_SURVOLE: dict[str, str] = {
-        "couleur_fond_surv" : "#BEB2A4",
-        "couleur_bordure_surv" : "#A89E90"
-    }
-
-    ECART_RANGEE: int = PARAMS_BOUTON["hauteur"] + 100
-    RANGEE2: int = (HAUTEUR_PIXEL_FENETRE - PARAMS_BOUTON["hauteur"]) // 2 
-    RANGEE1: int = RANGEE2 + ECART_RANGEE
-    RANGEE3: int = RANGEE2 - ECART_RANGEE
-    COLONNE1: int = 75
-
-    TAG_AIDE: str = "bouton_sudoku_aide"
-    TAG_SAUV: str = "bouton_sudoku_sauv"
-    TAG_RETOUR: str = "bouton_sudoku_retour"
-    
-    bouton_aide: dict[str, list[int] | int] =  \
-        creer_boutton_arrondi(
-            canvas=canvas, 
-            coord=(COLONNE1, RANGEE3), 
-            tag=TAG_AIDE, 
-            texte="Aide", 
-            **(PARAMS_BOUTON | COULEURS_BOUTON)
-        )
-
-    bouton_sauv: dict[str, list[int] | int] =  \
-        creer_boutton_arrondi(
-            canvas=canvas, 
-            coord=(COLONNE1, RANGEE2), 
-            tag=TAG_SAUV, 
-            texte="Sauvegarder", 
-            **(PARAMS_BOUTON | COULEURS_BOUTON)
-        )
-
-    bouton_retour: dict[str, list[int] | int] =  \
-        creer_boutton_arrondi(
-            canvas=canvas, 
-            coord=(COLONNE1, RANGEE1), 
-            tag=TAG_RETOUR, 
-            texte="Retour", 
-            **(PARAMS_BOUTON | COULEURS_BOUTON)
-        )
-
-    survole_non_survole(
-        canvas=canvas, 
-        tags_ou_ids=[TAG_AIDE], 
-        fond=bouton_aide["fond"], 
-        bordure=bouton_aide["bordure"], 
-        **(COULEURS_BOUTON | COULEURS_SURVOLE)
-    )
-
-    survole_non_survole(
-        canvas=canvas, 
-        tags_ou_ids=[TAG_SAUV], 
-        fond=bouton_sauv["fond"], 
-        bordure=bouton_sauv["bordure"], 
-        **(COULEURS_BOUTON | COULEURS_SURVOLE)
-    )
-
-    survole_non_survole(
-        canvas=canvas, 
-        tags_ou_ids=[TAG_RETOUR], 
-        fond=bouton_retour["fond"], 
-        bordure=bouton_retour["bordure"], 
-        **(COULEURS_BOUTON | COULEURS_SURVOLE)
-    )
-    
-    page: list[str] = [TAG, TAG_AIDE, TAG_RETOUR, TAG_SAUV, *[case["case_vide"] for case in grille["cases"]], 
-                       *[case["texte"] for case in grille["cases"]]]
-
-    LARGEUR_BARRE_ENTREE_SAUV: int = 200
-    HAUTEUR_BARRE_ENTREE_SAUV: int = 75
-    EPAISSEUR_CADRE_BARRE_ENTREE_SAUV: int = 5
-    TAG_BARRE_ENTREE_SAUV: str = "barre_entree_sauv_sudoku"
-
-    canvas.tag_bind(
-        tagOrId=TAG_SAUV, 
-        sequence="<Button-1>", 
-        func=lambda event: barre_entree_sauv(
-            canvas=canvas, 
-            largeur=LARGEUR_BARRE_ENTREE_SAUV, 
-            hauteur=HAUTEUR_BARRE_ENTREE_SAUV, 
-            epaisseur_cadre=EPAISSEUR_CADRE_BARRE_ENTREE_SAUV, 
-            page=page, 
-            cases=grille["cases"],  
-            tag=TAG_BARRE_ENTREE_SAUV, 
-            type_grille="Sudoku", 
-            temps=126, 
-            difficulte="facile"
-        )
-    )
-
-    canvas.tag_bind(
-        tagOrId=TAG_RETOUR, 
-        sequence="<Button-1>", 
-        func=lambda event: retour_menu(
-            canvas=canvas, 
-            tags_ou_ids=[TAG, TAG_SAUV, TAG_RETOUR, TAG_AIDE, "clavier_num"]
-        )
     )

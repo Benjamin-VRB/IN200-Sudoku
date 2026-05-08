@@ -140,7 +140,7 @@ def aller_menu_sauvegardes(canvas: tk.Canvas) -> None:
     EPAISSEUR_BORDURE_FICHE: int = 7
     EPAISSEUR_BORDURE_BOUTONS: int = 5
 
-    COULEUR_BOUTONS_FICHES: dict[str, str] = {
+    COULEURS_FICHES: dict[str, str] = {
         "couleur_fond" : "#555555",
         "couleur_bordure" : "#666666", 
         "couleur_fond_surv" : "#474747",
@@ -155,7 +155,7 @@ def aller_menu_sauvegardes(canvas: tk.Canvas) -> None:
                 coord=(X_FICHES, ECART_VERTICAL_FICHES + i * (HAUTEUR_FICHES + ECART_VERTICAL_FICHES)), 
                 largeur=LARGEUR_FICHES, 
                 hauteur=HAUTEUR_FICHES,  
-                tag="", 
+                tag=TAG, 
                 nom_sauv=sauv["nom"], 
                 date=sauv["date"], 
                 type_grille=sauv["type"], 
@@ -167,8 +167,8 @@ def aller_menu_sauvegardes(canvas: tk.Canvas) -> None:
                 couleur_texte="#ffffff", 
                 epaisseur_bordure_fiche=EPAISSEUR_BORDURE_FICHE, 
                 epaisseur_bordure_boutons=EPAISSEUR_BORDURE_BOUTONS, 
-                couleur_fond=COULEUR_BOUTONS_FICHES["couleur_fond"], 
-                couleur_bordure=COULEUR_BOUTONS_FICHES["couleur_bordure"]
+                couleur_fond=COULEURS_FICHES["couleur_fond"], 
+                couleur_bordure=COULEURS_FICHES["couleur_bordure"]
             )
 
         bouton_charger_fond: int = fiche["bouton_charger"]["fond"]
@@ -181,7 +181,7 @@ def aller_menu_sauvegardes(canvas: tk.Canvas) -> None:
             tags_ou_ids=bouton_charger, 
             fond=[bouton_charger_fond], 
             bordure=bouton_charger_bordure, 
-            couleurs=COULEUR_BOUTONS_FICHES
+            couleurs=COULEURS_FICHES
         )
 
         bouton_suppr_fond: int = fiche["bouton_suppr"]["fond"]
@@ -194,7 +194,7 @@ def aller_menu_sauvegardes(canvas: tk.Canvas) -> None:
             tags_ou_ids=bouton_suppr, 
             fond=[bouton_suppr_fond], 
             bordure=bouton_suppr_bordure, 
-            couleurs=COULEUR_BOUTONS_FICHES
+            couleurs=COULEURS_FICHES
         )
 
         for id in bouton_charger:
