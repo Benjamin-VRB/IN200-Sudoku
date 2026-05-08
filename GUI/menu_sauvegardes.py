@@ -78,12 +78,9 @@ def aller_menu_sauvegardes(canvas: tk.Canvas) -> None:
     X_BOUTON: int = LARGEUR_PIXEL_FENETRE - LARGEUR_BOUTON - 130
     Y_BOUTON: int = HAUTEUR_PIXEL_FENETRE - HAUTEUR_BOUTON - 80
 
-    COULEUR_BOUTON_RETOUR: dict[str, str] = {
+    COULEURS_BOUTON_RETOUR: dict[str, str] = {
         "couleur_fond" : "#939393",
-        "couleur_bordure" : "#ADADAD"
-    }
-
-    COULEURS_SURVOLE_RETOUR: dict[str, str] = {
+        "couleur_bordure" : "#ADADAD", 
         "couleur_fond_surv" : "#636363",
         "couleur_bordure_surv" : "#454545"
     }
@@ -101,7 +98,8 @@ def aller_menu_sauvegardes(canvas: tk.Canvas) -> None:
             police=("Cooper Black", 16), 
             epaisseur_bordure=2, 
             couleur_texte="#ffffff", 
-            **COULEUR_BOUTON_RETOUR
+            couleur_fond=COULEURS_BOUTON_RETOUR["couleur_fond"], 
+            couleur_bordure=COULEURS_BOUTON_RETOUR["couleur_bordure"]
         )
     
     survole_non_survole(
@@ -109,7 +107,7 @@ def aller_menu_sauvegardes(canvas: tk.Canvas) -> None:
         tags_ou_ids=[TAG_RETOUR], 
         fond=bouton_retour["fond"], 
         bordure=bouton_retour["bordure"], 
-        **(COULEUR_BOUTON_RETOUR | COULEURS_SURVOLE_RETOUR)
+        couleurs=COULEURS_BOUTON_RETOUR
     )
     
     canvas.tag_bind(
@@ -144,10 +142,7 @@ def aller_menu_sauvegardes(canvas: tk.Canvas) -> None:
 
     COULEUR_BOUTONS_FICHES: dict[str, str] = {
         "couleur_fond" : "#555555",
-        "couleur_bordure" : "#666666"
-    }
-
-    COULEURS_SURVOLE_BOUTONS_FICHES: dict[str, str] = {
+        "couleur_bordure" : "#666666", 
         "couleur_fond_surv" : "#474747",
         "couleur_bordure_surv" : "#393939"
     }
@@ -172,7 +167,8 @@ def aller_menu_sauvegardes(canvas: tk.Canvas) -> None:
                 couleur_texte="#ffffff", 
                 epaisseur_bordure_fiche=EPAISSEUR_BORDURE_FICHE, 
                 epaisseur_bordure_boutons=EPAISSEUR_BORDURE_BOUTONS, 
-                **COULEUR_BOUTONS_FICHES
+                couleur_fond=COULEUR_BOUTONS_FICHES["couleur_fond"], 
+                couleur_bordure=COULEUR_BOUTONS_FICHES["couleur_bordure"]
             )
 
         bouton_charger_fond: int = fiche["bouton_charger"]["fond"]
@@ -185,7 +181,7 @@ def aller_menu_sauvegardes(canvas: tk.Canvas) -> None:
             tags_ou_ids=bouton_charger, 
             fond=[bouton_charger_fond], 
             bordure=bouton_charger_bordure, 
-            **(COULEUR_BOUTONS_FICHES | COULEURS_SURVOLE_BOUTONS_FICHES)
+            couleurs=COULEUR_BOUTONS_FICHES
         )
 
         bouton_suppr_fond: int = fiche["bouton_suppr"]["fond"]
@@ -198,7 +194,7 @@ def aller_menu_sauvegardes(canvas: tk.Canvas) -> None:
             tags_ou_ids=bouton_suppr, 
             fond=[bouton_suppr_fond], 
             bordure=bouton_suppr_bordure, 
-            **(COULEUR_BOUTONS_FICHES | COULEURS_SURVOLE_BOUTONS_FICHES)
+            couleurs=COULEUR_BOUTONS_FICHES
         )
 
         for id in bouton_charger:

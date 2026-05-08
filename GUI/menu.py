@@ -7,7 +7,6 @@ from GUI.menu_sauvegardes import aller_menu_sauvegardes
 from GUI.widgets import creer_boutton_arrondi, survole_non_survole
 from GUI.animations import mouvement_interieur_fond_menu
 from GUI.menu_partie_perso import aller_menu_partie_perso
-from GUI.interface_jeu import aller_grille
 
 
 def aller_menu() -> tk.Canvas:
@@ -87,10 +86,7 @@ def aller_menu() -> tk.Canvas:
 
     COULEURS_BOUTON: dict[str, str] = {
         "couleur_fond" : "#E9E5DE",
-        "couleur_bordure" : "#F4EFE4"
-    }
-    
-    COULEURS_SURVOLE: dict[str, str] = {
+        "couleur_bordure" : "#F4EFE4", 
         "couleur_fond_surv" : "#C7C3BE",
         "couleur_bordure_surv" : "#AFAAA3"
     }
@@ -116,7 +112,9 @@ def aller_menu() -> tk.Canvas:
             tag=TAG_PERSO, 
             texte="Partie personnalisée", 
             couleur_texte=COULEUR_FOND_GAUCHE, 
-            **(PARAMS_BOUTON | COULEURS_BOUTON)
+            couleur_fond=COULEURS_BOUTON["couleur_fond"], 
+            couleur_bordure=COULEURS_BOUTON["couleur_bordure"], 
+            **PARAMS_BOUTON
         )
     
     bouton_puzz: dict[str, list[int] | int] = \
@@ -126,7 +124,9 @@ def aller_menu() -> tk.Canvas:
             tag=TAG_PUZZ, 
             texte="Puzzles", 
             couleur_texte=COULEUR_FOND_GAUCHE, 
-            **(PARAMS_BOUTON | COULEURS_BOUTON)
+            couleur_fond=COULEURS_BOUTON["couleur_fond"], 
+            couleur_bordure=COULEURS_BOUTON["couleur_bordure"], 
+            **PARAMS_BOUTON
         )
     
     bouton_sauv: dict[str, list[int] | int] = \
@@ -136,7 +136,9 @@ def aller_menu() -> tk.Canvas:
             tag=TAG_SAUV, 
             texte="Sauvegardes", 
             couleur_texte=COULEUR_FOND_GAUCHE, 
-            **(PARAMS_BOUTON | COULEURS_BOUTON)
+            couleur_fond=COULEURS_BOUTON["couleur_fond"], 
+            couleur_bordure=COULEURS_BOUTON["couleur_bordure"], 
+            **PARAMS_BOUTON
         )
     
     bouton_stats: dict[str, list[int] | int] = \
@@ -146,7 +148,9 @@ def aller_menu() -> tk.Canvas:
             tag=TAG_STATS, 
             texte="Statistiques", 
             couleur_texte=COULEUR_FOND_DROITE, 
-            **(PARAMS_BOUTON | COULEURS_BOUTON)
+            couleur_fond=COULEURS_BOUTON["couleur_fond"], 
+            couleur_bordure=COULEURS_BOUTON["couleur_bordure"], 
+            **PARAMS_BOUTON
         )
     
     bouton_credits: dict[str, list[int] | int] = \
@@ -156,7 +160,9 @@ def aller_menu() -> tk.Canvas:
             tag=TAG_CREDITS, 
             texte="Crédits", 
             couleur_texte=COULEUR_FOND_DROITE, 
-            **(PARAMS_BOUTON | COULEURS_BOUTON)
+            couleur_fond=COULEURS_BOUTON["couleur_fond"], 
+            couleur_bordure=COULEURS_BOUTON["couleur_bordure"], 
+            **PARAMS_BOUTON
         )
     
     bouton_quitter: dict[str, list[int] | int] = \
@@ -166,7 +172,9 @@ def aller_menu() -> tk.Canvas:
             tag=TAG_QUITTER, 
             texte="Quitter", 
             couleur_texte=COULEUR_FOND_DROITE, 
-            **(PARAMS_BOUTON | COULEURS_BOUTON)
+            couleur_fond=COULEURS_BOUTON["couleur_fond"], 
+            couleur_bordure=COULEURS_BOUTON["couleur_bordure"], 
+            **PARAMS_BOUTON
         )
 
     survole_non_survole(
@@ -174,7 +182,7 @@ def aller_menu() -> tk.Canvas:
         tags_ou_ids=[TAG_PERSO], 
         fond=bouton_perso["fond"], 
         bordure=bouton_perso["bordure"], 
-        **(COULEURS_BOUTON | COULEURS_SURVOLE)
+        couleurs=COULEURS_BOUTON
     )
     
     survole_non_survole(
@@ -182,7 +190,7 @@ def aller_menu() -> tk.Canvas:
         tags_ou_ids=[TAG_PUZZ], 
         fond=bouton_puzz["fond"], 
         bordure=bouton_puzz["bordure"], 
-        **(COULEURS_BOUTON | COULEURS_SURVOLE)
+        couleurs=COULEURS_BOUTON
     )
     
     survole_non_survole(
@@ -190,7 +198,7 @@ def aller_menu() -> tk.Canvas:
         tags_ou_ids=[TAG_SAUV], 
         fond=bouton_sauv["fond"], 
         bordure=bouton_sauv["bordure"], 
-        **(COULEURS_BOUTON | COULEURS_SURVOLE)
+        couleurs=COULEURS_BOUTON
     )
 
     survole_non_survole(
@@ -198,7 +206,7 @@ def aller_menu() -> tk.Canvas:
         tags_ou_ids=[TAG_STATS], 
         fond=bouton_stats["fond"], 
         bordure=bouton_stats["bordure"], 
-        **(COULEURS_BOUTON | COULEURS_SURVOLE)
+        couleurs=COULEURS_BOUTON
     )
     
     survole_non_survole(
@@ -206,7 +214,7 @@ def aller_menu() -> tk.Canvas:
         tags_ou_ids=[TAG_CREDITS], 
         fond=bouton_credits["fond"], 
         bordure=bouton_credits["bordure"], 
-        **(COULEURS_BOUTON | COULEURS_SURVOLE)
+        couleurs=COULEURS_BOUTON
     )
     
     survole_non_survole(
@@ -214,13 +222,13 @@ def aller_menu() -> tk.Canvas:
         tags_ou_ids=[TAG_QUITTER], 
         fond=bouton_quitter["fond"], 
         bordure=bouton_quitter["bordure"], 
-        **(COULEURS_BOUTON | COULEURS_SURVOLE)
+        couleurs=COULEURS_BOUTON
     )
 
     canvas.tag_bind(
         tagOrId=TAG_PERSO, 
         sequence="<Button-1>", 
-        func=lambda event: aller_grille(canvas=canvas, type="sudoku", difficulte="", temps_depart=0)
+        func=lambda event: aller_menu_partie_perso(canvas=canvas)
     )
     
     canvas.tag_bind(

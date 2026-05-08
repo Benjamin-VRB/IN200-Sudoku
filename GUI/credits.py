@@ -104,12 +104,9 @@ def aller_credits(canvas: tk.Canvas) -> None:
     X_BOUTON: int = (LARGEUR_PIXEL_FENETRE - LARGEUR_BOUTON) // 2
     Y_BOUTON: int = HAUTEUR_PIXEL_FENETRE - HAUTEUR_BOUTON - 50
 
-    COULEUR_BOUTON: dict[str, str] = {
+    COULEURS_BOUTON: dict[str, str] = {
         "couleur_fond" : "#939393",
-        "couleur_bordure" : "#ADADAD"
-    }
-
-    COULEURS_SURVOLE: dict[str, str] = {
+        "couleur_bordure" : "#ADADAD", 
         "couleur_fond_surv" : "#636363",
         "couleur_bordure_surv" : "#454545"
     }
@@ -127,7 +124,8 @@ def aller_credits(canvas: tk.Canvas) -> None:
             police=("Cooper Black", 16), 
             epaisseur_bordure=2, 
             couleur_texte="#ffffff",
-            **COULEUR_BOUTON
+            couleur_fond=COULEURS_BOUTON["couleur_fond"], 
+            couleur_bordure=COULEURS_BOUTON["couleur_bordure"]
         )
     
     survole_non_survole(
@@ -135,7 +133,7 @@ def aller_credits(canvas: tk.Canvas) -> None:
         tags_ou_ids=[TAG_RETOUR], 
         fond=bouton_retour["fond"], 
         bordure=bouton_retour["bordure"], 
-        **(COULEUR_BOUTON | COULEURS_SURVOLE)
+        couleurs=COULEURS_BOUTON
     )
     
     canvas.tag_bind(

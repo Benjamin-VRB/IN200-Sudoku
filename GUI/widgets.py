@@ -117,7 +117,7 @@ def creer_boutton_arrondi(
     return {"fond" : fond, "bordure" : bordure, "texte" : texte_bouton}
 
 
-def changer_couleurs(
+def changer_couleurs_boutons(
         canvas: tk.Canvas, 
         fond: list[int], 
         bordure: list[int], 
@@ -146,10 +146,7 @@ def survole_non_survole(
         tags_ou_ids: list[str | int], 
         fond: list[int], 
         bordure: list[int], 
-        couleur_fond: str, 
-        couleur_bordure: str, 
-        couleur_fond_surv: str, 
-        couleur_bordure_surv: str
+        couleurs: dict[str, str]
     ) -> None:
     """
     Change les couleurs du widgets lorqu'il est survolé et lorsqu'il n'est plus survolé par la souris
@@ -159,25 +156,83 @@ def survole_non_survole(
         canvas.tag_bind(
             tagOrId=tag_or_id, 
             sequence="<Enter>", 
-            func=lambda event: changer_couleurs(
+            func=lambda event: changer_couleurs_boutons(
                 canvas=canvas, 
                 fond=fond, 
                 bordure=bordure, 
-                couleur_fond=couleur_fond_surv, 
-                couleur_bordure=couleur_bordure_surv
+                couleur_fond=couleurs["couleur_fond_surv"], 
+                couleur_bordure=couleurs["couleur_bordure_surv"]
             )
         )
 
         canvas.tag_bind(
             tagOrId=tag_or_id, 
             sequence="<Leave>", 
-            func=lambda event: changer_couleurs(
+            func=lambda event: changer_couleurs_boutons(
                 canvas=canvas, 
                 fond=fond, 
                 bordure=bordure, 
-                couleur_fond=couleur_fond, 
-                couleur_bordure=couleur_bordure
+                couleur_fond=couleurs["couleur_fond"], 
+                couleur_bordure=couleurs["couleur_bordure"]
             )
+        )
+
+
+def bouton_active(
+        canvas: tk.Canvas, 
+        bouton_act: dict[list[int] | int], 
+        boutons_desact: list[dict[list[int] | int]], 
+        couleurs_act: dict[str, str],  
+        couleurs_desact: dict[str, str], 
+        couleurs_bouton_act: dict[str, str], 
+        list_couleurs_boutons_desact: list[dict[str, str]]
+    ) -> None:
+    
+    if couleurs_bouton_act.items() == couleurs_act.items():
+        couleurs_bouton_act["couleur_fond"] = couleurs_desact["couleur_fond"]
+        couleurs_bouton_act["couleur_bordure"] = couleurs_desact["couleur_bordure"]
+        couleurs_bouton_act["couleur_fond_surv"] = couleurs_desact["couleur_fond_surv"]
+        couleurs_bouton_act["couleur_bordure_surv"] = couleurs_desact["couleur_bordure_surv"]
+        fond: int = bouton_act["fond"]
+        bordure: list[int] = bouton_act["bordure"]
+        changer_couleurs_boutons(
+            canvas=canvas, 
+            fond=[fond], 
+            bordure=bordure, 
+            couleur_fond=couleurs_desact["couleur_fond_surv"], 
+            couleur_bordure=couleurs_desact["couleur_bordure_surv"]
+        )
+    else:
+        for couleurs in list_couleurs_boutons_desact:
+            couleurs["couleur_fond"] = couleurs_desact["couleur_fond"]
+            couleurs["couleur_bordure"] = couleurs_desact["couleur_bordure"]
+            couleurs["couleur_fond_surv"] = couleurs_desact["couleur_fond_surv"]
+            couleurs["couleur_bordure_surv"] = couleurs_desact["couleur_bordure_surv"]
+
+        couleurs_bouton_act["couleur_fond"] = couleurs_act["couleur_fond"]
+        couleurs_bouton_act["couleur_bordure"] = couleurs_act["couleur_bordure"]
+        couleurs_bouton_act["couleur_fond_surv"] = couleurs_act["couleur_fond_surv"]
+        couleurs_bouton_act["couleur_bordure_surv"] = couleurs_act["couleur_bordure_surv"]
+
+        for bouton in boutons_desact:
+            fond: int = bouton["fond"]
+            bordure: list[int] = bouton["bordure"]
+            changer_couleurs_boutons(
+                canvas=canvas, 
+                fond=[fond], 
+                bordure=bordure, 
+                couleur_fond=couleurs_desact["couleur_fond"], 
+                couleur_bordure=couleurs_desact["couleur_bordure"]
+            )
+
+        fond: int = bouton_act["fond"]
+        bordure: list[int] = bouton_act["bordure"]
+        changer_couleurs_boutons(
+            canvas=canvas, 
+            fond=[fond], 
+            bordure=bordure, 
+            couleur_fond=couleurs_act["couleur_fond_surv"], 
+            couleur_bordure=couleurs_act["couleur_bordure_surv"]
         )
 
 
@@ -1319,6 +1374,7 @@ def creer_grille_sudoku_irregulier(
         )
         
     return {"cases": cases, "bordures": bordures}
+
 
 def ajouter_indications_kenken(canvas: tk.Canvas, dico_cage: dict, x_grille: int, y_grille: int, longueur_cote_case: int, tag: str):
     """ Ajoute les indications des cibles et des opérations pour le Kenken"""
