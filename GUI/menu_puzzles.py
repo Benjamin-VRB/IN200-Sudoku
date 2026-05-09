@@ -187,7 +187,9 @@ def aller_puzzle(canvas: tk.Canvas) -> None:
     def recuperer_grille_json(type_grille, nom_grille):
         with open('Puzzles/Groupe_de_puzzles.json', 'r') as f:
             grilles = json.load(f)
-        return grilles[type_grille][nom_grille]
+        grille_originale = grilles[type_grille][nom_grille]
+        progression = grilles[type_grille].get(nom_grille + "_progression")
+        return grille_originale, progression  
 
 
 
@@ -206,16 +208,20 @@ def aller_puzzle(canvas: tk.Canvas) -> None:
         canvas_defilement.tag_bind(
             tagOrId=bouton_charger_texte,
             sequence="<Button-1>",
-            func=lambda event, i=i: aller_grille_puzzle(
-                canvas=canvas,
-                type_grille="sudoku",
-                difficulte=None,
-                temps_depart=0,
-                tags_ou_ids_page_suppr=[TAG, TAG_RETOUR],
-                widgets_page_suppr=[canvas_defilement],
-                grille_par_defaut=recuperer_grille_json("Classique", "Puzzle_Classique"+str(i+1)),
-                indices_cases_verr=None
-            )
+            func=lambda event, i=i: (
+                lambda orig, prog: aller_grille_puzzle(
+                    canvas=canvas,
+                    type_grille="sudoku",
+                    difficulte=None,
+                    temps_depart=0,
+                    nom_puzzle="Puzzle_Classique" + str(i+1),
+                    tags_ou_ids_page_suppr=[TAG, TAG_RETOUR],
+                    widgets_page_suppr=[canvas_defilement],
+                    grille_par_defaut=orig,         
+                    grille_progression=prog,        
+                    indices_cases_verr=None
+                )
+)(*recuperer_grille_json("Classique", "Puzzle_Classique"+str(i+1)))
         )
 
     canvas_defilement.create_text(

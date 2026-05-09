@@ -3,7 +3,7 @@ import tkinter as tk
 from GUI.fenetre import LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
 from GUI.animations import supprimer_elements, retour_menu
 from GUI.widgets import creer_boutton_arrondi, survole_non_survole, barre_entree_sauv, COULEUR_CASE, \
-afficher_conflits, verification_cases_sudoku
+afficher_conflits, verification_cases_sudoku, reset_puzzle, sauvegarder_auto_puzzle
 from GUI.sudoku import creer_sudoku_GUI
 
 
@@ -12,9 +12,11 @@ def aller_grille_puzzle(
         type_grille: str | None, 
         difficulte: int | None, 
         temps_depart: int, 
+        nom_puzzle: str = None,
         tags_ou_ids_page_suppr: list[int | str] = None, 
         widgets_page_suppr: list[tk.Widget] = None, 
         grille_par_defaut: list[list[int]] = None, 
+        grille_progression: list[list[int]] = None,
         indices_cases_verr: list[int] = None
     ) -> None:
 
@@ -51,6 +53,17 @@ def aller_grille_puzzle(
             indices_cases_verr=indices_cases_verr
         )
         cases: list[dict[str, int]] = grille["cases"]
+        if grille_progression:
+            for i, rangee in enumerate(grille_progression):
+                for j, valeur in enumerate(rangee):
+                    indice = i * 9 + j
+                    case = cases[indice]
+                    # seulement si la case n'est pas verrouillée
+                    if grille_par_defaut[i][j] == 0 and valeur != 0:
+                        canvas.itemconfig(
+                            tagOrId=case["texte"],
+                            text=str(valeur)
+                        )
         list_coord: list[tuple[int, int]] = verification_cases_sudoku(
             canvas=canvas, 
             cases=cases
@@ -63,6 +76,43 @@ def aller_grille_puzzle(
     else:
         return
     
+    def sauvegarder_apres_touche(event):
+        canvas.after(50, lambda: sauvegarder_auto_puzzle(
+            canvas=canvas,
+            cases=grille["cases"],
+            type_grille="Classique",
+            nom_puzzle=nom_puzzle
+        ))
+
+    canvas.bind_all("<KeyPress>", sauvegarder_apres_touche, add="+")
+    for case in grille["cases"]:
+        canvas.tag_bind(
+            tagOrId=case["case_vide"],
+            sequence="<Button-1>",
+            func=lambda event, case=case: (
+                canvas.after(200, lambda: sauvegarder_auto_puzzle(
+                    canvas=canvas,
+                    cases=grille["cases"],
+                    type_grille="Classique",
+                    nom_puzzle=nom_puzzle
+                ))
+            ),
+            add="+" 
+        )
+        canvas.tag_bind(
+            tagOrId=case["texte"],
+            sequence="<Button-1>",
+            func=lambda event: (
+                canvas.after(200, lambda: sauvegarder_auto_puzzle(
+                    canvas=canvas,
+                    cases=grille["cases"],
+                    type_grille="Classique",
+                    nom_puzzle=nom_puzzle
+                ))
+            ),
+            add="+"
+        )
+
     PARAMS_BOUTON: dict[str, int | str | tuple[str, int]] = {
         "largeur" : 200,
         "hauteur" : 76,
@@ -81,6 +131,7 @@ def aller_grille_puzzle(
     ECART_RANGEE: int = PARAMS_BOUTON["hauteur"] + 100
     RANGEE2: int = (HAUTEUR_PIXEL_FENETRE - PARAMS_BOUTON["hauteur"]) // 2 
     RANGEE1: int = RANGEE2 + ECART_RANGEE
+    RANGEE3: int = RANGEE2 - ECART_RANGEE
     COLONNE1: int = 75
 
     TAG_AIDE: str = "bouton_sudoku_aide"
@@ -108,9 +159,41 @@ def aller_grille_puzzle(
         bordure=bouton_retour["bordure"], 
         couleurs=COULEURS_BOUTON
     )
+
+    TAG_RESET: str = "bouton_sudoku_reset"
+
+    TAG_RESET: str = "bouton_sudoku_reset"
+
+    bouton_reset = creer_boutton_arrondi(
+        canvas=canvas, coord=(COLONNE1, RANGEE3),
+        tag=TAG_RESET, texte="Recommencer",
+        couleur_fond=COULEURS_BOUTON["couleur_fond"],
+        couleur_bordure=COULEURS_BOUTON["couleur_bordure"],
+        **PARAMS_BOUTON
+    )
+
+    survole_non_survole(          # ← manquait
+        canvas=canvas,
+        tags_ou_ids=[TAG_RESET],
+        fond=bouton_reset["fond"],
+        bordure=bouton_reset["bordure"],
+        couleurs=COULEURS_BOUTON
+    )
+
+    canvas.tag_bind(
+        tagOrId=TAG_RESET,
+        sequence="<Button-1>",
+        func=lambda event: reset_puzzle(
+            canvas=canvas,
+            cases=grille["cases"],
+            type_grille="Classique",
+            nom_puzzle=nom_puzzle
+        )
+    )
     
-    page: list[str] = [TAG, TAG_AIDE, TAG_RETOUR, TAG_SAUV, *[case["case_vide"] for case in grille["cases"]], 
-                    *[case["texte"] for case in grille["cases"]]]
+    page: list[str] = [TAG, TAG_AIDE, TAG_RETOUR, TAG_SAUV, TAG_RESET,
+                *[case["case_vide"] for case in grille["cases"]], 
+                *[case["texte"] for case in grille["cases"]]]
 
     LARGEUR_BARRE_ENTREE_SAUV: int = 200
     HAUTEUR_BARRE_ENTREE_SAUV: int = 75
@@ -140,7 +223,7 @@ def aller_grille_puzzle(
         from GUI.menu_puzzles import aller_puzzle
         retour_menu(
             canvas=canvas,
-            tags_ou_ids=[TAG, TAG_SAUV, TAG_RETOUR, TAG_AIDE, "clavier_num"]
+            tags_ou_ids=[TAG, TAG_SAUV, TAG_RETOUR,TAG_RESET, TAG_AIDE, "clavier_num"]
         )
         aller_puzzle(canvas)
     

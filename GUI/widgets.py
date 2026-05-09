@@ -1867,3 +1867,44 @@ def creer_grille_sudoku_consecutif(
         )
         
     return {"cases": cases, "bordures": bordures}
+
+def sauvegarder_auto_puzzle(
+        canvas: tk.Canvas,
+        cases: list[dict[str, int]],
+        type_grille: str,
+        nom_puzzle: str
+    ) -> None:
+    import json
+    grille = renvoyer_grille(canvas=canvas, cases=cases)
+    with open('Puzzles/Groupe_de_puzzles.json', 'r') as f:
+        data = json.load(f)
+    data[type_grille][nom_puzzle + "_progression"] = grille  
+    with open('Puzzles/Groupe_de_puzzles.json', 'w') as f:
+        json.dump(data, f, indent=4)
+
+def reset_puzzle(
+        canvas: tk.Canvas,
+        cases: list[dict[str, int]],
+        type_grille: str,
+        nom_puzzle: str
+    ) -> None:
+    import json
+
+    with open('Puzzles/Groupe_de_puzzles.json', 'r') as f:
+        data = json.load(f)
+    
+    cle_progression = nom_puzzle + "_progression"
+    if cle_progression in data[type_grille]:
+        del data[type_grille][cle_progression]
+        with open('Puzzles/Groupe_de_puzzles.json', 'w') as f:
+            json.dump(data, f, indent=4)
+
+    for case in cases:
+        case_vide = case["case_vide"]
+        couleur = canvas.itemcget(tagOrId=case_vide, option="fill")
+        if couleur not in [COULEUR_CASE_VERR, COULEUR_CASE_PROBLEME_VERR]:
+            canvas.itemconfig(tagOrId=case["texte"], text="")
+            canvas.itemconfig(tagOrId=case_vide, fill=COULEUR_CASE)
+
+    list_coord = verification_cases_sudoku(canvas=canvas, cases=cases)
+    afficher_conflits(canvas=canvas, list_coord=list_coord, cases=cases)
