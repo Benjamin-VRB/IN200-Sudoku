@@ -1,8 +1,10 @@
 import tkinter as tk
+import json
 
 from GUI.fenetre import LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
 from GUI.animations import mouvement_exterieur_fond_menu, retour_menu
 from GUI.widgets import creer_boutton_arrondi, survole_non_survole, creer_fiche_puzzle
+from GUI.interface_jeu_puzzle import aller_grille_puzzle
 
 def aller_puzzle(canvas: tk.Canvas) -> None:
 
@@ -161,7 +163,7 @@ def aller_puzzle(canvas: tk.Canvas) -> None:
     
     Y_COORDS_SUDOKU: list[int] = [100, 240, 380, 520, 660]
     
-    fiches: list[dict[str, dict[str, list[int] | dict[str, int]] | dict[str, list[int] | int]]] = []
+    fiches_sudoku: list[dict[str, dict[str, list[int] | dict[str, int]] | dict[str, list[int] | int]]] = []
     for i, image in enumerate(IMAGES):
         x: int  = X_COORDS[i % 2]
         y: int  = Y_COORDS_SUDOKU[i // 2]
@@ -180,9 +182,16 @@ def aller_puzzle(canvas: tk.Canvas) -> None:
                 epaisseur_bordure_boutons=EPAISSEUR_BORDURE_BOUTONS,
                 style_police_boutons="Cooper Black"
             )
-        fiches.append(fiche)
+        fiches_sudoku.append(fiche)
     
-    for fiche in fiches:
+    def recuperer_grille_json(type_grille, nom_grille):
+        with open('Puzzles/Groupe_de_puzzles.json', 'r') as f:
+            grilles = json.load(f)
+        return grilles[type_grille][nom_grille]
+
+
+
+    for i, fiche in enumerate(fiches_sudoku):
         bouton_charger_fond: int = fiche["bouton_charger"]["fond"]
         bouton_charger_bordure: list[int] = fiche["bouton_charger"]["bordure"]
         bouton_charger_texte: int = fiche["bouton_charger"]["texte"]
@@ -193,6 +202,20 @@ def aller_puzzle(canvas: tk.Canvas) -> None:
             fond=[bouton_charger_fond],
             bordure=bouton_charger_bordure,
             couleurs=COULEURS_FICHES
+        )
+        canvas_defilement.tag_bind(
+            tagOrId=bouton_charger_texte,
+            sequence="<Button-1>",
+            func=lambda event, i=i: aller_grille_puzzle(
+                canvas=canvas,
+                type_grille="sudoku",
+                difficulte=None,
+                temps_depart=0,
+                tags_ou_ids_page_suppr=[TAG, TAG_RETOUR],
+                widgets_page_suppr=[canvas_defilement],
+                grille_par_defaut=recuperer_grille_json("Classique", "Puzzle_Classique"+str(i+1)),
+                indices_cases_verr=None
+            )
         )
 
     canvas_defilement.create_text(
@@ -213,7 +236,7 @@ def aller_puzzle(canvas: tk.Canvas) -> None:
 
     Y_COORDS_WINDOKU: list[int] = [885, 1025]
 
-    fiches: list[dict[str, dict[str, list[int] | dict[str, int]] | dict[str, list[int] | int]]] = []
+    fiches_windoku: list[dict[str, dict[str, list[int] | dict[str, int]] | dict[str, list[int] | int]]] = []
     for i, image in enumerate(IMAGES2):
         x: int = X_COORDS[i % 2]
         y: int = Y_COORDS_WINDOKU[i // 2]
@@ -232,9 +255,9 @@ def aller_puzzle(canvas: tk.Canvas) -> None:
                 epaisseur_bordure_boutons=EPAISSEUR_BORDURE_BOUTONS,
                 style_police_boutons="Cooper Black"
             )
-        fiches.append(fiche)
+        fiches_windoku.append(fiche)
 
-    for fiche in fiches:
+    for fiche in fiches_windoku:
         bouton_charger_fond: int = fiche["bouton_charger"]["fond"]
         bouton_charger_bordure: list[int] = fiche["bouton_charger"]["bordure"]
         bouton_charger_texte: int = fiche["bouton_charger"]["texte"]
