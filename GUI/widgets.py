@@ -8,12 +8,17 @@ from GUI.decorations import creer_cadre
 
 from Grille.sauvegarde import sauvegarder
 from Grille.verification import verification_sudoku_classique_complet
+from Grille.affichage_cases_contraintes import afficher_contraintes_classique
 
 
 COULEUR_CASE: str = "#ffffff"
 COULEUR_CASE_VERR: str = "#F0F0F0"
 COULEUR_CASE_PROBLEME: str = "#ffb4b4"
 COULEUR_CASE_PROBLEME_VERR: str = "#d99b9b"
+COULEUR_CASE_CONTRAINTE: str = "#e1fbff"
+COULEUR_CASE_CONTRAINTE_VERR: str = "#c8dee1"
+COULEUR_CASE_CONTRAINTE_PROBLEME: str = "#f0a9d8"
+COULEUR_CASE_CONTRAINTE_PROBLEME_VERR: str = "#d797c2"
 
 
 def creer_boutton_arrondi(
@@ -308,22 +313,57 @@ def reset_couleur_cases_rouges(
     
     for case in cases:
         case_vide: int = case["case_vide"]
-        if canvas.itemcget(
+        couleur_fond: str = canvas.itemcget(
             tagOrId=case_vide, 
             option="fill"
-        ) == COULEUR_CASE_PROBLEME_VERR:
+        )
+        if couleur_fond == COULEUR_CASE_PROBLEME_VERR:
             canvas.itemconfig(
                 tagOrId=case_vide, 
                 fill=COULEUR_CASE_VERR
             )
-        if canvas.itemcget(
-            tagOrId=case_vide, 
-            option="fill"
-        ) == COULEUR_CASE_PROBLEME:
+        elif couleur_fond == COULEUR_CASE_PROBLEME:
             canvas.itemconfig(
                 tagOrId=case_vide, 
                 fill=COULEUR_CASE
             )
+
+
+def reset_couleur_contraintes(
+        canvas: tk.Canvas, 
+        cases: list[dict[str, int]]
+    ) -> None:
+    
+    for case in cases:
+        case_vide: int = case["case_vide"]
+        couleur_fond: str = canvas.itemcget(
+            tagOrId=case_vide, 
+            option="fill"
+        )
+        if couleur_fond == COULEUR_CASE_CONTRAINTE:
+            canvas.itemconfig(
+                tagOrId=case_vide, 
+                fill=COULEUR_CASE
+            )
+        elif couleur_fond == COULEUR_CASE_CONTRAINTE_PROBLEME:
+            canvas.itemconfig(
+                tagOrId=case_vide, 
+                fill=COULEUR_CASE_PROBLEME
+            )
+        elif couleur_fond == COULEUR_CASE_CONTRAINTE_VERR:
+            canvas.itemconfig(
+                tagOrId=case_vide, 
+                fill=COULEUR_CASE_VERR
+            )
+        elif couleur_fond == COULEUR_CASE_CONTRAINTE_PROBLEME_VERR:
+            canvas.itemconfig(
+                tagOrId=case_vide, 
+                fill=COULEUR_CASE_PROBLEME_VERR
+            )
+
+
+def partie_terminee(canvas: tk.Canvas):
+    pass
 
 
 def reset_focus_cases(
@@ -340,6 +380,10 @@ def reset_focus_cases(
         cases=cases, 
         couleur=couleur_nombres_normale
     )
+    reset_couleur_contraintes(
+        canvas=canvas, 
+        cases=cases
+    )
     for case in cases:
         case_vide: int = case["case_vide"]
         canvas.itemconfig(
@@ -351,7 +395,7 @@ def reset_focus_cases(
     list_coord: list[tuple[int, int]] = verification_cases_sudoku(
         canvas=canvas, 
         cases=cases
-    )
+    )[0]
     afficher_conflits(
         canvas=canvas, 
         list_coord=list_coord, 
@@ -362,7 +406,7 @@ def reset_focus_cases(
 def verification_cases_sudoku(
         canvas: tk.Canvas, 
         cases: list[dict[str, int]]
-    ) -> list[tuple[int, int]]:
+    ) -> tuple[list[tuple[int, int]], bool]:
     
     grille: list[list[int]] = renvoyer_grille(
         canvas=canvas, 
@@ -370,7 +414,17 @@ def verification_cases_sudoku(
     )
     list_coord_nombres_identiques: list[tuple[int, int]] = \
         verification_sudoku_classique_complet(grille=grille)
-    return list_coord_nombres_identiques
+    
+    victoire: bool = False
+    if len(list_coord_nombres_identiques) != 0:
+        return list_coord_nombres_identiques, victoire
+    else:
+        for rangee in grille:
+            for valeur in rangee:
+                if valeur == 0:
+                    return list_coord_nombres_identiques, victoire
+        victoire: bool = True
+        return list_coord_nombres_identiques, victoire
 
 
 def afficher_conflits(
@@ -389,8 +443,9 @@ def afficher_conflits(
         cases=cases
     )
 
+    nb_cases_cote: int = int(math.sqrt(len(cases)))
     for coord in list_coord:
-        indice: int = coord[0] * 9 + coord[1]
+        indice: int = coord[0] * nb_cases_cote + coord[1]
         case: dict[str, int] = cases[indice]
         case_vide: int = case["case_vide"]
         if case in cases_verr:
@@ -405,16 +460,65 @@ def afficher_conflits(
             )
 
 
-def changer_couleur_nombre_spe(
+def afficher_contraintes(
+        canvas: tk.Canvas, 
+        case: dict[str, int], 
+        cases: list[dict[str, int]]
+    ) -> None:
+
+    nb_cases_cote: int = int(math.sqrt(len(cases)))
+    indice: int = cases.index(case)
+    coord: tuple[int, int] = (indice // nb_cases_cote, indice % nb_cases_cote)
+    list_coord_contraintes: list[tuple[int, int]] = afficher_contraintes_classique(coord=coord)
+    list_indice_contraintes: list[int] = \
+        [coord[0] * nb_cases_cote + coord[1] for coord in list_coord_contraintes]
+    
+    for indice in list_indice_contraintes:
+        case_vide: int = cases[indice]["case_vide"]
+        cases_verr: list[dict[str, int]] = trouver_cases_verrouillee(
+            canvas=canvas, 
+            cases=cases
+        )
+        list_coord_conflits: list[tuple[int, int]] = verification_cases_sudoku(
+            canvas=canvas, 
+            cases=cases
+        )[0]
+        list_indice_conflits: list[int] = \
+            [coord[0] * nb_cases_cote + coord[1] for coord in list_coord_conflits]
+        if cases[indice] in cases_verr:
+            if indice in list_indice_conflits:
+                canvas.itemconfig(
+                    tagOrId=case_vide, 
+                    fill=COULEUR_CASE_CONTRAINTE_PROBLEME_VERR
+                )
+            else:
+                canvas.itemconfig(
+                    tagOrId=case_vide, 
+                    fill=COULEUR_CASE_CONTRAINTE_VERR
+                )
+        else:
+            if indice in list_indice_conflits:
+                canvas.itemconfig(
+                    tagOrId=case_vide, 
+                    fill=COULEUR_CASE_CONTRAINTE_PROBLEME
+                )
+            else:
+                canvas.itemconfig(
+                    tagOrId=case_vide, 
+                    fill=COULEUR_CASE_CONTRAINTE
+                )
+
+
+def changer_couleur_nombres(
         canvas: tk.Canvas, 
         cases: list[dict[str, int]], 
-        nombre: str, 
-        couleur: str
+        couleur: str, 
+        nombre: str | None = None
     ) -> None:
 
     for case in cases:
         texte: int = case["texte"]
-        if canvas.itemcget(
+        if nombre is not None and canvas.itemcget(
             tagOrId=texte, 
             option="text"
         ) == nombre:
@@ -422,17 +526,8 @@ def changer_couleur_nombre_spe(
                 tagOrId=texte, 
                 fill=couleur
             )
-
-
-def changer_couleur_nombres(
-        canvas: tk.Canvas, 
-        cases: list[dict[str, int]], 
-        couleur: str
-    ) -> None:
-
-    for case in cases:
-        texte: int = case["texte"]
-        canvas.itemconfig(
+        if nombre is None:
+            canvas.itemconfig(
             tagOrId=texte, 
             fill=couleur
         )
@@ -451,7 +546,7 @@ def montrer_nombre(
         cases=cases, 
         couleur=couleur_normale
     )
-    changer_couleur_nombre_spe(
+    changer_couleur_nombres(
         canvas=canvas, 
         cases=cases, 
         nombre=nombre, 
@@ -921,7 +1016,7 @@ def creer_clavier_numerique(
     )
     
     return {"boutons" : boutons, "cadre" : cadre}
-    
+
 
 def entree_focus_case(
         canvas: tk.Canvas, 
@@ -940,6 +1035,12 @@ def entree_focus_case(
         cases=cases, 
         couleur_nombres_normale=couleur_nombres_normale, 
         couleur_bordure_cases_normale=couleur_bordure_cases_normale
+    )
+
+    afficher_contraintes(
+        canvas=canvas, 
+        case=case, 
+        cases=cases
     )
 
     COULEUR_INDICATION: str = "#3185ED"
@@ -1091,37 +1192,11 @@ def creer_grille_sudoku(
     return {"cases" : cases, "carres" : carres}
 
 
-def remplir_grille_sudoku_GUI_debut(
-        canvas: tk.Canvas, 
-        cases: list[dict[str, int]], 
-        grille_valeur: list[list[int]],
-    ) -> None:
-    
-    for rangee in range(len(grille_valeur)):
-        for colonne in range(len(grille_valeur[0])):
-            if grille_valeur[rangee][colonne] != 0:
-                case: tuple[int] = cases[rangee * len(grille_valeur[0]) + colonne]
-                case_vide: int = case["case_vide"]
-                texte: int = case["texte"]
-                desactiver_widget(
-                    canvas=canvas, 
-                    tags_ou_ids=[case_vide, texte]
-                )
-                canvas.itemconfig(
-                    tagOrId=case_vide, 
-                    fill=COULEUR_CASE_VERR
-                )
-                canvas.itemconfig(
-                    tagOrId=texte, 
-                    text=grille_valeur[rangee][colonne]
-                )
-
-
-def remplir_grille_sudoku_GUI_en_cours(
+def remplir_grille_sudoku_GUI(
         canvas: tk.Canvas, 
         cases: list[dict[str, int]], 
         grille_valeur: list[list[int]], 
-        indices_cases_verr: list[int]
+        indices_cases_verr: list[int] = None
     ) -> None:
     
     for rangee in range(len(grille_valeur)):
@@ -1131,7 +1206,7 @@ def remplir_grille_sudoku_GUI_en_cours(
                 case: tuple[int] = cases[indice]
                 case_vide: int = case["case_vide"]
                 texte: int = case["texte"]
-                if indice in indices_cases_verr:
+                if indices_cases_verr is None or indice in indices_cases_verr:
                     desactiver_widget(
                         canvas=canvas, 
                         tags_ou_ids=[case_vide, texte]
@@ -1909,7 +1984,7 @@ def reset_puzzle(
     list_coord = verification_cases_sudoku(canvas=canvas, cases=cases)
     afficher_conflits(canvas=canvas, list_coord=list_coord, cases=cases)
 
-def reset_focus_cases(
+def reset_focus_cases_bordel_de_louis(
     canvas: tk.Canvas, 
     cases: list[dict[str, int]], 
     couleur_nombres_normale: str, 
@@ -1932,7 +2007,7 @@ def reset_focus_cases(
         afficher_conflits(canvas=canvas, list_coord=list_coord, cases=cases)
 
 
-def entree_focus_case(
+def entree_focus_case_bordel_de_louis(
         canvas: tk.Canvas, 
         case: dict[str, int], 
         valeur_max: int, 

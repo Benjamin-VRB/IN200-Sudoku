@@ -61,9 +61,14 @@ def aller_grille(
 
         cases: list[dict[str, int]] = grille["cases"]
         list_coord: list[tuple[int, int]] = verification_cases_sudoku(
-            canvas=canvas, cases=cases
+            canvas=canvas, 
+            cases=cases
+        )[0]
+        afficher_conflits(
+            canvas=canvas, 
+            list_coord=list_coord, 
+            cases=cases
         )
-        afficher_conflits(canvas=canvas, list_coord=list_coord, cases=cases)
 
         def action_aide(event):
             # On récupère les valeurs de notre grille actuelle
@@ -111,8 +116,6 @@ def aller_grille(
             grille_par_defaut=grille_par_defaut,
             indices_cases_verr=indices_cases_verr,
         )
-        return
-
     else:
         return
 
@@ -225,17 +228,21 @@ def aller_grille(
             temps=126,
             difficulte=difficulte,
             couleur_nombres_normale=COULEUR_TEXTE_CASES,
-            couleur_bordure_cases_normale=COULEUR_BORDURE_CASES,
-        ),
+            couleur_bordure_cases_normale=COULEUR_BORDURE_CASES
+        )
     )
 
     canvas.tag_bind(
         tagOrId=TAG_RETOUR,
         sequence="<Button-1>",
         func=lambda event: retour_menu(
-            canvas=canvas,
-            tags_ou_ids=[TAG, TAG_SAUV, TAG_RETOUR, TAG_AIDE, "clavier_num"],
-        ),
+            canvas=canvas, 
+            tags_ou_ids=[TAG, TAG_SAUV, TAG_RETOUR, TAG_AIDE, "clavier_num"]
+        )
     )
 
-    canvas.tag_bind(tagOrId=TAG_AIDE, sequence="<Button-1>", func=action_aide)
+    canvas.tag_bind(
+        tagOrId=TAG_AIDE, 
+        sequence="<Button-1>", 
+        func=action_aide
+    )

@@ -3,7 +3,7 @@ import tkinter as tk
 
 from GUI.fenetre import LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
 from GUI.animations import mouvement_exterieur_fond_menu, retour_menu
-from GUI.widgets import creer_boutton_arrondi, survole_non_survole, remplir_grille_sudoku_GUI_debut, barre_entree_sauv, ajouter_indications_kenken
+from GUI.widgets import creer_boutton_arrondi, survole_non_survole, remplir_grille_sudoku_GUI, barre_entree_sauv, ajouter_indications_kenken
 from GUI.widgets import creer_grille_sudoku_irregulier 
  
 from Grille.aide import indicateur_kenken
@@ -65,7 +65,7 @@ def aller_kenken(canvas: tk.Canvas):
     )
 
     # On remplit notre grille avec les nombre que nous avons
-    remplir_grille_sudoku_GUI_debut(
+    remplir_grille_sudoku_GUI(
         canvas=canvas, 
         cases=grille["cases"], 
         grille_valeur=grille_a_jouer
