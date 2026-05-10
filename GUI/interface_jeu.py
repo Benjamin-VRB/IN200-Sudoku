@@ -5,6 +5,7 @@ from GUI.animations import supprimer_elements, retour_menu
 from GUI.widgets import creer_boutton_arrondi, survole_non_survole, barre_entree_sauv, COULEUR_CASE, \
 afficher_conflits, verification_cases_sudoku
 from GUI.sudoku import creer_sudoku_GUI
+from GUI.windoku_gui import aller_windoku
 
 def aller_grille(
         canvas: tk.Canvas, 
@@ -59,8 +60,23 @@ def aller_grille(
             list_coord=list_coord, 
             cases=cases
         )
+
+
+    elif type_grille == "windoku":
+        aller_windoku(
+            canvas=canvas,
+            difficulte=difficulte,
+            temps_depart=temps_depart,
+            tags_ou_ids_page_suppr=None,
+            widgets_page_suppr=None,
+            grille_par_defaut=grille_par_defaut,
+            indices_cases_verr=indices_cases_verr,
+        )
+        return  
+    
     else:
         return
+
     
     PARAMS_BOUTON: dict[str, int | str | tuple[str, int]] = {
         "largeur" : 200,
