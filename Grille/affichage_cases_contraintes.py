@@ -20,7 +20,7 @@ def afficher_contraintes_classique(coord):
     debut_col = (colonne // 3) * 3
     for i in range(3):       # On ajoute à la liste des cases à afficher le carré dans lequel se trouve la case en question
         for j in range(3):
-            affichage_cases.append(debut_ligne + i, debut_col + j)
+            affichage_cases.append((debut_ligne + i, debut_col + j))
     
     affichage_cases = set(affichage_cases)  # On supprime les répétitions dans la liste gràce à un set.
     affichage_cases = list(affichage_cases)

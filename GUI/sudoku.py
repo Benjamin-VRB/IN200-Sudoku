@@ -1,7 +1,7 @@
 import tkinter as tk
 
-from GUI.widgets import creer_grille_sudoku, remplir_grille_sudoku_GUI_debut, \
-remplir_grille_sudoku_GUI_en_cours
+from GUI.widgets import creer_grille_sudoku, remplir_grille_sudoku_GUI, \
+remplir_grille_sudoku_GUI
 
 from Grille.sudoku import supprimer_valeur
 
@@ -43,35 +43,28 @@ def creer_sudoku_GUI(
         if difficulte == 4:
             nombre_valeur_a_supprimer: int = 63
         elif difficulte == 3:
-            nombre_valeur_a_supprimer: int = 56
+            nombre_valeur_a_supprimer: int = 54
         elif difficulte == 2:
-            nombre_valeur_a_supprimer: int = 48
+            nombre_valeur_a_supprimer: int = 45
         elif difficulte == 1:
-            nombre_valeur_a_supprimer: int = 40
+            nombre_valeur_a_supprimer: int = 36
 
         grille_valeur: list[list[int]] = supprimer_valeur(
             nombre_valeur_a_supprimer=nombre_valeur_a_supprimer, 
             dimension=nb_case_cote
         )[1]
-        remplir_grille_sudoku_GUI_debut(
+        remplir_grille_sudoku_GUI(
             canvas=canvas, 
             cases=cases, 
             grille_valeur=grille_valeur
         )
     else:
-        if indices_cases_verr is None:
-            remplir_grille_sudoku_GUI_debut(
-                canvas=canvas, 
-                cases=cases, 
-                grille_valeur=grille_par_defaut
-            )
-        else:
-            remplir_grille_sudoku_GUI_en_cours(
-                canvas=canvas, 
-                cases=cases, 
-                grille_valeur=grille_par_defaut, 
-                indices_cases_verr=indices_cases_verr
-            )
+        remplir_grille_sudoku_GUI(
+            canvas=canvas, 
+            cases=cases, 
+            grille_valeur=grille_par_defaut, 
+            indices_cases_verr=indices_cases_verr
+        )
 
     
     

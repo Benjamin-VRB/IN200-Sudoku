@@ -221,7 +221,7 @@ def aller_puzzle(canvas: tk.Canvas) -> None:
                     grille_progression=prog,        
                     indices_cases_verr=None
                 )
-)(*recuperer_grille_json("Classique", "Puzzle_Classique"+str(i+1)))
+            )(*recuperer_grille_json("Classique", "Puzzle_Classique"+str(i+1)))
         )
 
     canvas_defilement.create_text(
@@ -274,7 +274,7 @@ def aller_puzzle(canvas: tk.Canvas) -> None:
             fond=[bouton_charger_fond],
             bordure=bouton_charger_bordure,
             couleurs=COULEURS_FICHES
-    )
+        )
 
     region_objets: tuple[int, int, int, int] = canvas_defilement.bbox("all")
     canvas_defilement.config(scrollregion=(0, 0, region_objets[2], region_objets[3] + 20))
