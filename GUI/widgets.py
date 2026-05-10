@@ -13,10 +13,12 @@ from Grille.affichage_cases_contraintes import afficher_contraintes_classique
 
 COULEUR_CASE: str = "#ffffff"
 COULEUR_CASE_VERR: str = "#F0F0F0"
+COULEUR_CASE_AIDE: str= "#99FF99"
 COULEUR_CASE_PROBLEME: str = "#ffb4b4"
 COULEUR_CASE_PROBLEME_VERR: str = "#d99b9b"
 COULEUR_CASE_CONTRAINTE: str = "#e1fbff"
 COULEUR_CASE_CONTRAINTE_VERR: str = "#c8dee1"
+COULEUR_CASE_CONTRAINTE_AIDE: str = "#B3FFB3"
 COULEUR_CASE_CONTRAINTE_PROBLEME: str = "#f0a9d8"
 COULEUR_CASE_CONTRAINTE_PROBLEME_VERR: str = "#d797c2"
 
@@ -306,7 +308,7 @@ def trouver_cases_verrouillee(
             cases_verr.append(case)
     return cases_verr
 
-def reset_couleur_cases_rouges(
+def reset_couleur_cases_rouges( 
         canvas: tk.Canvas, 
         cases: list[dict[str, int]]
     ) -> None:
@@ -320,13 +322,13 @@ def reset_couleur_cases_rouges(
         if couleur_fond == COULEUR_CASE_PROBLEME_VERR:
             canvas.itemconfig(
                 tagOrId=case_vide, 
-                fill=COULEUR_CASE_VERR
-            )
+                fill=COULEUR_CASE_VERR)
+            
         elif couleur_fond == COULEUR_CASE_PROBLEME:
-            canvas.itemconfig(
-                tagOrId=case_vide, 
-                fill=COULEUR_CASE
-            )
+            if "case_aide" in canvas.gettags(case_vide):
+                canvas.itemconfig(tagOrId=case_vide, fill=COULEUR_CASE_AIDE) 
+            else:
+                canvas.itemconfig(tagOrId=case_vide, fill=COULEUR_CASE)
 
 
 def reset_couleur_contraintes(
@@ -341,10 +343,14 @@ def reset_couleur_contraintes(
             option="fill"
         )
         if couleur_fond == COULEUR_CASE_CONTRAINTE:
-            canvas.itemconfig(
-                tagOrId=case_vide, 
-                fill=COULEUR_CASE
-            )
+            if "case_aide" in canvas.gettags(case_vide):
+                canvas.itemconfig(case_vide, fill=COULEUR_CASE_AIDE)
+            else:
+                canvas.itemconfig(case_vide, fill=COULEUR_CASE)
+                
+        elif couleur_fond == COULEUR_CASE_CONTRAINTE_AIDE:
+            canvas.itemconfig(case_vide, fill=COULEUR_CASE_AIDE)
+            
         elif couleur_fond == COULEUR_CASE_CONTRAINTE_PROBLEME:
             canvas.itemconfig(
                 tagOrId=case_vide, 
@@ -485,6 +491,7 @@ def afficher_contraintes(
         )[0]
         list_indice_conflits: list[int] = \
             [coord[0] * nb_cases_cote + coord[1] for coord in list_coord_conflits]
+            
         if cases[indice] in cases_verr:
             if indice in list_indice_conflits:
                 canvas.itemconfig(
@@ -503,11 +510,17 @@ def afficher_contraintes(
                     fill=COULEUR_CASE_CONTRAINTE_PROBLEME
                 )
             else:
-                canvas.itemconfig(
-                    tagOrId=case_vide, 
-                    fill=COULEUR_CASE_CONTRAINTE
-                )
-
+                if "case_aide" in canvas.gettags(case_vide):
+                    canvas.itemconfig(
+                        tagOrId=case_vide, 
+                        fill=COULEUR_CASE_CONTRAINTE_AIDE
+                    )
+                    
+                else:
+                    canvas.itemconfig(
+                        tagOrId=case_vide, 
+                        fill=COULEUR_CASE_CONTRAINTE
+                    )
 
 def changer_couleur_nombres(
         canvas: tk.Canvas, 
@@ -1252,6 +1265,7 @@ def remplir_grille_sudoku_GUI_en_cours(
         grille_valeur: list[list[int]], 
         indices_cases_verr: list[int]
     ) -> None:
+
     for rangee in range(len(grille_valeur)):
         for colonne in range(len(grille_valeur[0])):
             if grille_valeur[rangee][colonne] != 0:
@@ -1352,7 +1366,6 @@ def barre_entree_sauv(
         canvas=canvas, 
         cases=cases
     )
-    
     desactiver_widget(
         canvas=canvas, 
         tags_ou_ids=page

@@ -26,10 +26,13 @@ def aller_grille(
     grille_solution_sauvegardee: list[list[int]] = None,
     indices_cases_verr: list[int] = None,
 ) -> None:
-
+    
     COULEUR_BORDURE_CASES: str = "#000000"
     COULEUR_TEXTE_CASES: str = "#000000"
 
+    
+    indices_cases_aide = []
+            
     supprimer_elements(
         canvas=canvas, tags_ou_ids=tags_ou_ids_page_suppr, widgets=widgets_page_suppr
     )
@@ -70,6 +73,11 @@ def aller_grille(
             cases=cases
         )
 
+        for index in indices_cases_aide:
+            id_case = grille["cases"][index]["case_vide"]
+            canvas.itemconfig(id_case, fill="#99FF99")
+            canvas.addtag_withtag("case_aide", id_case)
+            
         def action_aide(event):
             # On récupère les valeurs de notre grille actuelle
             grille_joueur = []
@@ -100,12 +108,16 @@ def aller_grille(
                 # On change en conséquence la case problématique
                 canvas.itemconfig(id_texte, text=str(valeur_solution))
                 canvas.itemconfig(id_case, fill="#FF6666")
+                canvas.addtag_withtag("case_aide", id_case)
 
             elif statut == "Correct":
                 # On ajoute une case pour aider le joueur
                 canvas.itemconfig(id_texte, text=str(valeur_solution))
                 canvas.itemconfig(id_case, fill="#99FF99")
-
+                canvas.addtag_withtag("case_aide", id_case)
+            if index not in indices_cases_aide:
+                    indices_cases_aide.append(index)
+                    
     elif type_grille == "windoku":
         aller_windoku(
             canvas=canvas,
