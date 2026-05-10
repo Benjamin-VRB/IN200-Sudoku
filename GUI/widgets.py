@@ -295,20 +295,16 @@ def renvoyer_grille(
 
 
 def trouver_cases_verrouillee(
-        canvas: tk.Canvas, 
+        canvas: tk.Canvas,
         cases: list[dict[str, int]]
-    ) -> list[dict[str, int]]:
+) -> list[dict[str, int]]:
 
     cases_verr: list[dict[str, int]] = []
     for case in cases:
         case_vide: int = case["case_vide"]
-        if canvas.itemcget(
-            tagOrId=case_vide, 
-            option="fill"
-        ) in [COULEUR_CASE_VERR, COULEUR_CASE_PROBLEME_VERR]:
+        if canvas.itemcget(tagOrId=case_vide, option="state") == "disabled":
             cases_verr.append(case)
     return cases_verr
-
 
 def reset_couleur_cases_rouges(
         canvas: tk.Canvas, 
@@ -1806,7 +1802,7 @@ def ajouter_indications_kenken(canvas: tk.Canvas, dico_cage: dict, x_grille: int
     for nom_cage in dico_cage:
         # On accède directement aux données avec les clés
         infos_cage = dico_cage[nom_cage]
-        cible = infos_cage["cible"]
+        cible  = infos_cage["cible"]
         operation = infos_cage["operation"]
 
         texte_indication = str(cible) + str(operation)
@@ -1983,3 +1979,85 @@ def reset_puzzle(
 
     list_coord = verification_cases_sudoku(canvas=canvas, cases=cases)
     afficher_conflits(canvas=canvas, list_coord=list_coord, cases=cases)
+
+def reset_focus_cases_bordel_de_louis(
+    canvas: tk.Canvas, 
+    cases: list[dict[str, int]], 
+    couleur_nombres_normale: str, 
+    couleur_bordure_cases_normale: str,
+    func_afficher_conflits=None,
+) -> None:
+
+    canvas.unbind_all(sequence="<KeyPress>")
+    canvas.delete("clavier_num")
+    changer_couleur_nombres(canvas=canvas, cases=cases, couleur=couleur_nombres_normale)
+    for case in cases:
+        case_vide: int = case["case_vide"]
+        canvas.itemconfig(tagOrId=case_vide, width=1, outline=couleur_bordure_cases_normale)
+        canvas.tag_lower(case_vide)
+
+    if func_afficher_conflits is not None:
+        func_afficher_conflits()
+    else:
+        list_coord = verification_cases_sudoku(canvas=canvas, cases=cases)
+        afficher_conflits(canvas=canvas, list_coord=list_coord, cases=cases)
+
+
+def entree_focus_case_bordel_de_louis(
+        canvas: tk.Canvas, 
+        case: dict[str, int], 
+        valeur_max: int, 
+        cases: list[dict[str, int]], 
+        couleur_nombres_normale: str, 
+        couleur_bordure_cases_normale: str,
+        func_afficher_conflits=None,
+    ) -> None:
+    
+    case_vide: int = case["case_vide"]
+    texte: int = case["texte"]
+
+    reset_focus_cases(
+        canvas=canvas, 
+        cases=cases, 
+        couleur_nombres_normale=couleur_nombres_normale, 
+        couleur_bordure_cases_normale=couleur_bordure_cases_normale,
+        func_afficher_conflits=func_afficher_conflits,
+    )
+
+    COULEUR_INDICATION: str = "#3185ED"
+
+    canvas.tag_raise(case_vide)
+    canvas.tag_raise(texte)
+    canvas.itemconfig(
+        tagOrId=case_vide, 
+        width=4, 
+        outline=COULEUR_INDICATION
+    )
+
+    LARGEUR_CLAVIER_NUM: int = 250
+    HAUTEUR_CLAVIER_NUM: int = 400
+    creer_clavier_numerique(
+        canvas=canvas, 
+        coord=(LARGEUR_PIXEL_FENETRE - 300, 150), 
+        largeur=LARGEUR_CLAVIER_NUM, 
+        hauteur=HAUTEUR_CLAVIER_NUM, 
+        case=case, 
+        valeur_max=valeur_max, 
+        cases=cases, 
+        couleur_nombres_normale=couleur_nombres_normale, 
+        couleur_nombres_indication=COULEUR_INDICATION
+    )
+    
+    canvas.bind_all(
+        sequence="<KeyPress>", 
+        func=lambda event: modifier_valeur_case_grille(
+            event, 
+            canvas=canvas, 
+            case=case,
+            valeur_max=valeur_max, 
+            cases=cases, 
+            couleur_nombres_normale=couleur_nombres_normale, 
+            couleur_nombres_indication=COULEUR_INDICATION, 
+            couleur_bordure_cases_normale=couleur_bordure_cases_normale
+        )
+    )

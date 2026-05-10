@@ -227,11 +227,11 @@ def verification_contrainte_windoku(grille, coord, liste_cases_invalides):
     for region in regions_windoku:
         if coord in region:
             for case in region:
-                if val == case:
+                if case != coord and grille[case[0]][case[1]] == val:
                     liste_cases_invalides.append(case)
 
 
-def verifiction_windoku_complet(grille):
+def verification_windoku_complet(grille):
         
     """Vérifie que toutes les contraintes du Windoku sont bien respectées...
     
