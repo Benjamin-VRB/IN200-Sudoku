@@ -172,7 +172,7 @@ def aller_grille_puzzle(
         **PARAMS_BOUTON
     )
 
-    survole_non_survole(          # ← manquait
+    survole_non_survole(
         canvas=canvas,
         tags_ou_ids=[TAG_RESET],
         fond=bouton_reset["fond"],
