@@ -1252,7 +1252,6 @@ def remplir_grille_sudoku_GUI_en_cours(
         grille_valeur: list[list[int]], 
         indices_cases_verr: list[int]
     ) -> None:
-    print(indices_cases_verr)
     for rangee in range(len(grille_valeur)):
         for colonne in range(len(grille_valeur[0])):
             if grille_valeur[rangee][colonne] != 0:
