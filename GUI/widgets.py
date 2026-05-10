@@ -1220,6 +1220,60 @@ def remplir_grille_sudoku_GUI(
                     text=grille_valeur[rangee][colonne]
                 )
 
+def remplir_grille_sudoku_GUI_debut(
+        canvas: tk.Canvas, 
+        cases: list[dict[str, int]], 
+        grille_valeur: list[list[int]],
+    ) -> None:
+    
+    for rangee in range(len(grille_valeur)):
+        for colonne in range(len(grille_valeur[0])):
+            if grille_valeur[rangee][colonne] != 0:
+                case: tuple[int] = cases[rangee * len(grille_valeur[0]) + colonne]
+                case_vide: int = case["case_vide"]
+                texte: int = case["texte"]
+                desactiver_widget(
+                    canvas=canvas, 
+                    tags_ou_ids=[case_vide, texte]
+                )
+                canvas.itemconfig(
+                    tagOrId=case_vide, 
+                    fill=COULEUR_CASE_VERR
+                )
+                canvas.itemconfig(
+                    tagOrId=texte, 
+                    text=grille_valeur[rangee][colonne]
+                )
+
+
+def remplir_grille_sudoku_GUI_en_cours(
+        canvas: tk.Canvas, 
+        cases: list[dict[str, int]], 
+        grille_valeur: list[list[int]], 
+        indices_cases_verr: list[int]
+    ) -> None:
+    print(indices_cases_verr)
+    for rangee in range(len(grille_valeur)):
+        for colonne in range(len(grille_valeur[0])):
+            if grille_valeur[rangee][colonne] != 0:
+                indice: int = rangee * len(grille_valeur[0]) + colonne
+                case: tuple[int] = cases[indice]
+                case_vide: int = case["case_vide"]
+                texte: int = case["texte"]
+                if indice in indices_cases_verr:
+                    desactiver_widget(
+                        canvas=canvas, 
+                        tags_ou_ids=[case_vide, texte]
+                    )
+                    canvas.itemconfig(
+                        tagOrId=case_vide, 
+                        fill=COULEUR_CASE_VERR
+                    )
+                canvas.itemconfig(
+                    tagOrId=texte, 
+                    text=grille_valeur[rangee][colonne]
+                )
+
 
 def interagir_barre_sauv(
         event, 
@@ -1295,6 +1349,11 @@ def barre_entree_sauv(
         couleur_bordure_cases_normale: str
     ) -> dict[str, int | tk.Entry]:
     
+    cases_verr: list[dict[str, int]] = trouver_cases_verrouillee(
+        canvas=canvas, 
+        cases=cases
+    )
+    
     desactiver_widget(
         canvas=canvas, 
         tags_ou_ids=page
@@ -1339,10 +1398,7 @@ def barre_entree_sauv(
         anchor=tk.NW
     )
     
-    cases_verr: list[dict[str, int]] = trouver_cases_verrouillee(
-        canvas=canvas, 
-        cases=cases
-    )
+    
 
     canvas.bind_all(
         sequence="<KeyPress>", 
