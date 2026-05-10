@@ -5,6 +5,7 @@ from GUI.animations import supprimer_elements, retour_menu
 from GUI.widgets import creer_boutton_arrondi, survole_non_survole, barre_entree_sauv, COULEUR_CASE, \
 afficher_conflits, verification_cases_sudoku
 from GUI.sudoku import creer_sudoku_GUI
+from Grille.aide import indicateur_sudoku
 
 def aller_grille(
         canvas: tk.Canvas, 
@@ -35,7 +36,7 @@ def aller_grille(
         LONGUEUR_COTE_CASE: int = LONGUEUR_COTE_GRILLE // NB_CASE_COTE 
         X_GRILLE: int = (LARGEUR_PIXEL_FENETRE - LONGUEUR_COTE_GRILLE) // 2
         Y_GRILLE: int = (HAUTEUR_PIXEL_FENETRE - LONGUEUR_COTE_GRILLE) // 2
-        grille: dict[str, list[dict[str, int]] | list[int]] = creer_sudoku_GUI(
+        grille, grille_complete = creer_sudoku_GUI(
             canvas=canvas, 
             coord=(X_GRILLE, Y_GRILLE), 
             nb_case_cote=NB_CASE_COTE, 
@@ -49,6 +50,7 @@ def aller_grille(
             grille_par_defaut=grille_par_defaut, 
             indices_cases_verr=indices_cases_verr
         )
+
         cases: list[dict[str, int]] = grille["cases"]
         list_coord: list[tuple[int, int]] = verification_cases_sudoku(
             canvas=canvas, 
@@ -59,6 +61,42 @@ def aller_grille(
             list_coord=list_coord, 
             cases=cases
         )
+        def action_aide(event):
+        # On récupère les valeurs de notre grille actuelle
+            grille_joueur = []
+        
+            for lig in range(NB_CASE_COTE):
+                ligne = []
+                for col in range(NB_CASE_COTE):
+                    id_texte = grille["cases"][lig * NB_CASE_COTE + col]["texte"]
+                    # On lit le texte affiché
+                    valeur = canvas.itemcget(id_texte, "text")
+                    if valeur != "" :
+                        ligne.append(int(valeur))
+                    else :
+                        ligne.append(0)
+                grille_joueur.append(ligne)
+
+            resultat = indicateur_sudoku(grille_joueur, grille_complete, NB_CASE_COTE)
+            if resultat == (None, None) : 
+                return 
+            
+            statut, donnees = resultat 
+            valeur_solution, (lig, col) = donnees 
+            index = lig * NB_CASE_COTE + col
+            id_case = grille["cases"][index]["case_vide"]
+            id_texte = grille["cases"][index]["texte"]
+            
+            if statut == "Erreur":
+                # On change en conséquence la case problématique
+                canvas.itemconfig(id_texte, text=str(valeur_solution))
+                canvas.itemconfig(id_case, fill="#FF6666")
+            
+            elif statut == "Correct":   
+                # On ajoute une case pour aider le joueur
+                canvas.itemconfig(id_texte, text=str(valeur_solution))
+                canvas.itemconfig(id_case, fill="#99FF99")
+                
     else:
         return
     
@@ -178,4 +216,10 @@ def aller_grille(
             canvas=canvas, 
             tags_ou_ids=[TAG, TAG_SAUV, TAG_RETOUR, TAG_AIDE, "clavier_num"]
         )
+    )
+    
+    canvas.tag_bind(
+        tagOrId=TAG_AIDE, 
+        sequence="<Button-1>", 
+        func=action_aide
     )

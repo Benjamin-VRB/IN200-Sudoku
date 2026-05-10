@@ -1731,7 +1731,7 @@ def ajouter_indications_kenken(canvas: tk.Canvas, dico_cage: dict, x_grille: int
     for nom_cage in dico_cage:
         # On accède directement aux données avec les clés
         infos_cage = dico_cage[nom_cage]
-        cible = infos_cage["cible"]
+        cible  = infos_cage["cible"]
         operation = infos_cage["operation"]
 
         texte_indication = str(cible) + str(operation)

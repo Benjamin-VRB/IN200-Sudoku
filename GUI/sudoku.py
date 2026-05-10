@@ -49,10 +49,10 @@ def creer_sudoku_GUI(
         elif difficulte == 1:
             nombre_valeur_a_supprimer: int = 40
 
-        grille_valeur: list[list[int]] = supprimer_valeur(
+        grille_complete, grille_valeur= supprimer_valeur(
             nombre_valeur_a_supprimer=nombre_valeur_a_supprimer, 
             dimension=nb_case_cote
-        )[1]
+        )
         remplir_grille_sudoku_GUI_debut(
             canvas=canvas, 
             cases=cases, 
@@ -75,4 +75,4 @@ def creer_sudoku_GUI(
 
     
     
-    return grille
+    return grille, grille_complete
