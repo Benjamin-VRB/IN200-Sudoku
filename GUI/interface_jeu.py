@@ -9,6 +9,7 @@ from GUI.widgets import (
     COULEUR_CASE,
     afficher_conflits,
     verification_cases_sudoku,
+    afficher_chrono
 )
 from GUI.sudoku import creer_sudoku_GUI
 from Grille.aide import indicateur_sudoku
@@ -75,7 +76,9 @@ def aller_grille(
             list_coord=list_coord, 
             cases=cases
         )
-
+        
+        get_temps = afficher_chrono(canvas=canvas, temps_depart=temps_depart, tag=TAG)
+        
         for index in indices_cases_aide:
             id_case = grille["cases"][index]["case_vide"]
             canvas.itemconfig(id_case, fill="#99FF99")
@@ -129,8 +132,10 @@ def aller_grille(
             tags_ou_ids_page_suppr=None,
             widgets_page_suppr=None,
             grille_par_defaut=grille_par_defaut,
+            grille_solution_sauvegardee=grille_solution_sauvegardee,
             indices_cases_verr=indices_cases_verr,
         )
+        return  
     else:
         return
 
@@ -240,7 +245,7 @@ def aller_grille(
             grille_complete= grille_complete,
             tag=TAG_BARRE_ENTREE_SAUV,
             type_grille=type_grille,
-            temps=126,
+            temps=get_temps(),
             difficulte=difficulte,
             couleur_nombres_normale=COULEUR_TEXTE_CASES,
             couleur_bordure_cases_normale=COULEUR_BORDURE_CASES,

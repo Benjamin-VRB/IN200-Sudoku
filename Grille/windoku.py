@@ -170,7 +170,7 @@ def supprimer_valeur(nombre_valeur_a_supprimer : int, dimension : int):
         else:
             grille_vidée[ligne][colonne] = valeur_originale
 
-    return grille_vidée
+    return grille_complete, grille_vidée
 
 
 

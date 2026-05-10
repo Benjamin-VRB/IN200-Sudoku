@@ -2148,3 +2148,33 @@ def entree_focus_case_bordel_de_louis(
             couleur_bordure_cases_normale=couleur_bordure_cases_normale
         )
     )
+    
+def afficher_chrono(
+        canvas: tk.Canvas,
+        temps_depart: int,
+        tag: str,
+) -> callable:
+    texte_chrono: int = canvas.create_text(
+        (LARGEUR_PIXEL_FENETRE // 2, 30),
+        text="",
+        font=("Century", 20),
+        fill="#000000",
+        tags=tag,
+    )
+    
+    temps_actuel: list[int] = [temps_depart] 
+
+    def mettre_a_jour(temps: int) -> None:
+        if canvas.find_withtag(texte_chrono):
+            temps_actuel[0] = temps
+            minutes: int = temps // 60
+            secondes: int = temps % 60
+            canvas.itemconfig(
+                tagOrId=texte_chrono,
+                text=f"{minutes:02d}:{secondes:02d}",
+            )
+            canvas.after(1000, mettre_a_jour, temps + 1)
+
+    mettre_a_jour(temps_depart)
+    
+    return lambda: temps_actuel[0]  

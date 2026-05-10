@@ -2,7 +2,7 @@ import tkinter as tk
 
 from GUI.fenetre import LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
 from GUI.animations import supprimer_elements, retour_menu
-from GUI.widgets import creer_grille_sudoku, creer_boutton_arrondi, survole_non_survole,barre_entree_sauv, desactiver_widget, COULEUR_CASE, afficher_conflits, COULEUR_CASE_VERR, COULEUR_CASE_VERR, COULEUR_CASE_PROBLEME, COULEUR_CASE_PROBLEME_VERR, trouver_cases_verrouillee, entree_focus_case, renvoyer_grille
+from GUI.widgets import creer_grille_sudoku, creer_boutton_arrondi, survole_non_survole,barre_entree_sauv, desactiver_widget, COULEUR_CASE, afficher_conflits, COULEUR_CASE_VERR, COULEUR_CASE_VERR, COULEUR_CASE_PROBLEME, COULEUR_CASE_PROBLEME_VERR, trouver_cases_verrouillee, entree_focus_case, renvoyer_grille, afficher_chrono
 from Grille.verification import verification_windoku_complet
 from Grille.windoku import supprimer_valeur
 
@@ -107,30 +107,28 @@ def remplir_grille_windoku_GUI_en_cours(
         grille_valeur: list[list[int]],
         indices_cases_verr: list[int],
 ) -> None:
-    """
-    Remplit la grille windoku lors d'une reprise de partie sauvegardée.
-    Les cases dont l'index est dans indices_cases_verr sont verrouillées.
-    """
     nb_colonnes: int = len(grille_valeur[0])
+    indices_cases_verr = [int(i) for i in indices_cases_verr]  
 
     for rangee, ligne in enumerate(grille_valeur):
         for colonne, valeur in enumerate(ligne):
+            valeur_int = int(valeur) if valeur != "" and valeur != 0 else 0  
             index: int = rangee * nb_colonnes + colonne
-            case: dict[str, int] = cases[index]
+            case = cases[index]
             case_vide: int = case["case_vide"]
             texte: int = case["texte"]
 
             verrouille: bool = index in indices_cases_verr
-            couleur_windoku: str | None = _couleur_case_windoku(rangee, colonne, verrouille=verrouille)
+            couleur_windoku = _couleur_case_windoku(rangee, colonne, verrouille=verrouille)
 
-            if valeur != 0:
+            if valeur_int != 0:
                 if verrouille:
                     desactiver_widget(canvas=canvas, tags_ou_ids=[case_vide, texte])
                 canvas.itemconfig(
                     case_vide,
                     fill=couleur_windoku if couleur_windoku else COULEUR_CASE,
                 )
-                canvas.itemconfig(texte, text=str(valeur))
+                canvas.itemconfig(texte, text=str(valeur_int))
             else:
                 if couleur_windoku:
                     canvas.itemconfig(case_vide, fill=couleur_windoku)
@@ -189,7 +187,6 @@ def creer_windoku_GUI(
                     cases=cases,
                     couleur_nombres_normale=couleur_textes,
                     couleur_bordure_cases_normale=couleur_bordure_cases,
-                    func_afficher_conflits=func_conflits_windoku,
                 )
             )
 
@@ -206,8 +203,8 @@ def creer_windoku_GUI(
         else:
             nombre_valeur_a_supprimer: int = 50
 
-
-        grille_valeur: list[list[int]] = supprimer_valeur(
+        
+        grille_solution_sauvegardee, grille_valeur = supprimer_valeur(
             nombre_valeur_a_supprimer=nombre_valeur_a_supprimer,
             dimension=nb_case_cote,
         )
@@ -218,6 +215,7 @@ def creer_windoku_GUI(
             grille_valeur=grille_valeur,
         )
     else:
+        grille_solution_sauvegardee = None   
         if indices_cases_verr is None:
             remplir_grille_windoku_GUI(
                 canvas=canvas,
@@ -232,7 +230,7 @@ def creer_windoku_GUI(
                 indices_cases_verr=indices_cases_verr,
             )
 
-    return grille
+    return grille, grille_solution_sauvegardee
 
 def aller_windoku(
         canvas: tk.Canvas,
@@ -241,6 +239,7 @@ def aller_windoku(
         tags_ou_ids_page_suppr: list[int | str] = None,
         widgets_page_suppr: list[tk.Widget] = None,
         grille_par_defaut: list[list[int]] = None,
+        grille_solution_sauvegardee: list[list[int]] = None,
         indices_cases_verr: list[int] = None,
 ) -> None:
 
@@ -261,7 +260,7 @@ def aller_windoku(
     X_GRILLE: int = (LARGEUR_PIXEL_FENETRE - LONGUEUR_COTE_GRILLE) // 2
     Y_GRILLE: int = (HAUTEUR_PIXEL_FENETRE - LONGUEUR_COTE_GRILLE) // 2
 
-    grille: dict[str, list[dict[str, int]] | list[int]] = creer_windoku_GUI(
+    grille, solution_generee = creer_windoku_GUI(
         canvas=canvas,
         coord=(X_GRILLE, Y_GRILLE),
         nb_case_cote=NB_CASE_COTE,
@@ -275,6 +274,8 @@ def aller_windoku(
         grille_par_defaut=grille_par_defaut,
         indices_cases_verr=indices_cases_verr,
     )
+   
+    grille_complete: list[list[int]] | None = solution_generee if grille_par_defaut is None else grille_solution_sauvegardee
 
     cases: list[dict[str, int]] = grille["cases"]
 
@@ -291,6 +292,9 @@ def aller_windoku(
         list_coord=list_coord,
         cases=cases,
     )
+
+    get_temps = afficher_chrono(canvas=canvas, temps_depart=temps_depart, tag=TAG)
+
 
     PARAMS_BOUTON: dict[str, int | str | tuple[str, int]] = {
         "largeur": 200,
@@ -394,12 +398,14 @@ def aller_windoku(
             epaisseur_cadre=EPAISSEUR_CADRE_BARRE_ENTREE_SAUV,
             page=page,
             cases=grille["cases"],
+            grille_complete=grille_complete,
             tag=TAG_BARRE_ENTREE_SAUV,
             type_grille="windoku",
-            temps=temps_depart,
+            temps=get_temps(),
             difficulte=difficulte,
             couleur_nombres_normale=COULEUR_TEXTE_CASES,
             couleur_bordure_cases_normale=COULEUR_BORDURE_CASES,
+            indices_cases_aide=[],
         ),
     )
 
