@@ -44,6 +44,7 @@ def sauvegarder(
     grille_actuelle: list[list[str]], 
     grille_complete: list[list[str]],
     cases_verr_indices: list[int], 
+    indices_cases_aide,
     temps: int, 
     date: str, 
     type_grille: str, 
@@ -58,6 +59,7 @@ def sauvegarder(
         "grille_actuelle" : grille_actuelle,
         "grille_solution" : grille_complete,
         "cases_verrouillees" : cases_verr_indices,
+        "cases_aide" : indices_cases_aide,
         "temps" : temps, 
         "statut" : statut, 
         "difficulte" : difficulte

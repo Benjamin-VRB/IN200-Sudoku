@@ -19,11 +19,15 @@ def creer_sudoku_GUI(
         difficulte: int = None, 
         grille_par_defaut: list[list[int]] = None, 
         grille_solution_sauvegardee = None,
-        indices_cases_verr: list[int] = None
+        indices_cases_verr: list[int] = None,
+        indices_cases_aide: list[int] = None
     ) -> dict[str, list[dict[str, int]] | list[int]]:
 
     if difficulte is None and grille_par_defaut is None:
         return
+    
+    if indices_cases_aide is None:
+        indices_cases_aide = []
 
     grille: dict[str, list[dict[str, int]] | list[int]] = \
         creer_grille_sudoku(
@@ -72,7 +76,8 @@ def creer_sudoku_GUI(
                 canvas=canvas, 
                 cases=cases, 
                 grille_valeur=grille_par_defaut, 
-                indices_cases_verr=indices_cases_verr
+                indices_cases_verr=indices_cases_verr,
+                indices_cases_aide=indices_cases_aide
             )
 
     

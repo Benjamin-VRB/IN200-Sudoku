@@ -25,13 +25,15 @@ def aller_grille(
     grille_par_defaut: list[list[int]] = None,
     grille_solution_sauvegardee: list[list[int]] = None,
     indices_cases_verr: list[int] = None,
+    indices_cases_aide: list[int] = None,
 ) -> None:
     
     COULEUR_BORDURE_CASES: str = "#000000"
     COULEUR_TEXTE_CASES: str = "#000000"
 
     
-    indices_cases_aide = []
+    if indices_cases_aide is None:
+        indices_cases_aide = []
             
     supprimer_elements(
         canvas=canvas, tags_ou_ids=tags_ou_ids_page_suppr, widgets=widgets_page_suppr
@@ -60,6 +62,7 @@ def aller_grille(
             grille_par_defaut=grille_par_defaut,
             grille_solution_sauvegardee = grille_solution_sauvegardee,
             indices_cases_verr=indices_cases_verr,
+            indices_cases_aide=indices_cases_aide
         )
 
         cases: list[dict[str, int]] = grille["cases"]
@@ -240,7 +243,8 @@ def aller_grille(
             temps=126,
             difficulte=difficulte,
             couleur_nombres_normale=COULEUR_TEXTE_CASES,
-            couleur_bordure_cases_normale=COULEUR_BORDURE_CASES
+            couleur_bordure_cases_normale=COULEUR_BORDURE_CASES,
+            indices_cases_aide=indices_cases_aide
         )
     )
 

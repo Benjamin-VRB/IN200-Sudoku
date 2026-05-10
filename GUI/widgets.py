@@ -1263,8 +1263,12 @@ def remplir_grille_sudoku_GUI_en_cours(
         canvas: tk.Canvas, 
         cases: list[dict[str, int]], 
         grille_valeur: list[list[int]], 
-        indices_cases_verr: list[int]
+        indices_cases_verr: list[int],
+        indices_cases_aide: list[int] = None
     ) -> None:
+    
+    if indices_cases_aide is None:
+        indices_cases_aide = []
 
     for rangee in range(len(grille_valeur)):
         for colonne in range(len(grille_valeur[0])):
@@ -1282,6 +1286,13 @@ def remplir_grille_sudoku_GUI_en_cours(
                         tagOrId=case_vide, 
                         fill=COULEUR_CASE_VERR
                     )
+                elif indice in indices_cases_aide:
+                    canvas.itemconfig(
+                        tagOrId=case_vide, 
+                        fill=COULEUR_CASE_AIDE
+                    )
+                    canvas.addtag_withtag("case_aide", case_vide)
+                    
                 canvas.itemconfig(
                     tagOrId=texte, 
                     text=grille_valeur[rangee][colonne]
@@ -1296,6 +1307,7 @@ def interagir_barre_sauv(
         grille_complete, 
         cases: list[dict[str, int]], 
         cases_verr: list[dict[str, int]],
+        indices_cases_aide: list[int],
         temps: int, 
         page: list[str | int], 
         type_grille: str, 
@@ -1329,6 +1341,7 @@ def interagir_barre_sauv(
                 grille_actuelle=grille,
                 grille_complete= grille_complete,
                 cases_verr_indices=cases_verr_indices, 
+                indices_cases_aide=indices_cases_aide,
                 temps=temps, 
                 date=date_str, 
                 type_grille=type_grille, 
@@ -1359,7 +1372,8 @@ def barre_entree_sauv(
         tag: str, 
         type_grille: str, 
         couleur_nombres_normale: str, 
-        couleur_bordure_cases_normale: str
+        couleur_bordure_cases_normale: str,
+        indices_cases_aide: list[int]
     ) -> dict[str, int | tk.Entry]:
     
     cases_verr: list[dict[str, int]] = trouver_cases_verrouillee(
@@ -1422,6 +1436,7 @@ def barre_entree_sauv(
             grille_complete=grille_complete,
             cases=cases, 
             cases_verr=cases_verr, 
+            indices_cases_aide=indices_cases_aide,
             temps=temps, 
             difficulte=difficulte, 
             page=page, 

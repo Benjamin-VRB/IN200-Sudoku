@@ -204,7 +204,8 @@ def aller_menu_sauvegardes(canvas: tk.Canvas) -> None:
                 sequence="<Button-1>", 
                 func=lambda event, type_grille=sauv["type"], difficulte=sauv["difficulte"], 
                 temps_depart=sauv["temps"], grille_par_defaut=sauv["grille_actuelle"], 
-                indices_cases_verr=sauv["cases_verrouillees"],grille_complete=sauv["grille_solution"]:
+                indices_cases_verr=sauv["cases_verrouillees"],grille_complete=sauv["grille_solution"],
+                indices_cases_aide=sauv.get("cases_aide", []):
                     aller_grille(
                         canvas=canvas, 
                         type_grille=type_grille, 
@@ -214,7 +215,8 @@ def aller_menu_sauvegardes(canvas: tk.Canvas) -> None:
                         widgets_page_suppr=[canvas_defilement], 
                         grille_par_defaut=grille_par_defaut, 
                         indices_cases_verr=indices_cases_verr,
-                        grille_solution_sauvegardee=grille_complete
+                        grille_solution_sauvegardee=grille_complete,
+                        indices_cases_aide=indices_cases_aide
                     )
             )
 
