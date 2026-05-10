@@ -204,16 +204,18 @@ def aller_menu_sauvegardes(canvas: tk.Canvas) -> None:
                 sequence="<Button-1>", 
                 func=lambda event, type_grille=sauv["type"], difficulte=sauv["difficulte"], 
                 temps_depart=sauv["temps"], grille_par_defaut=sauv["grille_actuelle"], 
-                indices_cases_verr=sauv["cases_verrouillees"]: aller_grille(
-                    canvas=canvas, 
-                    type_grille=type_grille, 
-                    difficulte=difficulte, 
-                    temps_depart=temps_depart, 
-                    tags_ou_ids_page_suppr=[TAG, TAG_RETOUR], 
-                    widgets_page_suppr=[canvas_defilement], 
-                    grille_par_defaut=grille_par_defaut, 
-                    indices_cases_verr=indices_cases_verr
-                )
+                indices_cases_verr=sauv["cases_verrouillees"],grille_complete=sauv["grille_solution"]:
+                    aller_grille(
+                        canvas=canvas, 
+                        type_grille=type_grille, 
+                        difficulte=difficulte, 
+                        temps_depart=temps_depart, 
+                        tags_ou_ids_page_suppr=[TAG, TAG_RETOUR], 
+                        widgets_page_suppr=[canvas_defilement], 
+                        grille_par_defaut=grille_par_defaut, 
+                        indices_cases_verr=indices_cases_verr,
+                        grille_solution_sauvegardee=grille_complete
+                    )
             )
 
         for id in bouton_suppr:

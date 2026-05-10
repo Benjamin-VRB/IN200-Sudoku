@@ -18,12 +18,13 @@ def creer_sudoku_GUI(
         couleur_textes: str, 
         difficulte: int = None, 
         grille_par_defaut: list[list[int]] = None, 
+        grille_solution_sauvegardee: list[list[int]] = None,
         indices_cases_verr: list[int] = None
     ) -> dict[str, list[dict[str, int]] | list[int]]:
 
     if difficulte is None and grille_par_defaut is None:
         return
-
+    
     grille: dict[str, list[dict[str, int]] | list[int]] = \
         creer_grille_sudoku(
             canvas=canvas, 
@@ -38,7 +39,7 @@ def creer_sudoku_GUI(
         )
     
     cases: list[dict[str, int]] = grille["cases"]
-
+    
     if grille_par_defaut is None:
         if difficulte == 4:
             nombre_valeur_a_supprimer: int = 63
@@ -59,6 +60,11 @@ def creer_sudoku_GUI(
             grille_valeur=grille_valeur
         )
     else:
+        if grille_solution_sauvegardee is not None:
+            grille_complete = grille_solution_sauvegardee
+        else:
+            grille_complete = []
+        
         if indices_cases_verr is None:
             remplir_grille_sudoku_GUI_debut(
                 canvas=canvas, 

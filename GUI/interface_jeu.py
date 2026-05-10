@@ -23,6 +23,7 @@ def aller_grille(
     tags_ou_ids_page_suppr: list[int | str] = None,
     widgets_page_suppr: list[tk.Widget] = None,
     grille_par_defaut: list[list[int]] = None,
+    grille_solution_sauvegardee: list[list[int]] = None,
     indices_cases_verr: list[int] = None,
 ) -> None:
 
@@ -54,6 +55,7 @@ def aller_grille(
             couleur_textes=COULEUR_TEXTE_CASES,
             difficulte=difficulte,
             grille_par_defaut=grille_par_defaut,
+            grille_solution_sauvegardee = grille_solution_sauvegardee,
             indices_cases_verr=indices_cases_verr,
         )
 
@@ -217,6 +219,7 @@ def aller_grille(
             epaisseur_cadre=EPAISSEUR_CADRE_BARRE_ENTREE_SAUV,
             page=page,
             cases=grille["cases"],
+            grille_complete= grille_complete,
             tag=TAG_BARRE_ENTREE_SAUV,
             type_grille=type_grille,
             temps=126,

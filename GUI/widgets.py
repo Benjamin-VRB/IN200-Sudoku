@@ -1094,7 +1094,7 @@ def creer_grille_sudoku(
 def remplir_grille_sudoku_GUI_debut(
         canvas: tk.Canvas, 
         cases: list[dict[str, int]], 
-        grille_valeur: list[list[int]]
+        grille_valeur: list[list[int]],
     ) -> None:
     
     for rangee in range(len(grille_valeur)):
@@ -1150,7 +1150,8 @@ def interagir_barre_sauv(
         event, 
         canvas: tk.Canvas, 
         tag_barre_sauv: str, 
-        nom_sauv: str, 
+        nom_sauv: str,
+        grille_complete, 
         cases: list[dict[str, int]], 
         cases_verr: list[dict[str, int]],
         temps: int, 
@@ -1183,7 +1184,8 @@ def interagir_barre_sauv(
                 (date.day, date.month, date.year, date.hour, date.minute, date.second)
             sauvegarder(
                 nom=nom_sauv, 
-                grille_actuelle=grille,  
+                grille_actuelle=grille,
+                grille_complete= grille_complete,
                 cases_verr_indices=cases_verr_indices, 
                 temps=temps, 
                 date=date_str, 
@@ -1209,6 +1211,7 @@ def barre_entree_sauv(
         epaisseur_cadre: int, 
         page: list[str | int], 
         cases: list[dict[str, int]], 
+        grille_complete : list[list[int]],
         temps: int, 
         difficulte: int, 
         tag: str, 
@@ -1273,6 +1276,7 @@ def barre_entree_sauv(
             canvas=canvas, 
             tag_barre_sauv=tag, 
             nom_sauv=entree.get(), 
+            grille_complete=grille_complete,
             cases=cases, 
             cases_verr=cases_verr, 
             temps=temps, 
