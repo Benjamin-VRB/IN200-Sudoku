@@ -223,6 +223,42 @@ def aller_puzzle(canvas: tk.Canvas) -> None:
                 )
             )(*recuperer_grille_json("Classique", "Puzzle_Classique"+str(i+1)))
         )
+        canvas_defilement.tag_bind(
+            tagOrId=bouton_charger_fond,
+            sequence="<Button-1>",
+            func=lambda event, i=i: (
+                lambda orig, prog: aller_grille_puzzle(
+                    canvas=canvas,
+                    type_grille="sudoku",
+                    difficulte=None,
+                    temps_depart=0,
+                    nom_puzzle="Puzzle_Classique" + str(i+1),
+                    tags_ou_ids_page_suppr=[TAG, TAG_RETOUR],
+                    widgets_page_suppr=[canvas_defilement],
+                    grille_par_defaut=orig,         
+                    grille_progression=prog,        
+                    indices_cases_verr=None
+                )
+            )(*recuperer_grille_json("Classique", "Puzzle_Classique"+str(i+1)))
+        )
+        canvas_defilement.tag_bind(
+            tagOrId=bouton_charger_bordure,
+            sequence="<Button-1>",
+            func=lambda event, i=i: (
+                lambda orig, prog: aller_grille_puzzle(
+                    canvas=canvas,
+                    type_grille="sudoku",
+                    difficulte=None,
+                    temps_depart=0,
+                    nom_puzzle="Puzzle_Classique" + str(i+1),
+                    tags_ou_ids_page_suppr=[TAG, TAG_RETOUR],
+                    widgets_page_suppr=[canvas_defilement],
+                    grille_par_defaut=orig,         
+                    grille_progression=prog,        
+                    indices_cases_verr=None
+                )
+            )(*recuperer_grille_json("Classique", "Puzzle_Classique"+str(i+1)))
+        )
 
     canvas_defilement.create_text(
         (X_COORDS[0], 820),
@@ -275,6 +311,7 @@ def aller_puzzle(canvas: tk.Canvas) -> None:
             bordure=bouton_charger_bordure,
             couleurs=COULEURS_FICHES
         )
+        
 
     region_objets: tuple[int, int, int, int] = canvas_defilement.bbox("all")
     canvas_defilement.config(scrollregion=(0, 0, region_objets[2], region_objets[3] + 20))

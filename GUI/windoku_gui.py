@@ -140,13 +140,13 @@ def creer_windoku_GUI(
         nb_case_cote: int,
         longueur_cote_case: int,
         nb_carre_cote: int,
-        tag: str,
+        tags_page_jeu: str,
         couleur_cases: str,
         couleur_bordure_cases: str,
         couleur_textes: str,
         difficulte: int = None,
         grille_par_defaut: list[list[int]] = None,
-        indices_cases_verr: list[int] = None,
+        indices_cases_verr: list[int] = None
 ) -> dict[str, list[dict[str, int]] | list[int]]:
     """
     Crée et remplit la grille windoku dans le canvas.
@@ -158,7 +158,7 @@ def creer_windoku_GUI(
     grille: dict[str, list[dict[str, int]] | list[int]] = \
         creer_grille_sudoku(
             canvas=canvas,
-            tag=tag,
+            tags_page_jeu=tags_page_jeu,
             coord=coord,
             nb_case_cote=nb_case_cote,
             longueur_cote_case=longueur_cote_case,
@@ -166,6 +166,7 @@ def creer_windoku_GUI(
             couleur_cases=couleur_cases,
             couleur_bordure_cases=couleur_bordure_cases,
             couleur_textes=couleur_textes,
+            difficulte=difficulte
         )
 
     cases: list[dict[str, int]] = grille["cases"]
@@ -186,7 +187,10 @@ def creer_windoku_GUI(
                     valeur_max=nb_case_cote,
                     cases=cases,
                     couleur_nombres_normale=couleur_textes,
-                    couleur_bordure_cases_normale=couleur_bordure_cases,
+                    couleur_bordure_cases_normale=couleur_bordure_cases, 
+                    tags_page_jeu=tags_page_jeu, 
+                    difficulte=difficulte, 
+                    type_grille="windoku"
                 )
             )
 
@@ -277,13 +281,13 @@ def aller_windoku(
         nb_case_cote=NB_CASE_COTE,
         longueur_cote_case=LONGUEUR_COTE_CASE,
         nb_carre_cote=NB_CARRE_COTE,
-        tag=TAG,
+        tags_page_jeu=TAGS_PAGE_JEU,
         couleur_cases=COULEUR_CASE,
         couleur_bordure_cases=COULEUR_BORDURE_CASES,
         couleur_textes=COULEUR_TEXTE_CASES,
         difficulte=difficulte,
         grille_par_defaut=grille_par_defaut,
-        indices_cases_verr=indices_cases_verr,
+        indices_cases_verr=indices_cases_verr
     )
    
     grille_complete: list[list[int]] | None = solution_generee if grille_par_defaut is None else grille_solution_sauvegardee

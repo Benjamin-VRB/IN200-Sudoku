@@ -77,7 +77,7 @@ def aller_grille_puzzle(
         list_coord: list[tuple[int, int]] = verification_cases_sudoku(
             canvas=canvas, 
             cases=cases
-        )
+        )[0]
         afficher_conflits(
             canvas=canvas, 
             list_coord=list_coord, 

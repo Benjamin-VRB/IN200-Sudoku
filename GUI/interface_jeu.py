@@ -90,7 +90,9 @@ def aller_grille(
         
         for index in indices_cases_aide:
             id_case = grille["cases"][index]["case_vide"]
-            canvas.itemconfig(id_case, fill="#99FF99")
+            id_texte = grille["cases"][index]["texte"]
+            canvas.itemconfig(id_case, fill="#99FF99", state=tk.DISABLED)
+            canvas.itemconfig(id_texte, state=tk.DISABLED)
             canvas.addtag_withtag("case_aide", id_case)
             
         def action_aide(event):
@@ -121,14 +123,14 @@ def aller_grille(
 
             if statut == "Erreur":
                 # On change en conséquence la case problématique
-                canvas.itemconfig(id_texte, text=str(valeur_solution))
-                canvas.itemconfig(id_case, fill="#FF6666")
+                canvas.itemconfig(id_texte, text=str(valeur_solution), state=tk.DISABLED)
+                canvas.itemconfig(id_case, fill="#FF6666", state=tk.DISABLED)
                 canvas.addtag_withtag("case_aide", id_case)
 
             elif statut == "Correct":
                 # On ajoute une case pour aider le joueur
-                canvas.itemconfig(id_texte, text=str(valeur_solution))
-                canvas.itemconfig(id_case, fill="#99FF99")
+                canvas.itemconfig(id_texte, text=str(valeur_solution), state=tk.DISABLED)
+                canvas.itemconfig(id_case, fill="#99FF99", state=tk.DISABLED)
                 canvas.addtag_withtag("case_aide", id_case)
             if index not in indices_cases_aide:
                     indices_cases_aide.append(index)

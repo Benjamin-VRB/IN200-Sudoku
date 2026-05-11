@@ -14,11 +14,13 @@ from Grille.affichage_cases_contraintes import afficher_contraintes_classique
 COULEUR_CASE: str = "#ffffff"
 COULEUR_CASE_VERR: str = "#F0F0F0"
 COULEUR_CASE_AIDE: str= "#99FF99"
+COULEUR_AIDE_PROBLEME: str = "#FF6666"
 COULEUR_CASE_PROBLEME: str = "#ffb4b4"
 COULEUR_CASE_PROBLEME_VERR: str = "#d99b9b"
 COULEUR_CASE_CONTRAINTE: str = "#e1fbff"
 COULEUR_CASE_CONTRAINTE_VERR: str = "#c8dee1"
-COULEUR_CASE_CONTRAINTE_AIDE: str = "#B3FFB3"
+COULEUR_CASE_CONTRAINTE_AIDE: str = "#99FFBB"
+COULEUR_CASE_CONTRAINTE_AIDE_PROBLEME: str = "#FF669C"
 COULEUR_CASE_CONTRAINTE_PROBLEME: str = "#f0a9d8"
 COULEUR_CASE_CONTRAINTE_PROBLEME_VERR: str = "#d797c2"
 COULEUR_CASE_PARTIE_TERMINEE: str = "#bbebbb"
@@ -350,13 +352,20 @@ def reset_couleur_contraintes(
         )
         if couleur_fond == COULEUR_CASE_CONTRAINTE:
             if "case_aide" in canvas.gettags(case_vide):
-                canvas.itemconfig(case_vide, fill=COULEUR_CASE_AIDE)
+                canvas.itemconfig(
+                    tagOrId=case_vide, 
+                    fill=COULEUR_CASE_AIDE
+                )
             else:
-                canvas.itemconfig(case_vide, fill=COULEUR_CASE)
-                
+                canvas.itemconfig(
+                    tagOrId=case_vide, 
+                    fill=COULEUR_CASE
+                )     
         elif couleur_fond == COULEUR_CASE_CONTRAINTE_AIDE:
-            canvas.itemconfig(case_vide, fill=COULEUR_CASE_AIDE)
-            
+            canvas.itemconfig(
+                tagOrId=case_vide, 
+                fill=COULEUR_CASE_AIDE
+            )
         elif couleur_fond == COULEUR_CASE_CONTRAINTE_PROBLEME:
             canvas.itemconfig(
                 tagOrId=case_vide, 
@@ -2182,7 +2191,7 @@ def reset_puzzle(
             canvas.itemconfig(tagOrId=case["texte"], text="")
             canvas.itemconfig(tagOrId=case_vide, fill=COULEUR_CASE)
 
-    list_coord = verification_cases_sudoku(canvas=canvas, cases=cases)
+    list_coord = verification_cases_sudoku(canvas=canvas, cases=cases)[0]
     afficher_conflits(canvas=canvas, list_coord=list_coord, cases=cases)
 
 def reset_focus_cases_bordel_de_louis(
