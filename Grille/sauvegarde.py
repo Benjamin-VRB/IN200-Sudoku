@@ -51,8 +51,10 @@ def modifier_sauvegardes(fonction):
 def sauvegarder(
     sauv: list,
     nom: str, 
-    grille_actuelle: list[list[str]],  
+    grille_actuelle: list[list[str]], 
+    grille_complete: list[list[str]],
     cases_verr_indices: list[int], 
+    indices_cases_aide,
     temps: int, 
     date: str, 
     type_grille: str, 
@@ -65,7 +67,9 @@ def sauvegarder(
         "date" : date,
         "type" : type_grille,
         "grille_actuelle" : grille_actuelle,
+        "grille_solution" : grille_complete,
         "cases_verrouillees" : cases_verr_indices,
+        "cases_aide" : indices_cases_aide,
         "temps" : temps, 
         "statut" : statut, 
         "difficulte" : difficulte
@@ -102,12 +106,12 @@ def charger_sauvegarde():
     return donnee
 
 
-def sauvegarde_partie(nom_fichier, variante, grille_init, grille_actu, temps, aides, erreurs):
+def sauvegarde_partie(nom_fichier, variante, grille_init, grille_actu, grille_complete, temps, aides, erreurs):
     # Blocage du nom réservé aux statistiques
     if nom_fichier.lower() == "stats":
         print("Nom interdit : 'stats' est réservé au système.")
         nouveau = input("Choisis un autre nom : ")
-        return sauvegarde_partie(nouveau, variante, grille_init, grille_actu, temps, aides, erreurs)
+        return sauvegarde_partie(nouveau, variante, grille_init, grille_actu, grille_complete, temps, aides, erreurs)
 
     # On ajoute le dossier 'saves/' devant le nom et verifie la presence du .json
     if not nom_fichier.endswith(".json"):
@@ -134,7 +138,7 @@ def sauvegarde_partie(nom_fichier, variante, grille_init, grille_actu, temps, ai
             if reponse == "non":
                 nouveau_nom = input("Entrez un nouveau nom de sauvegarde : ")
                 # On relance tout le processus avec le nouveau nom
-                return sauvegarde_partie(nouveau_nom, variante, grille_init, grille_actu, temps, aides, erreurs)
+                return sauvegarde_partie(nouveau_nom, variante, grille_init, grille_actu, grille_complete, temps, aides, erreurs)
             
             print("Veuillez répondre par 'oui' ou 'non'.")
 
@@ -143,6 +147,7 @@ def sauvegarde_partie(nom_fichier, variante, grille_init, grille_actu, temps, ai
         "variante": variante,
         "grille_initiale": grille_init,
         "grille_actuelle": grille_actu,
+        "grille_solution" : grille_complete,
         "temps": temps,
         "nombre_aides": aides,
         "nombre_erreurs": erreurs

@@ -2,21 +2,33 @@ import tkinter as tk
 
 from GUI.fenetre import LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
 from GUI.animations import supprimer_elements, retour_menu
-from GUI.widgets import creer_boutton_arrondi, survole_non_survole, barre_entree_sauv, COULEUR_CASE, \
-afficher_conflits, verification_cases_sudoku
+from GUI.widgets import (
+    creer_boutton_arrondi,
+    survole_non_survole,
+    barre_entree_sauv,
+    COULEUR_CASE,
+    afficher_conflits,
+    verification_cases_sudoku,
+    afficher_chrono
+)
 from GUI.sudoku import creer_sudoku_GUI
+from Grille.aide import indicateur_sudoku
+from GUI.windoku_gui import aller_windoku
+
 
 def aller_grille(
-        canvas: tk.Canvas, 
-        type_grille: str | None, 
-        difficulte: int | None, 
-        temps_depart: int, 
-        tags_ou_ids_page_suppr: list[int | str] = None, 
-        widgets_page_suppr: list[tk.Widget] = None, 
-        grille_par_defaut: list[list[int]] = None, 
-        indices_cases_verr: list[int] = None
-    ) -> None:
-
+    canvas: tk.Canvas,
+    type_grille: str | None,
+    difficulte: int | None,
+    temps_depart: int,
+    tags_ou_ids_page_suppr: list[int | str] = None,
+    widgets_page_suppr: list[tk.Widget] = None,
+    grille_par_defaut: list[list[int]] = None,
+    grille_solution_sauvegardee: list[list[int]] = None,
+    indices_cases_verr: list[int] = None,
+    indices_cases_aide: list[int] = None,
+) -> None:
+    
     COULEUR_BORDURE_CASES: str = "#000000"
     COULEUR_TEXTE_CASES: str = "#000000"
 
@@ -30,11 +42,12 @@ def aller_grille(
         "sauvegarde" : TAG_SAUV, 
         "retour" : TAG_RETOUR
     }
-
+    
+    if indices_cases_aide is None:
+        indices_cases_aide = []
+            
     supprimer_elements(
-        canvas=canvas, 
-        tags_ou_ids=tags_ou_ids_page_suppr, 
-        widgets=widgets_page_suppr
+        canvas=canvas, tags_ou_ids=tags_ou_ids_page_suppr, widgets=widgets_page_suppr
     )
 
     type_grille: str = type_grille.lower().strip()
@@ -42,10 +55,10 @@ def aller_grille(
         NB_CASE_COTE: int = 9
         LONGUEUR_COTE_GRILLE: int = NB_CASE_COTE * 60
         NB_CARRE_COTE: int = 3
-        LONGUEUR_COTE_CASE: int = LONGUEUR_COTE_GRILLE // NB_CASE_COTE 
+        LONGUEUR_COTE_CASE: int = LONGUEUR_COTE_GRILLE // NB_CASE_COTE
         X_GRILLE: int = (LARGEUR_PIXEL_FENETRE - LONGUEUR_COTE_GRILLE) // 2
         Y_GRILLE: int = (HAUTEUR_PIXEL_FENETRE - LONGUEUR_COTE_GRILLE) // 2
-        grille: dict[str, list[dict[str, int]] | list[int]] = creer_sudoku_GUI(
+        grille, grille_complete = creer_sudoku_GUI(
             canvas=canvas, 
             coord=(X_GRILLE, Y_GRILLE), 
             nb_case_cote=NB_CASE_COTE, 
@@ -57,8 +70,11 @@ def aller_grille(
             couleur_textes=COULEUR_TEXTE_CASES, 
             difficulte=difficulte, 
             grille_par_defaut=grille_par_defaut, 
-            indices_cases_verr=indices_cases_verr
+            grille_solution_sauvegardee = grille_solution_sauvegardee,
+            indices_cases_verr=indices_cases_verr, 
+            indices_cases_aide=indices_cases_aide
         )
+
         cases: list[dict[str, int]] = grille["cases"]
         list_coord: list[tuple[int, int]] = verification_cases_sudoku(
             canvas=canvas, 
@@ -69,26 +85,86 @@ def aller_grille(
             list_coord=list_coord, 
             cases=cases
         )
+        
+        get_temps = afficher_chrono(canvas=canvas, temps_depart=temps_depart, tag=TAG)
+        
+        for index in indices_cases_aide:
+            id_case = grille["cases"][index]["case_vide"]
+            canvas.itemconfig(id_case, fill="#99FF99")
+            canvas.addtag_withtag("case_aide", id_case)
+            
+        def action_aide(event):
+            # On récupère les valeurs de notre grille actuelle
+            grille_joueur = []
+
+            for lig in range(NB_CASE_COTE):
+                ligne = []
+                for col in range(NB_CASE_COTE):
+                    id_texte = grille["cases"][lig * NB_CASE_COTE + col]["texte"]
+                    # On lit le texte affiché
+                    valeur = canvas.itemcget(id_texte, "text")
+                    if valeur != "":
+                        ligne.append(int(valeur))
+                    else:
+                        ligne.append(0)
+                grille_joueur.append(ligne)
+
+            resultat = indicateur_sudoku(grille_joueur, grille_complete, NB_CASE_COTE)
+            if resultat == (None, None):
+                return
+
+            statut, donnees = resultat
+            valeur_solution, (lig, col) = donnees
+            index = lig * NB_CASE_COTE + col
+            id_case = grille["cases"][index]["case_vide"]
+            id_texte = grille["cases"][index]["texte"]
+
+            if statut == "Erreur":
+                # On change en conséquence la case problématique
+                canvas.itemconfig(id_texte, text=str(valeur_solution))
+                canvas.itemconfig(id_case, fill="#FF6666")
+                canvas.addtag_withtag("case_aide", id_case)
+
+            elif statut == "Correct":
+                # On ajoute une case pour aider le joueur
+                canvas.itemconfig(id_texte, text=str(valeur_solution))
+                canvas.itemconfig(id_case, fill="#99FF99")
+                canvas.addtag_withtag("case_aide", id_case)
+            if index not in indices_cases_aide:
+                    indices_cases_aide.append(index)
+                    
+    elif type_grille == "windoku":
+        aller_windoku(
+            canvas=canvas,
+            difficulte=difficulte,
+            temps_depart=temps_depart,
+            tags_ou_ids_page_suppr=None,
+            widgets_page_suppr=None,
+            grille_par_defaut=grille_par_defaut,
+            grille_solution_sauvegardee=grille_solution_sauvegardee,
+            indices_cases_verr=indices_cases_verr,
+        )
+        return  
     else:
         return
-    
+
     PARAMS_BOUTON: dict[str, int | str | tuple[str, int]] = {
-        "largeur" : 200,
-        "hauteur" : 76,
-        "police" : ("Cooper Black", 16),
-        "epaisseur_bordure" : 2,
-        "couleur_texte" : "#ffffff"
+        "largeur": 200,
+        "hauteur": 76,
+        "police": ("Cooper Black", 16),
+        "epaisseur_bordure": 2,
+        "couleur_texte": "#ffffff",
     }
 
     COULEURS_BOUTON: dict[str, str] = {
-        "couleur_fond" : "#E0D4C1",
-        "couleur_bordure" : "#E9E0CE", 
-        "couleur_fond_surv" : "#BEB2A4",
-        "couleur_bordure_surv" : "#A89E90"
+        "couleur_fond": "#E0D4C1",
+        "couleur_bordure": "#E9E0CE",
+        "couleur_fond_surv": "#BEB2A4",
+        "couleur_bordure_surv": "#A89E90",
     }
 
     ECART_RANGEE: int = PARAMS_BOUTON["hauteur"] + 100
-    RANGEE2: int = (HAUTEUR_PIXEL_FENETRE - PARAMS_BOUTON["hauteur"]) // 2 
+    RANGEE2: int = (HAUTEUR_PIXEL_FENETRE - PARAMS_BOUTON["hauteur"]) // 2
     RANGEE1: int = RANGEE2 + ECART_RANGEE
     RANGEE3: int = RANGEE2 - ECART_RANGEE
     COLONNE1: int = 75
@@ -104,54 +180,68 @@ def aller_grille(
             **PARAMS_BOUTON
         )
 
-    bouton_sauv: dict[str, list[int] | int] =  \
-        creer_boutton_arrondi(
-            canvas=canvas, 
-            coord=(COLONNE1, RANGEE2), 
-            tag=TAG_SAUV, 
-            texte="Sauvegarder", 
-            couleur_fond=COULEURS_BOUTON["couleur_fond"], 
-            couleur_bordure=COULEURS_BOUTON["couleur_bordure"], 
-            **PARAMS_BOUTON
-        )
+    bouton_aide: dict[str, list[int] | int] = creer_boutton_arrondi(
+        canvas=canvas,
+        coord=(COLONNE1, RANGEE3),
+        tag=TAG_AIDE,
+        texte="Aide",
+        couleur_fond=COULEURS_BOUTON["couleur_fond"],
+        couleur_bordure=COULEURS_BOUTON["couleur_bordure"],
+        **PARAMS_BOUTON
+    )
 
-    bouton_retour: dict[str, list[int] | int] =  \
-        creer_boutton_arrondi(
-            canvas=canvas, 
-            coord=(COLONNE1, RANGEE1), 
-            tag=TAG_RETOUR, 
-            texte="Retour", 
-            couleur_fond=COULEURS_BOUTON["couleur_fond"], 
-            couleur_bordure=COULEURS_BOUTON["couleur_bordure"], 
-            **PARAMS_BOUTON
-        )
+    bouton_sauv: dict[str, list[int] | int] = creer_boutton_arrondi(
+        canvas=canvas,
+        coord=(COLONNE1, RANGEE2),
+        tag=TAG_SAUV,
+        texte="Sauvegarder",
+        couleur_fond=COULEURS_BOUTON["couleur_fond"],
+        couleur_bordure=COULEURS_BOUTON["couleur_bordure"],
+        **PARAMS_BOUTON
+    )
 
-    survole_non_survole(
-        canvas=canvas, 
-        tags_ou_ids=[TAG_AIDE], 
-        fond=bouton_aide["fond"], 
-        bordure=bouton_aide["bordure"], 
-        couleurs=COULEURS_BOUTON
+    bouton_retour: dict[str, list[int] | int] = creer_boutton_arrondi(
+        canvas=canvas,
+        coord=(COLONNE1, RANGEE1),
+        tag=TAG_RETOUR,
+        texte="Retour",
+        couleur_fond=COULEURS_BOUTON["couleur_fond"],
+        couleur_bordure=COULEURS_BOUTON["couleur_bordure"],
+        **PARAMS_BOUTON
     )
 
     survole_non_survole(
-        canvas=canvas, 
-        tags_ou_ids=[TAG_SAUV], 
-        fond=bouton_sauv["fond"], 
-        bordure=bouton_sauv["bordure"], 
-        couleurs=COULEURS_BOUTON
+        canvas=canvas,
+        tags_ou_ids=[TAG_AIDE],
+        fond=bouton_aide["fond"],
+        bordure=bouton_aide["bordure"],
+        couleurs=COULEURS_BOUTON,
     )
 
     survole_non_survole(
-        canvas=canvas, 
-        tags_ou_ids=[TAG_RETOUR], 
-        fond=bouton_retour["fond"], 
-        bordure=bouton_retour["bordure"], 
-        couleurs=COULEURS_BOUTON
+        canvas=canvas,
+        tags_ou_ids=[TAG_SAUV],
+        fond=bouton_sauv["fond"],
+        bordure=bouton_sauv["bordure"],
+        couleurs=COULEURS_BOUTON,
     )
-    
-    page: list[str] = [TAG, TAG_AIDE, TAG_RETOUR, TAG_SAUV, *[case["case_vide"] for case in grille["cases"]], 
-                    *[case["texte"] for case in grille["cases"]]]
+
+    survole_non_survole(
+        canvas=canvas,
+        tags_ou_ids=[TAG_RETOUR],
+        fond=bouton_retour["fond"],
+        bordure=bouton_retour["bordure"],
+        couleurs=COULEURS_BOUTON,
+    )
+
+    page: list[str] = [
+        TAG,
+        TAG_AIDE,
+        TAG_RETOUR,
+        TAG_SAUV,
+        *[case["case_vide"] for case in grille["cases"]],
+        *[case["texte"] for case in grille["cases"]],
+    ]
 
     LARGEUR_BARRE_ENTREE_SAUV: int = 200
     HAUTEUR_BARRE_ENTREE_SAUV: int = 75
@@ -159,30 +249,38 @@ def aller_grille(
     TAG_BARRE_ENTREE_SAUV: str = "barre_entree_sauv_sudoku"
 
     canvas.tag_bind(
-        tagOrId=TAG_SAUV, 
-        sequence="<Button-1>", 
+        tagOrId=TAG_SAUV,
+        sequence="<Button-1>",
         func=lambda event: barre_entree_sauv(
-            canvas=canvas, 
-            largeur=LARGEUR_BARRE_ENTREE_SAUV, 
-            hauteur=HAUTEUR_BARRE_ENTREE_SAUV, 
-            epaisseur_cadre=EPAISSEUR_CADRE_BARRE_ENTREE_SAUV, 
-            page=page, 
-            cases=grille["cases"],  
-            tag_barre_sauv=TAG_BARRE_ENTREE_SAUV, 
-            type_grille=type_grille, 
-            temps=126, 
-            difficulte=difficulte, 
-            couleur_nombres_normale=COULEUR_TEXTE_CASES, 
-            couleur_bordure_cases_normale=COULEUR_BORDURE_CASES, 
+            canvas=canvas,
+            largeur=LARGEUR_BARRE_ENTREE_SAUV,
+            hauteur=HAUTEUR_BARRE_ENTREE_SAUV,
+            epaisseur_cadre=EPAISSEUR_CADRE_BARRE_ENTREE_SAUV,
+            page=page,
+            cases=grille["cases"],
+            grille_complete= grille_complete,
+            tag_barre_sauv=TAG_BARRE_ENTREE_SAUV,
+            type_grille=type_grille,
+            temps=get_temps(),
+            difficulte=difficulte,
+            couleur_nombres_normale=COULEUR_TEXTE_CASES,
+            couleur_bordure_cases_normale=COULEUR_BORDURE_CASES,
+            indices_cases_aide=indices_cases_aide, 
             tags_page_jeu=TAGS_PAGE_JEU
         )
     )
 
     canvas.tag_bind(
-        tagOrId=TAG_RETOUR, 
-        sequence="<Button-1>", 
+        tagOrId=TAG_RETOUR,
+        sequence="<Button-1>",
         func=lambda event: retour_menu(
             canvas=canvas, 
             tags_ou_ids=[TAG, TAG_SAUV, TAG_RETOUR, TAG_AIDE, "clavier_num"]
         )
+    )
+
+    canvas.tag_bind(
+        tagOrId=TAG_AIDE, 
+        sequence="<Button-1>", 
+        func=action_aide
     )

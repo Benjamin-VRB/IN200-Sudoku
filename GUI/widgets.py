@@ -13,10 +13,12 @@ from Grille.affichage_cases_contraintes import afficher_contraintes_classique
 
 COULEUR_CASE: str = "#ffffff"
 COULEUR_CASE_VERR: str = "#F0F0F0"
+COULEUR_CASE_AIDE: str= "#99FF99"
 COULEUR_CASE_PROBLEME: str = "#ffb4b4"
 COULEUR_CASE_PROBLEME_VERR: str = "#d99b9b"
 COULEUR_CASE_CONTRAINTE: str = "#e1fbff"
 COULEUR_CASE_CONTRAINTE_VERR: str = "#c8dee1"
+COULEUR_CASE_CONTRAINTE_AIDE: str = "#B3FFB3"
 COULEUR_CASE_CONTRAINTE_PROBLEME: str = "#f0a9d8"
 COULEUR_CASE_CONTRAINTE_PROBLEME_VERR: str = "#d797c2"
 COULEUR_CASE_PARTIE_TERMINEE: str = "#bbebbb"
@@ -296,9 +298,9 @@ def renvoyer_grille(
 
 
 def trouver_cases_verrouillee(
-        canvas: tk.Canvas, 
+        canvas: tk.Canvas,
         cases: list[dict[str, int]]
-    ) -> list[dict[str, int]]:
+) -> list[dict[str, int]]:
 
     cases_verr: list[dict[str, int]] = []
     for case in cases:
@@ -312,7 +314,7 @@ def trouver_cases_verrouillee(
     return cases_verr
 
 
-def reset_couleur_cases_rouges(
+def reset_couleur_cases_rouges( 
         canvas: tk.Canvas, 
         cases: list[dict[str, int]]
     ) -> None:
@@ -326,13 +328,13 @@ def reset_couleur_cases_rouges(
         if couleur_fond == COULEUR_CASE_PROBLEME_VERR:
             canvas.itemconfig(
                 tagOrId=case_vide, 
-                fill=COULEUR_CASE_VERR
-            )
+                fill=COULEUR_CASE_VERR)
+            
         elif couleur_fond == COULEUR_CASE_PROBLEME:
-            canvas.itemconfig(
-                tagOrId=case_vide, 
-                fill=COULEUR_CASE
-            )
+            if "case_aide" in canvas.gettags(case_vide):
+                canvas.itemconfig(tagOrId=case_vide, fill=COULEUR_CASE_AIDE) 
+            else:
+                canvas.itemconfig(tagOrId=case_vide, fill=COULEUR_CASE)
 
 
 def reset_couleur_contraintes(
@@ -347,10 +349,14 @@ def reset_couleur_contraintes(
             option="fill"
         )
         if couleur_fond == COULEUR_CASE_CONTRAINTE:
-            canvas.itemconfig(
-                tagOrId=case_vide, 
-                fill=COULEUR_CASE
-            )
+            if "case_aide" in canvas.gettags(case_vide):
+                canvas.itemconfig(case_vide, fill=COULEUR_CASE_AIDE)
+            else:
+                canvas.itemconfig(case_vide, fill=COULEUR_CASE)
+                
+        elif couleur_fond == COULEUR_CASE_CONTRAINTE_AIDE:
+            canvas.itemconfig(case_vide, fill=COULEUR_CASE_AIDE)
+            
         elif couleur_fond == COULEUR_CASE_CONTRAINTE_PROBLEME:
             canvas.itemconfig(
                 tagOrId=case_vide, 
@@ -408,19 +414,17 @@ def partie_terminee(
         cases=cases
     )
     nb_case_cote: int = int(math.sqrt(len(cases)))
-    grille_depart: list[list[int]] = []
+    grille_depart: list[list[str]] = []
     list_indice_case_verr: list[int] = []
     for i in range(nb_case_cote):
-        rangee: list[int] = []
+        rangee: list[str] = []
         for j in range(nb_case_cote):
             indice: int = i * nb_case_cote + j
             case: dict[str, int] = cases[indice]
             if case in cases_verr:
-                valeur_case: int = int(
-                    canvas.itemcget(
-                        tagOrId=case, 
-                        option="text"
-                    )
+                valeur_case: str = canvas.itemcget(
+                    tagOrId=case, 
+                    option="text"
                 )
                 rangee.append(valeur_case)
                 list_indice_case_verr.append(indice)
@@ -576,6 +580,7 @@ def afficher_contraintes(
         )[0]
         list_indice_conflits: list[int] = \
             [coord[0] * nb_cases_cote + coord[1] for coord in list_coord_conflits]
+            
         if cases[indice] in cases_verr:
             if indice in list_indice_conflits:
                 canvas.itemconfig(
@@ -594,11 +599,17 @@ def afficher_contraintes(
                     fill=COULEUR_CASE_CONTRAINTE_PROBLEME
                 )
             else:
-                canvas.itemconfig(
-                    tagOrId=case_vide, 
-                    fill=COULEUR_CASE_CONTRAINTE
-                )
-
+                if "case_aide" in canvas.gettags(case_vide):
+                    canvas.itemconfig(
+                        tagOrId=case_vide, 
+                        fill=COULEUR_CASE_CONTRAINTE_AIDE
+                    )
+                    
+                else:
+                    canvas.itemconfig(
+                        tagOrId=case_vide, 
+                        fill=COULEUR_CASE_CONTRAINTE
+                    )
 
 def changer_couleur_nombres(
         canvas: tk.Canvas, 
@@ -1336,14 +1347,81 @@ def remplir_grille_sudoku_GUI(
                     text=grille_valeur[rangee][colonne]
                 )
 
+def remplir_grille_sudoku_GUI_debut(
+        canvas: tk.Canvas, 
+        cases: list[dict[str, int]], 
+        grille_valeur: list[list[int]],
+    ) -> None:
+    
+    for rangee in range(len(grille_valeur)):
+        for colonne in range(len(grille_valeur[0])):
+            if grille_valeur[rangee][colonne] != 0:
+                case: tuple[int] = cases[rangee * len(grille_valeur[0]) + colonne]
+                case_vide: int = case["case_vide"]
+                texte: int = case["texte"]
+                desactiver_widget(
+                    canvas=canvas, 
+                    tags_ou_ids=[case_vide, texte]
+                )
+                canvas.itemconfig(
+                    tagOrId=case_vide, 
+                    fill=COULEUR_CASE_VERR
+                )
+                canvas.itemconfig(
+                    tagOrId=texte, 
+                    text=grille_valeur[rangee][colonne]
+                )
+
+
+def remplir_grille_sudoku_GUI_en_cours(
+        canvas: tk.Canvas, 
+        cases: list[dict[str, int]], 
+        grille_valeur: list[list[int]], 
+        indices_cases_verr: list[int],
+        indices_cases_aide: list[int] = None
+    ) -> None:
+    
+    if indices_cases_aide is None:
+        indices_cases_aide = []
+
+    for rangee in range(len(grille_valeur)):
+        for colonne in range(len(grille_valeur[0])):
+            if grille_valeur[rangee][colonne] != 0:
+                indice: int = rangee * len(grille_valeur[0]) + colonne
+                case: tuple[int] = cases[indice]
+                case_vide: int = case["case_vide"]
+                texte: int = case["texte"]
+                if indice in indices_cases_verr:
+                    desactiver_widget(
+                        canvas=canvas, 
+                        tags_ou_ids=[case_vide, texte]
+                    )
+                    canvas.itemconfig(
+                        tagOrId=case_vide, 
+                        fill=COULEUR_CASE_VERR
+                    )
+                elif indice in indices_cases_aide:
+                    canvas.itemconfig(
+                        tagOrId=case_vide, 
+                        fill=COULEUR_CASE_AIDE
+                    )
+                    canvas.addtag_withtag("case_aide", case_vide)
+                    
+                canvas.itemconfig(
+                    tagOrId=texte, 
+                    text=grille_valeur[rangee][colonne]
+                )
+
 
 def interagir_barre_sauv(
         event, 
         canvas: tk.Canvas, 
         tag: str, 
-        nom_sauv: str, 
+        nom_sauv: str,
+        grille_complete, 
         cases: list[dict[str, int]], 
         cases_verr: list[dict[str, int]],
+        indices_cases_aide: list[int],
         temps: int, 
         page: list[str | int], 
         type_grille: str, 
@@ -1374,8 +1452,10 @@ def interagir_barre_sauv(
                 (date.day, date.month, date.year, date.hour, date.minute, date.second)
             sauvegarder(
                 nom=nom_sauv, 
-                grille_actuelle=grille,  
+                grille_actuelle=grille,
+                grille_complete= grille_complete,
                 cases_verr_indices=cases_verr_indices, 
+                indices_cases_aide=indices_cases_aide,
                 temps=temps, 
                 date=date_str, 
                 type_grille=type_grille, 
@@ -1400,15 +1480,21 @@ def barre_entree_sauv(
         epaisseur_cadre: int, 
         page: list[str | int], 
         cases: list[dict[str, int]], 
+        grille_complete : list[list[int]],
         temps: int, 
         difficulte: int, 
         tag_barre_sauv: str, 
         type_grille: str, 
         couleur_nombres_normale: str, 
         couleur_bordure_cases_normale: str, 
-        tags_page_jeu: dict[str, str]
+        tags_page_jeu: dict[str, str],
+        indices_cases_aide: list[int]
     ) -> dict[str, int | tk.Entry]:
     
+    cases_verr: list[dict[str, int]] = trouver_cases_verrouillee(
+        canvas=canvas, 
+        cases=cases
+    )
     desactiver_widget(
         canvas=canvas, 
         tags_ou_ids=page
@@ -1456,10 +1542,7 @@ def barre_entree_sauv(
         anchor=tk.NW
     )
     
-    cases_verr: list[dict[str, int]] = trouver_cases_verrouillee(
-        canvas=canvas, 
-        cases=cases
-    )
+    
 
     canvas.bind_all(
         sequence="<KeyPress>", 
@@ -1468,8 +1551,10 @@ def barre_entree_sauv(
             canvas=canvas, 
             tag=tag_barre_sauv, 
             nom_sauv=entree.get(), 
+            grille_complete=grille_complete,
             cases=cases, 
             cases_verr=cases_verr, 
+            indices_cases_aide=indices_cases_aide,
             temps=temps, 
             difficulte=difficulte, 
             page=page, 
@@ -1922,7 +2007,7 @@ def ajouter_indications_kenken(canvas: tk.Canvas, dico_cage: dict, x_grille: int
     for nom_cage in dico_cage:
         # On accède directement aux données avec les clés
         infos_cage = dico_cage[nom_cage]
-        cible = infos_cage["cible"]
+        cible  = infos_cage["cible"]
         operation = infos_cage["operation"]
 
         texte_indication = str(cible) + str(operation)
@@ -2099,3 +2184,115 @@ def reset_puzzle(
 
     list_coord = verification_cases_sudoku(canvas=canvas, cases=cases)
     afficher_conflits(canvas=canvas, list_coord=list_coord, cases=cases)
+
+def reset_focus_cases_bordel_de_louis(
+    canvas: tk.Canvas, 
+    cases: list[dict[str, int]], 
+    couleur_nombres_normale: str, 
+    couleur_bordure_cases_normale: str,
+    func_afficher_conflits=None,
+) -> None:
+
+    canvas.unbind_all(sequence="<KeyPress>")
+    canvas.delete("clavier_num")
+    changer_couleur_nombres(canvas=canvas, cases=cases, couleur=couleur_nombres_normale)
+    for case in cases:
+        case_vide: int = case["case_vide"]
+        canvas.itemconfig(tagOrId=case_vide, width=1, outline=couleur_bordure_cases_normale)
+        canvas.tag_lower(case_vide)
+
+    if func_afficher_conflits is not None:
+        func_afficher_conflits()
+    else:
+        list_coord = verification_cases_sudoku(canvas=canvas, cases=cases)
+        afficher_conflits(canvas=canvas, list_coord=list_coord, cases=cases)
+
+
+def entree_focus_case_bordel_de_louis(
+        canvas: tk.Canvas, 
+        case: dict[str, int], 
+        valeur_max: int, 
+        cases: list[dict[str, int]], 
+        couleur_nombres_normale: str, 
+        couleur_bordure_cases_normale: str,
+        func_afficher_conflits=None,
+    ) -> None:
+    
+    case_vide: int = case["case_vide"]
+    texte: int = case["texte"]
+
+    reset_focus_cases(
+        canvas=canvas, 
+        cases=cases, 
+        couleur_nombres_normale=couleur_nombres_normale, 
+        couleur_bordure_cases_normale=couleur_bordure_cases_normale,
+        func_afficher_conflits=func_afficher_conflits,
+    )
+
+    COULEUR_INDICATION: str = "#3185ED"
+
+    canvas.tag_raise(case_vide)
+    canvas.tag_raise(texte)
+    canvas.itemconfig(
+        tagOrId=case_vide, 
+        width=4, 
+        outline=COULEUR_INDICATION
+    )
+
+    LARGEUR_CLAVIER_NUM: int = 250
+    HAUTEUR_CLAVIER_NUM: int = 400
+    creer_clavier_numerique(
+        canvas=canvas, 
+        coord=(LARGEUR_PIXEL_FENETRE - 300, 150), 
+        largeur=LARGEUR_CLAVIER_NUM, 
+        hauteur=HAUTEUR_CLAVIER_NUM, 
+        case=case, 
+        valeur_max=valeur_max, 
+        cases=cases, 
+        couleur_nombres_normale=couleur_nombres_normale, 
+        couleur_nombres_indication=COULEUR_INDICATION
+    )
+    
+    canvas.bind_all(
+        sequence="<KeyPress>", 
+        func=lambda event: modifier_valeur_case_grille(
+            event, 
+            canvas=canvas, 
+            case=case,
+            valeur_max=valeur_max, 
+            cases=cases, 
+            couleur_nombres_normale=couleur_nombres_normale, 
+            couleur_nombres_indication=COULEUR_INDICATION, 
+            couleur_bordure_cases_normale=couleur_bordure_cases_normale
+        )
+    )
+    
+def afficher_chrono(
+        canvas: tk.Canvas,
+        temps_depart: int,
+        tag: str,
+) -> callable:
+    texte_chrono: int = canvas.create_text(
+        (LARGEUR_PIXEL_FENETRE // 2, 30),
+        text="",
+        font=("Century", 20),
+        fill="#000000",
+        tags=tag,
+    )
+    
+    temps_actuel: list[int] = [temps_depart] 
+
+    def mettre_a_jour(temps: int) -> None:
+        if canvas.find_withtag(texte_chrono):
+            temps_actuel[0] = temps
+            minutes: int = temps // 60
+            secondes: int = temps % 60
+            canvas.itemconfig(
+                tagOrId=texte_chrono,
+                text=f"{minutes:02d}:{secondes:02d}",
+            )
+            canvas.after(1000, mettre_a_jour, temps + 1)
+
+    mettre_a_jour(temps_depart)
+    
+    return lambda: temps_actuel[0]  

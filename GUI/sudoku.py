@@ -1,6 +1,7 @@
 import tkinter as tk
 
-from GUI.widgets import creer_grille_sudoku, remplir_grille_sudoku_GUI
+from GUI.widgets import creer_grille_sudoku, remplir_grille_sudoku_GUI_debut, \
+remplir_grille_sudoku_GUI_en_cours
 
 from Grille.sudoku import supprimer_valeur
 
@@ -17,11 +18,16 @@ def creer_sudoku_GUI(
         couleur_textes: str, 
         difficulte: int = None, 
         grille_par_defaut: list[list[int]] = None, 
-        indices_cases_verr: list[int] = None
-    ) -> dict[str, list[dict[str, int]] | list[int]]:
+        grille_solution_sauvegardee = None,
+        indices_cases_verr: list[int] = None,
+        indices_cases_aide: list[int] = None
+    ) -> tuple[dict[str, list[dict[str, int]] | list[int], list[list[int]]]]:
 
     if difficulte is None and grille_par_defaut is None:
         return
+    
+    if indices_cases_aide is None:
+        indices_cases_aide = []
 
     grille: dict[str, list[dict[str, int]] | list[int]] = \
         creer_grille_sudoku(
@@ -43,29 +49,38 @@ def creer_sudoku_GUI(
         if difficulte == 4:
             nombre_valeur_a_supprimer: int = 63
         elif difficulte == 3:
-            nombre_valeur_a_supprimer: int = 54
+            nombre_valeur_a_supprimer: int = 56
         elif difficulte == 2:
-            nombre_valeur_a_supprimer: int = 45
+            nombre_valeur_a_supprimer: int = 48
         elif difficulte == 1:
-            nombre_valeur_a_supprimer: int = 36
+            nombre_valeur_a_supprimer: int = 40
 
-        grille_valeur: list[list[int]] = supprimer_valeur(
+        grille_solution_sauvegardee, grille_valeur = supprimer_valeur(
             nombre_valeur_a_supprimer=nombre_valeur_a_supprimer, 
             dimension=nb_case_cote
-        )[1]
-        remplir_grille_sudoku_GUI(
+        )
+        
+        remplir_grille_sudoku_GUI_debut(
             canvas=canvas, 
             cases=cases, 
             grille_valeur=grille_valeur
         )
     else:
-        remplir_grille_sudoku_GUI(
-            canvas=canvas, 
-            cases=cases, 
-            grille_valeur=grille_par_defaut, 
-            indices_cases_verr=indices_cases_verr
-        )
+        if indices_cases_verr is None:
+            remplir_grille_sudoku_GUI_debut(
+                canvas=canvas, 
+                cases=cases, 
+                grille_valeur=grille_par_defaut
+            )
+        else:
+            remplir_grille_sudoku_GUI_en_cours(
+                canvas=canvas, 
+                cases=cases, 
+                grille_valeur=grille_par_defaut, 
+                indices_cases_verr=indices_cases_verr,
+                indices_cases_aide=indices_cases_aide
+            )
 
     
     
-    return grille
+    return grille, grille_solution_sauvegardee

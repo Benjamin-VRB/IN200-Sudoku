@@ -61,7 +61,7 @@ def aller_grille_puzzle(
             difficulte=difficulte, 
             grille_par_defaut=grille_par_defaut, 
             indices_cases_verr=indices_cases_verr
-        )
+        )[0]
         cases: list[dict[str, int]] = grille["cases"]
         if grille_progression:
             for i, rangee in enumerate(grille_progression):
@@ -175,7 +175,7 @@ def aller_grille_puzzle(
         **PARAMS_BOUTON
     )
 
-    survole_non_survole(          # ← manquait
+    survole_non_survole(
         canvas=canvas,
         tags_ou_ids=[TAG_RESET],
         fond=bouton_reset["fond"],
