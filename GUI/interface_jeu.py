@@ -6,7 +6,14 @@ from GUI.widgets import (
     creer_boutton_arrondi,
     survole_non_survole,
     barre_entree_sauv,
-    COULEUR_CASE,
+    COULEUR_CASE, 
+    COULEUR_CASE_AIDE, 
+    COULEUR_CASE_CONTRAINTE, 
+    COULEUR_CASE_PROBLEME, 
+    COULEUR_CASE_CONTRAINTE_PROBLEME, 
+    COULEUR_CASE_CONTRAINTE_AIDE_PROBLEME, 
+    COULEUR_CASE_CONTRAINTE_AIDE, 
+    COULEUR_CASE_AIDE_PROBLEME, 
     afficher_conflits,
     verification_cases_sudoku,
     afficher_chrono
@@ -87,13 +94,7 @@ def aller_grille(
         )
         
         get_temps = afficher_chrono(canvas=canvas, temps_depart=temps_depart, tag=TAG)
-        
-        for index in indices_cases_aide:
-            id_case = grille["cases"][index]["case_vide"]
-            id_texte = grille["cases"][index]["texte"]
-            canvas.itemconfig(id_case, fill="#99FF99", state=tk.DISABLED)
-            canvas.itemconfig(id_texte, state=tk.DISABLED)
-            canvas.addtag_withtag("case_aide", id_case)
+    
             
         def action_aide(event):
             # On récupère les valeurs de notre grille actuelle
@@ -120,17 +121,27 @@ def aller_grille(
             index = lig * NB_CASE_COTE + col
             id_case = grille["cases"][index]["case_vide"]
             id_texte = grille["cases"][index]["texte"]
+            couleur_case = canvas.itemcget(
+                tagOrId=id_case, 
+                option="fill"
+            )
 
             if statut == "Erreur":
                 # On change en conséquence la case problématique
                 canvas.itemconfig(id_texte, text=str(valeur_solution), state=tk.DISABLED)
-                canvas.itemconfig(id_case, fill="#FF6666", state=tk.DISABLED)
+                if couleur_case == COULEUR_CASE_PROBLEME:
+                    canvas.itemconfig(id_case, fill=COULEUR_CASE_AIDE_PROBLEME, state=tk.DISABLED)
+                elif couleur_case == COULEUR_CASE_CONTRAINTE_PROBLEME:
+                    canvas.itemconfig(id_case, fill=COULEUR_CASE_CONTRAINTE_AIDE_PROBLEME, state=tk.DISABLED)
                 canvas.addtag_withtag("case_aide", id_case)
 
             elif statut == "Correct":
                 # On ajoute une case pour aider le joueur
                 canvas.itemconfig(id_texte, text=str(valeur_solution), state=tk.DISABLED)
-                canvas.itemconfig(id_case, fill="#99FF99", state=tk.DISABLED)
+                if couleur_case == COULEUR_CASE:
+                    canvas.itemconfig(id_case, fill=COULEUR_CASE_AIDE, state=tk.DISABLED)
+                elif couleur_case == COULEUR_CASE_CONTRAINTE:
+                    canvas.itemconfig(id_case, fill=COULEUR_CASE_CONTRAINTE_AIDE, state=tk.DISABLED)
                 canvas.addtag_withtag("case_aide", id_case)
             if index not in indices_cases_aide:
                     indices_cases_aide.append(index)

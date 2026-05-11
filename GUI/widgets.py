@@ -14,7 +14,7 @@ from Grille.affichage_cases_contraintes import afficher_contraintes_classique
 COULEUR_CASE: str = "#ffffff"
 COULEUR_CASE_VERR: str = "#F0F0F0"
 COULEUR_CASE_AIDE: str= "#99FF99"
-COULEUR_AIDE_PROBLEME: str = "#FF6666"
+COULEUR_CASE_AIDE_PROBLEME: str = "#FF6666"
 COULEUR_CASE_PROBLEME: str = "#ffb4b4"
 COULEUR_CASE_PROBLEME_VERR: str = "#d99b9b"
 COULEUR_CASE_CONTRAINTE: str = "#e1fbff"
@@ -440,6 +440,13 @@ def partie_terminee(
             else:
                 rangee.append(0)
         grille_depart.append(rangee)
+    grille_complete: list[list[int]] = renvoyer_grille(
+        canvas=canvas, 
+        cases=cases
+    )
+    for rangee in grille_complete:
+        for valeur in rangee:
+            valeur = str(valeur)
     date: datetime.datetime = datetime.datetime.now()
     date_str: str = "%02d/%02d/%04d - %02dh %02dmin %02ds" % \
         (date.day, date.month, date.year, date.hour, date.minute, date.second)
@@ -451,7 +458,9 @@ def partie_terminee(
         date=date_str, 
         difficulte=difficulte, 
         statut="terminee", 
-        type_grille=type_grille
+        type_grille=type_grille, 
+        grille_complete=grille_complete, 
+        indices_cases_aide=[]
     )
 
 
