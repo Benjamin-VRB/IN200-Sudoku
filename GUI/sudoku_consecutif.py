@@ -155,7 +155,7 @@ def aller_sudoku_consecutif(canvas: tk.Canvas):
             epaisseur_cadre=EPAISSEUR_CADRE_BARRE_ENTREE_SAUV, 
             page=page, 
             cases=grille["cases"],  
-            tag=TAG_BARRE_ENTREE_SAUV, 
+            tag_barre_sauv=TAG_BARRE_ENTREE_SAUV, 
             type_grille="Sudoku Irregulier", 
             temps=0, 
             difficulte="facile"

@@ -162,7 +162,7 @@ def aller_menu_sauvegardes(canvas: tk.Canvas) -> None:
                 type_grille=sauv["type"], 
                 temps=sauv["temps"], 
                 difficulte=sauv["difficulte"], 
-                statut="en_cours", 
+                statut=sauv["statut"], 
                 style_police_texte="Century", 
                 style_police_boutons="Cooper Black", 
                 couleur_texte="#ffffff", 

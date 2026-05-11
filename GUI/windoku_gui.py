@@ -26,7 +26,7 @@ def aller_windoku(canvas: tk.Canvas) -> None:
     grille: dict[str, list[dict[str, int]] | list[int]] = \
         creer_grille_sudoku(
             canvas=canvas, 
-            tag=TAG, 
+            tags_page_jeu=TAG, 
             coord=(X_GRILLE, Y_GRILLE), 
             nb_case_cote=NB_CASE_COTE, 
             longueur_cote_case=LONGUEUR_COTE_CASE, 

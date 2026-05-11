@@ -6,7 +6,7 @@ from PIL import Image, ImageTk
 from GUI.fenetre import LARGEUR_PIXEL_FENETRE, HAUTEUR_PIXEL_FENETRE
 from GUI.decorations import creer_cadre
 
-from Grille.sauvegarde import sauvegarder
+from Grille.sauvegarde import sauvegarder, compter_parties_terminees
 from Grille.verification import verification_sudoku_classique_complet
 from Grille.affichage_cases_contraintes import afficher_contraintes_classique
 
@@ -19,6 +19,7 @@ COULEUR_CASE_CONTRAINTE: str = "#e1fbff"
 COULEUR_CASE_CONTRAINTE_VERR: str = "#c8dee1"
 COULEUR_CASE_CONTRAINTE_PROBLEME: str = "#f0a9d8"
 COULEUR_CASE_CONTRAINTE_PROBLEME_VERR: str = "#d797c2"
+COULEUR_CASE_PARTIE_TERMINEE: str = "#bbebbb"
 
 
 def creer_boutton_arrondi(
@@ -305,7 +306,8 @@ def trouver_cases_verrouillee(
         if canvas.itemcget(
             tagOrId=case_vide, 
             option="fill"
-        ) in [COULEUR_CASE_VERR, COULEUR_CASE_PROBLEME_VERR]:
+        ) in [COULEUR_CASE_CONTRAINTE_PROBLEME_VERR, COULEUR_CASE_CONTRAINTE_VERR, 
+              COULEUR_CASE_VERR, COULEUR_CASE_PROBLEME_VERR]:
             cases_verr.append(case)
     return cases_verr
 
@@ -366,16 +368,89 @@ def reset_couleur_contraintes(
             )
 
 
-def partie_terminee(canvas: tk.Canvas):
-    pass
+def partie_terminee(
+        canvas: tk.Canvas, 
+        cases: list[dict[str, int]], 
+        tags_page_jeu: dict[str, str], 
+        difficulte: int, 
+        type_grille: str
+    ) -> None:
+    
+    for case in cases:
+        case_vide: int = case["case_vide"]
+        texte: int = case["texte"]
+        canvas.itemconfig(
+            tagOrId=case_vide, 
+            fill=COULEUR_CASE_PARTIE_TERMINEE, 
+            state=tk.DISABLED
+        )
+        canvas.itemconfig(
+            tagOrId=texte, 
+            state=tk.DISABLED
+        )
+    tag_principal: str = tags_page_jeu["principal"]
+    tag_aide: str = tags_page_jeu["aide"]
+    tag_sauv: str = tags_page_jeu["sauvegarde"]
+    desactiver_widget(
+        canvas=canvas, 
+        tags_ou_ids=[tag_aide, tag_sauv]
+    )
+    canvas.create_text(
+        (LARGEUR_PIXEL_FENETRE // 2, HAUTEUR_PIXEL_FENETRE - 50), 
+        anchor=tk.CENTER, 
+        font=("Bell MT", 30, "bold"), 
+        text="Grille terminée !", 
+        tags=tag_principal
+    )
+    nb_partie_terminee: int = compter_parties_terminees()
+    cases_verr: list[dict[str, int]] = trouver_cases_verrouillee(
+        canvas=canvas, 
+        cases=cases
+    )
+    nb_case_cote: int = int(math.sqrt(len(cases)))
+    grille_depart: list[list[int]] = []
+    list_indice_case_verr: list[int] = []
+    for i in range(nb_case_cote):
+        rangee: list[int] = []
+        for j in range(nb_case_cote):
+            indice: int = i * nb_case_cote + j
+            case: dict[str, int] = cases[indice]
+            if case in cases_verr:
+                valeur_case: int = int(
+                    canvas.itemcget(
+                        tagOrId=case, 
+                        option="text"
+                    )
+                )
+                rangee.append(valeur_case)
+                list_indice_case_verr.append(indice)
+            else:
+                rangee.append(0)
+        grille_depart.append(rangee)
+    date: datetime.datetime = datetime.datetime.now()
+    date_str: str = "%02d/%02d/%04d - %02dh %02dmin %02ds" % \
+        (date.day, date.month, date.year, date.hour, date.minute, date.second)
+    sauvegarder(
+        nom=f"Partie terminée n°{nb_partie_terminee + 1}", 
+        grille_actuelle=grille_depart, 
+        cases_verr_indices=list_indice_case_verr, 
+        temps=243, 
+        date=date_str, 
+        difficulte=difficulte, 
+        statut="terminee", 
+        type_grille=type_grille
+    )
 
 
 def reset_focus_cases(
         canvas: tk.Canvas, 
         cases: list[dict[str, int]], 
         couleur_nombres_normale: str, 
-        couleur_bordure_cases_normale: str
-    ) -> None:
+        couleur_bordure_cases_normale: str, 
+        tags_page_jeu: dict[str, str], 
+        difficulte: int, 
+        type_grille: str
+    ) -> bool:
 
     canvas.unbind_all(sequence="<KeyPress>")
     canvas.delete("clavier_num")
@@ -396,15 +471,27 @@ def reset_focus_cases(
             outline=couleur_bordure_cases_normale
         )
         canvas.tag_lower(case_vide)
-    list_coord: list[tuple[int, int]] = verification_cases_sudoku(
+    list_coord, victoire = verification_cases_sudoku(
         canvas=canvas, 
         cases=cases
-    )[0]
+    )
+    
+    if victoire:
+        partie_terminee(
+            canvas=canvas, 
+            cases=cases,
+            tags_page_jeu=tags_page_jeu, 
+            difficulte=difficulte, 
+            type_grille=type_grille
+        )
+        return True
+    
     afficher_conflits(
         canvas=canvas, 
         list_coord=list_coord, 
         cases=cases
     )
+    return False
 
 
 def verification_cases_sudoku(
@@ -566,7 +653,10 @@ def modifier_valeur_case_grille(
         cases: list[dict[str, int]], 
         couleur_nombres_normale: str, 
         couleur_nombres_indication: str, 
-        couleur_bordure_cases_normale: str
+        couleur_bordure_cases_normale: str, 
+        tags_page_jeu: dict[str, str], 
+        difficulte: int, 
+        type_grille: str
     ) -> None:
     
     texte: int = case["texte"]
@@ -593,7 +683,10 @@ def modifier_valeur_case_grille(
             canvas=canvas, 
             cases=cases, 
             couleur_nombres_normale=couleur_nombres_normale, 
-            couleur_bordure_cases_normale=couleur_bordure_cases_normale
+            couleur_bordure_cases_normale=couleur_bordure_cases_normale, 
+            tags_page_jeu=tags_page_jeu, 
+            difficulte=difficulte, 
+            type_grille=type_grille
         )
     elif len(nombre_actuel) > 0:
         if event.char == "0" and int(nombre_actuel + event.char) <= valeur_max:
@@ -1028,18 +1121,27 @@ def entree_focus_case(
         valeur_max: int, 
         cases: list[dict[str, int]], 
         couleur_nombres_normale: str, 
-        couleur_bordure_cases_normale: str
+        couleur_bordure_cases_normale: str, 
+        tags_page_jeu: dict[str, str], 
+        difficulte: int, 
+        type_grille: str
     ) -> None:
     
     case_vide: int = case["case_vide"]
     texte: int = case["texte"]
 
-    reset_focus_cases(
+    partie_terminee: bool = reset_focus_cases(
         canvas=canvas, 
         cases=cases, 
         couleur_nombres_normale=couleur_nombres_normale, 
-        couleur_bordure_cases_normale=couleur_bordure_cases_normale
+        couleur_bordure_cases_normale=couleur_bordure_cases_normale, 
+        tags_page_jeu=tags_page_jeu, 
+        difficulte=difficulte, 
+        type_grille=type_grille
     )
+
+    if partie_terminee:
+        return
 
     afficher_contraintes(
         canvas=canvas, 
@@ -1081,7 +1183,10 @@ def entree_focus_case(
             cases=cases, 
             couleur_nombres_normale=couleur_nombres_normale, 
             couleur_nombres_indication=COULEUR_INDICATION, 
-            couleur_bordure_cases_normale=couleur_bordure_cases_normale
+            couleur_bordure_cases_normale=couleur_bordure_cases_normale, 
+            tags_page_jeu=tags_page_jeu, 
+            difficulte=difficulte, 
+            type_grille=type_grille
         )
     )
     
@@ -1118,14 +1223,15 @@ def creer_case(
 
 def creer_grille_sudoku(
         canvas: tk.Canvas, 
-        tag: str, 
+        tags_page_jeu: dict[str, str], 
         coord: tuple[int, int], 
         nb_case_cote: int, 
         longueur_cote_case: int, 
         nb_carre_cote: int, 
         couleur_cases: str, 
         couleur_bordure_cases: str, 
-        couleur_textes: str
+        couleur_textes: str, 
+        difficulte: int
     ) -> dict[str, list[dict[str, int]] | list[int]]:
     
     cases: list[dict[str, int]] = []
@@ -1136,7 +1242,7 @@ def creer_grille_sudoku(
             cases.append(
                 creer_case(
                     canvas=canvas, 
-                    tag=tag, 
+                    tag=tags_page_jeu["principal"], 
                     coord=(x_case, y_case), 
                     longueur_cote=longueur_cote_case, 
                     couleur_case=couleur_cases, 
@@ -1158,7 +1264,7 @@ def creer_grille_sudoku(
                          (x_carre_1 + longueur_cote_carre, y_carre_2 + longueur_cote_carre)),
                         fill="", 
                         width=3, 
-                        tags=tag, 
+                        tags=tags_page_jeu["principal"], 
                         outline=couleur_bordure_cases
                     )
                 )
@@ -1177,7 +1283,10 @@ def creer_grille_sudoku(
                 valeur_max=nb_case_cote, 
                 cases=cases, 
                 couleur_nombres_normale=couleur_textes, 
-                couleur_bordure_cases_normale=couleur_bordure_cases
+                couleur_bordure_cases_normale=couleur_bordure_cases, 
+                tags_page_jeu=tags_page_jeu, 
+                difficulte=difficulte, 
+                type_grille="sudoku"
             )
         )
         canvas.tag_bind(
@@ -1189,7 +1298,10 @@ def creer_grille_sudoku(
                 valeur_max=nb_case_cote, 
                 cases=cases, 
                 couleur_nombres_normale=couleur_textes, 
-                couleur_bordure_cases_normale=couleur_bordure_cases
+                couleur_bordure_cases_normale=couleur_bordure_cases, 
+                tags_page_jeu=tags_page_jeu, 
+                difficulte=difficulte, 
+                type_grille="sudoku"
             )
         )
         
@@ -1228,7 +1340,7 @@ def remplir_grille_sudoku_GUI(
 def interagir_barre_sauv(
         event, 
         canvas: tk.Canvas, 
-        tag_barre_sauv: str, 
+        tag: str, 
         nom_sauv: str, 
         cases: list[dict[str, int]], 
         cases_verr: list[dict[str, int]],
@@ -1270,7 +1382,7 @@ def interagir_barre_sauv(
                 statut="en_cours", 
                 difficulte=difficulte
             )
-        canvas.delete(tag_barre_sauv)
+        canvas.delete(tag)
         activer_widget(
             canvas=canvas, 
             tags_ou_ids=page
@@ -1290,10 +1402,11 @@ def barre_entree_sauv(
         cases: list[dict[str, int]], 
         temps: int, 
         difficulte: int, 
-        tag: str, 
+        tag_barre_sauv: str, 
         type_grille: str, 
         couleur_nombres_normale: str, 
-        couleur_bordure_cases_normale: str
+        couleur_bordure_cases_normale: str, 
+        tags_page_jeu: dict[str, str]
     ) -> dict[str, int | tk.Entry]:
     
     desactiver_widget(
@@ -1304,7 +1417,10 @@ def barre_entree_sauv(
         canvas=canvas, 
         cases=cases, 
         couleur_nombres_normale=couleur_nombres_normale, 
-        couleur_bordure_cases_normale=couleur_bordure_cases_normale
+        couleur_bordure_cases_normale=couleur_bordure_cases_normale, 
+        tags_page_jeu=tags_page_jeu, 
+        difficulte=difficulte, 
+        type_grille=type_grille
     )
 
     x_cadre: int = (LARGEUR_PIXEL_FENETRE - largeur) // 2
@@ -1322,7 +1438,7 @@ def barre_entree_sauv(
         hauteur=hauteur, 
         couleur="#3C3936", 
         rayon_coins=epaisseur_cadre, 
-        tag=tag
+        tag=tag_barre_sauv
     )
     
     entree: tk.Entry = tk.Entry(
@@ -1336,7 +1452,7 @@ def barre_entree_sauv(
         width=largeur_fenetre, 
         height=hauteur_fenetre, 
         window=entree, 
-        tags=tag, 
+        tags=tag_barre_sauv, 
         anchor=tk.NW
     )
     
@@ -1350,7 +1466,7 @@ def barre_entree_sauv(
         func=lambda event: interagir_barre_sauv(
             event, 
             canvas=canvas, 
-            tag_barre_sauv=tag, 
+            tag=tag_barre_sauv, 
             nom_sauv=entree.get(), 
             cases=cases, 
             cases_verr=cases_verr, 
@@ -1499,7 +1615,7 @@ def creer_fiche_sauv(
     
     taille_police_statut: int = hauteur_fond // 10
 
-    if statut == "termine":
+    if statut == "terminee":
 
         textes["statut"] = \
             canvas.create_text(
@@ -1509,7 +1625,7 @@ def creer_fiche_sauv(
                 anchor=tk.NW, 
                 fill=couleur_texte, 
                 font=(style_police_texte, taille_police_statut), 
-                text=f"Partie terminée - meilleur temps : {temps // 60}min {temps % 60}s"
+                text=f"Partie terminée - temps : {temps // 60}min {temps % 60}s"
             )
     
     elif statut == "en_cours":

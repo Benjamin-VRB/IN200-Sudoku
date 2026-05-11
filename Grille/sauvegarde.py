@@ -17,6 +17,15 @@ def charger_sauvegardes() -> list:
     return sauv
 
 
+def compter_parties_terminees() -> int:
+    sauvegardes: list = charger_sauvegardes()
+    nb_partie_terminee: int = 0
+    for sauv in sauvegardes:
+        if sauv["statut"] == "terminee":
+            nb_partie_terminee += 1
+    return nb_partie_terminee
+
+
 def modifier_sauvegardes(fonction):
     def fonction_modifiee(**arguments):
         sauv: list = charger_sauvegardes()
@@ -34,6 +43,7 @@ def modifier_sauvegardes(fonction):
             indent=2, 
             sort_keys=True
         )
+        fich.close()
     return fonction_modifiee
 
 

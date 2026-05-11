@@ -1,7 +1,6 @@
 import tkinter as tk
 
-from GUI.widgets import creer_grille_sudoku, remplir_grille_sudoku_GUI, \
-remplir_grille_sudoku_GUI
+from GUI.widgets import creer_grille_sudoku, remplir_grille_sudoku_GUI
 
 from Grille.sudoku import supprimer_valeur
 
@@ -12,7 +11,7 @@ def creer_sudoku_GUI(
         nb_case_cote: int, 
         longueur_cote_case: int, 
         nb_carre_cote: int, 
-        tag: str, 
+        tags_page_jeu: dict[str, str], 
         couleur_cases: str, 
         couleur_bordure_cases: str, 
         couleur_textes: str, 
@@ -27,14 +26,15 @@ def creer_sudoku_GUI(
     grille: dict[str, list[dict[str, int]] | list[int]] = \
         creer_grille_sudoku(
             canvas=canvas, 
-            tag=tag, 
+            tags_page_jeu=tags_page_jeu, 
             coord=coord, 
             nb_case_cote=nb_case_cote, 
             longueur_cote_case=longueur_cote_case, 
             nb_carre_cote=nb_carre_cote, 
             couleur_cases=couleur_cases, 
             couleur_bordure_cases=couleur_bordure_cases, 
-            couleur_textes=couleur_textes
+            couleur_textes=couleur_textes, 
+            difficulte=difficulte
         )
     
     cases: list[dict[str, int]] = grille["cases"]

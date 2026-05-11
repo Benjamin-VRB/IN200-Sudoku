@@ -20,6 +20,17 @@ def aller_grille(
     COULEUR_BORDURE_CASES: str = "#000000"
     COULEUR_TEXTE_CASES: str = "#000000"
 
+    TAG: str = "sudoku"
+    TAG_AIDE: str = "bouton_sudoku_aide"
+    TAG_SAUV: str = "bouton_sudoku_sauv"
+    TAG_RETOUR: str = "bouton_sudoku_retour"
+    TAGS_PAGE_JEU: dict[str, str] = {
+        "principal" : TAG, 
+        "aide" : TAG_AIDE, 
+        "sauvegarde" : TAG_SAUV, 
+        "retour" : TAG_RETOUR
+    }
+
     supprimer_elements(
         canvas=canvas, 
         tags_ou_ids=tags_ou_ids_page_suppr, 
@@ -28,7 +39,6 @@ def aller_grille(
 
     type_grille: str = type_grille.lower().strip()
     if type_grille == "sudoku":
-        TAG: str = "sudoku"
         NB_CASE_COTE: int = 9
         LONGUEUR_COTE_GRILLE: int = NB_CASE_COTE * 60
         NB_CARRE_COTE: int = 3
@@ -41,7 +51,7 @@ def aller_grille(
             nb_case_cote=NB_CASE_COTE, 
             longueur_cote_case=LONGUEUR_COTE_CASE, 
             nb_carre_cote=NB_CARRE_COTE, 
-            tag=TAG, 
+            tags_page_jeu=TAGS_PAGE_JEU, 
             couleur_cases=COULEUR_CASE, 
             couleur_bordure_cases=COULEUR_BORDURE_CASES, 
             couleur_textes=COULEUR_TEXTE_CASES, 
@@ -82,10 +92,6 @@ def aller_grille(
     RANGEE1: int = RANGEE2 + ECART_RANGEE
     RANGEE3: int = RANGEE2 - ECART_RANGEE
     COLONNE1: int = 75
-
-    TAG_AIDE: str = "bouton_sudoku_aide"
-    TAG_SAUV: str = "bouton_sudoku_sauv"
-    TAG_RETOUR: str = "bouton_sudoku_retour"
     
     bouton_aide: dict[str, list[int] | int] =  \
         creer_boutton_arrondi(
@@ -162,12 +168,13 @@ def aller_grille(
             epaisseur_cadre=EPAISSEUR_CADRE_BARRE_ENTREE_SAUV, 
             page=page, 
             cases=grille["cases"],  
-            tag=TAG_BARRE_ENTREE_SAUV, 
+            tag_barre_sauv=TAG_BARRE_ENTREE_SAUV, 
             type_grille=type_grille, 
             temps=126, 
             difficulte=difficulte, 
             couleur_nombres_normale=COULEUR_TEXTE_CASES, 
-            couleur_bordure_cases_normale=COULEUR_BORDURE_CASES
+            couleur_bordure_cases_normale=COULEUR_BORDURE_CASES, 
+            tags_page_jeu=TAGS_PAGE_JEU
         )
     )
 
